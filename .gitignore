@@ -53,3 +53,28 @@ dkms.conf
 
 # debug information files
 *.dwo
+
+# Project binary
+/miniRT
+
+# MLX42 build artifacts (keep sources tracked)
+/MLX42/build/
+/MLX42/**/CMakeCache.txt
+/MLX42/**/CMakeFiles/
+/MLX42/**/cmake_install.cmake
+/MLX42/**/Makefile
+/MLX42/**/.cmake/
+/MLX42/**/compile_commands.json
+
+# Generic CMake build dirs in this repo (optional)
+/build/
+/cmake-build-*/
+
+# Editor/IDE (optional)
+/.vscode/
+/.cache/
+/.clangd/
+
+# Render outputs (optional; comment these if you want to commit results)
+*.ppm
+*.png
