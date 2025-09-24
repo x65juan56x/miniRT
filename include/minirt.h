@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
-#include "../libraries/MLX42/include/MLX42.h"
+#include "../libraries/MLX42/include/MLX42/MLX42.h"
 #include "color.h"
 #include "vec3.h"
 #include "ray.h"

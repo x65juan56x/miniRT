@@ -2,7 +2,8 @@
 
 inline uint32_t	rgba_u32(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
-	return (((uint32_t)a << 24) | ((uint32_t)b << 16) | ((uint32_t)g << 8) | (uint32_t)r);
+	return (((uint32_t)r << 24) | ((uint32_t)g << 16)
+		| ((uint32_t)b << 8) | (uint32_t)a);
 }
 
 inline uint8_t	clamp_u8i(int v)
