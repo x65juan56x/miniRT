@@ -1,0 +1,12 @@
+/home/juan/Documents/42/CommonCore/Rank04/miniRT/raytracing.github.io-4.0.2/build/CMakeFiles/inOneWeekend.dir
+/home/juan/Documents/42/CommonCore/Rank04/miniRT/raytracing.github.io-4.0.2/build/CMakeFiles/theNextWeek.dir
+/home/juan/Documents/42/CommonCore/Rank04/miniRT/raytracing.github.io-4.0.2/build/CMakeFiles/theRestOfYourLife.dir
+/home/juan/Documents/42/CommonCore/Rank04/miniRT/raytracing.github.io-4.0.2/build/CMakeFiles/cos_cubed.dir
+/home/juan/Documents/42/CommonCore/Rank04/miniRT/raytracing.github.io-4.0.2/build/CMakeFiles/cos_density.dir
+/home/juan/Documents/42/CommonCore/Rank04/miniRT/raytracing.github.io-4.0.2/build/CMakeFiles/integrate_x_sq.dir
+/home/juan/Documents/42/CommonCore/Rank04/miniRT/raytracing.github.io-4.0.2/build/CMakeFiles/pi.dir
+/home/juan/Documents/42/CommonCore/Rank04/miniRT/raytracing.github.io-4.0.2/build/CMakeFiles/estimate_halfway.dir
+/home/juan/Documents/42/CommonCore/Rank04/miniRT/raytracing.github.io-4.0.2/build/CMakeFiles/sphere_importance.dir
+/home/juan/Documents/42/CommonCore/Rank04/miniRT/raytracing.github.io-4.0.2/build/CMakeFiles/sphere_plot.dir
+/home/juan/Documents/42/CommonCore/Rank04/miniRT/raytracing.github.io-4.0.2/build/CMakeFiles/edit_cache.dir
+/home/juan/Documents/42/CommonCore/Rank04/miniRT/raytracing.github.io-4.0.2/build/CMakeFiles/rebuild_cache.dir
