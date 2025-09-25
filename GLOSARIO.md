@@ -104,4 +104,102 @@ Este glosario explica los términos que aparecen en el subject de miniRT y en el
 - Escenas negativas: archivos mal formados para comprobar manejo de errores.
 - Golden image: imagen de referencia para comparar resultados tras cambios.
 
+## 13) Coordenadas UV
+
+¿Qué son las coordenadas UV?
+
+Las **coordenadas UV** son un sistema de coordenadas 2D normalizado que mapea cualquier superficie 3D a un espacio de textura 2D. El nombre viene de las letras U y V (para diferenciarse de X, Y, Z del espacio 3D).
+
+Características fundamentales:
+- **Rango:** Típicamente [0,1] en ambas direcciones U y V
+- **U:** Coordenada horizontal (equivalente a X en 2D)
+- **V:** Coordenada vertical (equivalente a Y en 2D)
+- **Independientes del tamaño:** Normalizadas, funcionan con cualquier resolución
+
+¿Para qué sirven?
+1. **Mapeo de texturas:** Aplicar imágenes 2D sobre superficies 3D
+2. **Mapeo de píxeles:** Convertir coordenadas de pantalla a espacio normalizado
+3. **Sampling:** Tomar muestras uniformes de una superficie
+4. **Interpolación:** Calcular valores intermedios entre vértices
+5. **Procedural textures:** Generar patrones basados en posición
+
+¿Qué representan en nuestro código?
+
+En `generate_background()`:
+``` c
+float u = (float)x / (float)(width - 1);  // [0,1] horizontal
+float v = (float)(height - 1 - y) / (float)(height - 1);  // [0,1] vertical
+```
+
+**u** representa:
+
+- 0.0 = borde izquierdo de la pantalla
+- 0.5 = centro horizontal
+- 1.0 = borde derecho de la pantalla
+
+**v** representa:
+
+- 0.0 = parte inferior de la pantalla (Y invertida)
+- 0.5 = centro vertical
+- 1.0 = parte superior de la pantalla
+
+¿Cómo se usan en ray tracing?
+1. Mapeo píxel → viewport:
+```c
+// lower_left + u*horizontal + v*vertical
+t_vec3 dir = v3_add(lower_left, v3_add(v3_mul(horizontal, u), v3_mul(vertical, v)));
+```
+2. Interpolación bilinear:
+- u=0,v=0 → esquina inferior izquierda del viewport
+- u=1,v=0 → esquina inferior derecha
+- u=0,v=1 → esquina superior izquierda
+- u=1,v=1 → esquina superior derecha
+
+¿Cuándo son necesarias?
+
+**En Ray Tracing:**
+- Generación de rayos primarios: Cada píxel → coordenadas UV → dirección de rayo
+- Anti-aliasing: Múltiples muestras UV por píxel para suavizar
+- Texturas: Mapear texturas 2D sobre objetos 3D
+- Materiales procedurales: Checkerboard, gradientes, ruido
+
+**En Computer Graphics general:**
+- UV unwrapping: Desplegar modelos 3D en coordenadas 2D
+- Texture atlases: Combinar múltiples texturas en una imagen
+- Lightmapping: Precalcular iluminación en coordenadas UV
+- Normal mapping: Alterar normales según textura
+
+Inversión de coordenada V  
+Nota el `(height - 1 - y)` en nuestro código:
+```c
+float v = (float)(height - 1 - y) / (float)(height - 1);
+```
+**¿Por qué?**
+- Sistema de ventana: Y=0 arriba, Y=height-1 abajo
+- Sistema matemático: V=0 abajo, V=1 arriba
+- Inversión necesaria: Para que V=0 corresponda al fondo del gradiente
+
+Ejemplos prácticos de uso:
+1. **Textura de tablero de ajedrez:**
+```c
+int checker_u = (int)(u * 8) % 2;
+int checker_v = (int)(v * 8) % 2;  
+bool is_white = (checker_u + checker_v) % 2 == 0;
+```
+2. **Gradiente circular:**
+```c
+float center_u = u - 0.5f;
+float center_v = v - 0.5f;
+float distance = sqrtf(center_u*center_u + center_v*center_v);
+```
+3. **Mapeo esférico (para skybox):**
+```c
+float theta = atan2f(dir.z, dir.x);  // [-π, π]
+float phi = asinf(dir.y);            // [-π/2, π/2]
+float u = (theta + PI) / (2*PI);     // [0, 1]
+float v = (phi + PI/2) / PI;         // [0, 1]
+```
+
+Las coordenadas UV son fundamentales en ray tracing porque proporcionan una forma uniforme y escalable de mapear entre espacios 2D y 3D, permitiendo efectos visuales complejos de manera matemáticamente elegante.
+
 ---
