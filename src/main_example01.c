@@ -300,7 +300,7 @@ u=0.5, v=0.5: (-2,-1,-1) + 0.5*(4,0,0) + 0.5*(0,2,0) = (0,0,-1) → centro
 4. Simplicidad: valores enteros fáciles de entender y debuggear
 5 Compatibilidad: sigue exactamente el tutorial estándar de ray tracing
 
-Esta configuración crea una cámara de prueba básica perfecta para verificar
+Esta configuración crea una cámara de prueba básica para verificar
 que el sistema de rays funciona correctamente antes de implementar cámaras más
 sofisticadas con FOV configurable y aspect ratios arbitrarios.
 */
