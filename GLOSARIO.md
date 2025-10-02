@@ -19,6 +19,7 @@ Este glosario explica los términos que aparecen en el subject de miniRT y en el
 - Cámara: define desde dónde miramos y hacia dónde. Tiene posición, orientación y FOV.
 - FOV (Field of View): ángulo de apertura de la cámara; controla cuánto "vemos".
 - Viewport: rectángulo virtual (plano de imagen) donde se proyecta la escena.
+- Focal length: Distancia desde el origen de los rayos al viewport.
 - Pixel sampling: convertir cada píxel en uno o varios rayos que salen de la cámara.
 - Anti-aliasing: técnica para suavizar bordes dentados promediando varias muestras por píxel.
 
@@ -59,6 +60,7 @@ Este glosario explica los términos que aparecen en el subject de miniRT y en el
 - Rotación: girar un objeto alrededor de un eje; para la cámara y cilindros/planos es relevante.
 - Sistema de coordenadas local: eje propio de un objeto/cámara, útil para cálculos.
 - Base ortonormal: tres vectores perpendiculares y normalizados (u, v, w) que forman un sistema de referencia.
+- Ortogonal (orthogonal): En matemáticas y gráficos, significa “perpendicular”. Dos vectores son ortogonales si su producto escalar (dot product) es cero, es decir, forman un ángulo de 90° entre sí.
 
 ## 7) Parsing del archivo `.rt`
 
