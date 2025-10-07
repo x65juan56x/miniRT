@@ -1,10 +1,12 @@
 #ifndef VEC3_H
-#define VEC3_H
+# define VEC3_H
 
 typedef struct s_vec3
 {
-	float x, y, z;
-} t_vec3;
+	float	x;
+	float	y;
+	float	z;
+}	t_vec3;
 
 // Constructors
 t_vec3	v3(float x, float y, float z);

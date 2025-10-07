@@ -1,0 +1,8 @@
+# Invalid scene: duplicate A, bad normal and bad ranges
+A 1.2 255,255,255    # ratio > 1
+A 0.3 255,255,255    # duplicate A
+C 0,0,0 0,0,0 70     # direction not normalized (zero)
+L 0,0,0 1.1 10,10,10 # brightness > 1
+pl 0,0,0 0,2,0 255,255,255  # normal not normalized
+sp 0,0,20 -5 0,0,0          # diameter <= 0
+cy 0,0,0 0,0,2 10 -1 255,255,255 # axis not normalized, height <= 0

@@ -1,0 +1,4 @@
+# Bad color component out of range
+A 0.2 256,255,255
+C 0,0,0 0,0,1 70
+L 0,0,0 0.5 255,255,255

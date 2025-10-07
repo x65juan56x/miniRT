@@ -1,0 +1,344 @@
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../../include/parser.h"
+#include "../../libraries/libft/libft.h"
+
+// Forward decls from utils
+char	**read_file_lines(const char *path, size_t *out_count);
+void	free_lines(char **lines, size_t count);
+char	**split_ws(const char *s);
+void	free_tokens(char **toks);
+bool	parse_int_in_range(const char *s, int minv, int maxv, int *out);
+bool	parse_vec3(const char *s, t_vec3 *out);
+bool	parse_color_255(const char *s, t_vec3 *out);
+bool	vec3_is_normalized(t_vec3 v);
+bool	vec3_components_in_range(t_vec3 v, float minv, float maxv);
+bool	parse_float(const char *s, float *out);
+
+static t_parse_result	parse_fail(int line, const char *msg)
+{
+	t_parse_result	result;
+	size_t			n;
+
+	result.ok = false;
+	result.message = NULL;
+	result.line = line;
+	n = ft_strlen(msg) + 1;
+	result.message = malloc(n);
+	if (result.message)
+		ft_memcpy(result.message, msg, n);
+	return (result);
+}
+/*
+* Purpose: Build a failure parse result with message and line number.
+* Logic: Allocate/copy the message into r.message and store the line.
+* Use: Standardize error reporting across the parser.
+*/
+
+void	parse_result_free(t_parse_result *r)
+{
+	if (r && r->message)
+	{
+		free(r->message);
+		r->message = NULL;
+	}
+}
+/*
+* Purpose: Free the message in a t_parse_result if present.
+* Logic: Guard against NULL and set message to NULL after free.
+*/
+
+// A <ratio> <R,G,B>
+static t_parse_result	parse_a(char **t, int line, t_scene *S)
+{
+	t_parse_result	result;
+
+	if (t[1] == NULL || t[2] == NULL || t[3] != NULL)
+		return (parse_fail(line, "A: invalid format"));
+	if (S->ambient.present)
+		return (parse_fail(line, "Duplicated A"));
+	S->ambient.present = true;
+	if (!parse_float(t[1], &S->ambient.ratio))
+		return (parse_fail(line, "A: invalid ratio"));
+	if (S->ambient.ratio < 0.0f || S->ambient.ratio > 1.0f)
+		return (parse_fail(line, "A: ratio out of range [0,1]"));
+	if (!parse_color_255(t[2], &S->ambient.color))
+		return (parse_fail(line, "A: invalid color (R,G,B 0..255)"));
+	result.ok = true;
+	result.message = NULL;
+	result.line = 0;
+	return (result);
+}
+/*
+* Purpose: Parse ambient light (A <ratio> <R,G,B>).
+* Logic:
+* - Validate token count and ensure no duplicate (already).
+* - Parse ratio as float in [0,1].
+* - Parse color as 0..255 ints normalized to [0,1].
+* Effect: Populate S->ambient and set present = true.
+* Errors: Return parse_fail on invalid format/range.
+*/
+
+// C <pos> <dir_norm> <FOV>
+static t_parse_result	parse_c(char **t, int line, t_scene *S)
+{
+	t_parse_result	result;
+
+	if (!t[1] || !t[2] || !t[3] || t[4])
+		return (parse_fail(line, "C: invalid format"));
+	if (S->camera.present)
+		return (parse_fail(line, "Duplicated C"));
+	S->camera.present = true;
+	if (!parse_vec3(t[1], &S->camera.pos))
+		return (parse_fail(line, "C: invalid position"));
+	if (!parse_vec3(t[2], &S->camera.dir))
+		return (parse_fail(line, "C: invalid direction"));
+	if (!vec3_components_in_range(S->camera.dir, -1.0f, 1.0f))
+		return (parse_fail(line, "C: direction out of range [-1,1]"));
+	if (!vec3_is_normalized(S->camera.dir))
+		return (parse_fail(line, "C: not normalized direction"));
+	if (!parse_float(t[3], &S->camera.fov_deg))
+		return (parse_fail(line, "C: invalid FOV"));
+	if (S->camera.fov_deg <= 0.0f || S->camera.fov_deg >= 180.0f)
+		return (parse_fail(line, "C: FOV out of range (0,180)"));
+	result.ok = true;
+	result.message = NULL;
+	result.line = 0;
+	return (result);
+}
+/*
+* Purpose: Parse camera (C <pos> <dir_norm> <FOV>).
+* Logic:
+* - pos and dir as x,y,z; dir within [-1,1] and normalized.
+* - FOV as float in (0,180).
+* Effect: Populate S->camera and set present = true.
+*/
+
+// L <pos> <bright> <R,G,B?>
+static t_parse_result	parse_l(char **t, int line, t_scene *S)
+{
+	t_parse_result	result;
+
+	if (!t[1] || !t[2] || t[4])
+		return (parse_fail(line, "L: invalid format"));
+	if (S->light.present)
+		return (parse_fail(line, "Duplicated L"));
+	S->light.present = true;
+	S->light.color = v3(1, 1, 1);
+	if (!parse_vec3(t[1], &S->light.pos))
+		return (parse_fail(line, "L: invalid position"));
+	if (!parse_float(t[2], &S->light.bright))
+		return (parse_fail(line, "L: invalid bright"));
+	if (S->light.bright < 0.0f || S->light.bright > 1.0f)
+		return (parse_fail(line, "L: bright out of range [0,1]"));
+	if (t[3] && !parse_color_255(t[3], &S->light.color))
+		return (parse_fail(line, "L: invalid color"));
+	result.ok = true;
+	result.message = NULL;
+	result.line = 0;
+	return (result);
+}
+/*
+* Purpose: Parse point light (L <pos> <bright> [<R,G,B>]).
+* Logic: bright in [0,1]; optional color (default white).
+* Effect: Populate S->light and set present = true.
+*/
+
+// sp <center> <diameter> <R,G,B>
+static t_parse_result	parse_sp(char **t, int line, t_scene *S)
+{
+	t_object		*o;
+	t_parse_result	result;
+
+	if (!t[1] || !t[2] || !t[3] || t[4])
+		return (parse_fail(line, "sp: invalid format"));
+	o = malloc(sizeof(*o));
+	if (!o)
+		return (parse_fail(line, "sp: not enough memory"));
+	o->type = OBJ_SPHERE;
+	if (!parse_vec3(t[1], &o->u_obj.sp.center))
+		return (free(o), parse_fail(line, "sp: invalid centre"));
+	if (!parse_float(t[2], &o->u_obj.sp.diameter) || o->u_obj.sp.diameter <= 0.0f)
+		return (free(o), parse_fail(line, "sp: invalid diameter"));
+	if (!parse_color_255(t[3], &o->u_obj.sp.color))
+		return (free(o), parse_fail(line, "sp: invalid color"));
+	o->next = NULL;
+	scene_add_object(S, o);
+	result.ok = true;
+	result.message = NULL;
+	result.line = 0;
+	return (result);
+}
+/*
+* Purpose: Parse sphere (sp <center> <diameter> <R,G,B>).
+* Logic: center vec3, diameter > 0, color 0..255 normalized.
+* Effect: Allocate t_object, fill, and add to scene's linked list.
+*/
+
+// pl <point> <normal_norm> <R,G,B>
+static t_parse_result	parse_pl(char **t, int line, t_scene *S)
+{
+	t_object		*o;
+	t_parse_result	result;
+
+	if (!t[1] || !t[2] || !t[3] || t[4])
+		return (parse_fail(line, "pl: invalid format"));
+	o = malloc(sizeof(*o));
+	if (!o)
+		return (parse_fail(line, "pl: not enough memory"));
+	o->type = OBJ_PLANE;
+	if (!parse_vec3(t[1], &o->u_obj.pl.point))
+		return (free(o), parse_fail(line, "pl: invalid point"));
+	if (!parse_vec3(t[2], &o->u_obj.pl.normal))
+		return (free(o), parse_fail(line, "pl: invalid normal"));
+	if (!vec3_components_in_range(o->u_obj.pl.normal, -1.0f, 1.0f))
+		return (free(o), parse_fail(line, "pl: normal out of range [-1,1]"));
+	if (!vec3_is_normalized(o->u_obj.pl.normal))
+		return (free(o), parse_fail(line, "pl: not normalized normal"));
+	if (!parse_color_255(t[3], &o->u_obj.pl.color))
+		return (free(o), parse_fail(line, "pl: invalid color"));
+	o->next = NULL;
+	scene_add_object(S, o);
+	result.ok = true;
+	result.message = NULL;
+	result.line = 0;
+	return (result);
+}
+/*
+* Purpose: Parse plane (pl <point> <normal_norm> <R,G,B>).
+* Logic: normal within [-1,1] and normalized; color 0..255 normalized.
+* Effect: Insert a plane object into the scene.
+*/
+
+static t_parse_result	parse_cy(char **t, int line, t_scene *S)
+{
+	t_object		*o;
+	t_parse_result	result;
+
+	if (!t[1] || !t[2] || !t[3] || !t[4] || !t[5] || t[6])
+		return (parse_fail(line, "cy: invalid format"));
+	o = malloc(sizeof(*o));
+	if (!o)
+		return (parse_fail(line, "cy: not enough memory"));
+	o->type = OBJ_CYLINDER;
+	if (!parse_vec3(t[1], &o->u_obj.cy.center))
+		return (free(o), parse_fail(line, "cy: invalid centre"));
+	if (!parse_vec3(t[2], &o->u_obj.cy.axis))
+		return (free(o), parse_fail(line, "cy: invalid axis"));
+	if (!vec3_components_in_range(o->u_obj.cy.axis, -1.0f, 1.0f))
+		return (free(o), parse_fail(line, "cy: axis out of range [-1,1]"));
+	if (!vec3_is_normalized(o->u_obj.cy.axis))
+		return (free(o), parse_fail(line, "cy: not normalized axis"));
+	if (!parse_float(t[3], &o->u_obj.cy.diameter) || o->u_obj.cy.diameter <= 0.0f)
+		return (free(o), parse_fail(line, "cy: invalid diameter"));
+	if (!parse_float(t[4], &o->u_obj.cy.height) || o->u_obj.cy.height <= 0.0f)
+		return (free(o), parse_fail(line, "cy: invalis height"));
+	if (!parse_color_255(t[5], &o->u_obj.cy.color))
+		return (free(o), parse_fail(line, "cy: invalid color"));
+	o->next = NULL;
+	scene_add_object(S, o);
+	result.ok = true;
+	result.message = NULL;
+	result.line = 0;
+	return (result);
+}
+/*
+* Purpose: Parse cylinder (cy <center> <axis_norm> <diameter> <height> <R,G,B>).
+* Logic: axis within [-1,1] and normalized; diameter/height > 0; valid color.
+* Effect: Insert a cylinder into the scene.
+*/
+
+t_parse_result	parse_scene(const char *path, t_scene *out)
+{
+	size_t			plen;
+	size_t			n;
+	char			**lines;
+	t_parse_result	res;
+	char			*line;
+	size_t			i;
+	size_t			a;
+	char			*hash;
+	char			**toks;
+	t_parse_result	r;
+	// Validar extensión .rt
+	plen = ft_strlen(path);
+	if (plen < 3 || ft_strncmp(path + plen - 3, ".rt", 3) != 0)
+		return (parse_fail(0, "The file does not have .rt extension"));
+	scene_init(out);
+	n = 0;
+	lines = read_file_lines(path, &n);
+	if (!lines)
+		return (parse_fail(0, "Unable to open/read file"));
+	res.ok = true;
+	i = 0;
+	while (i < n)
+	{
+		line = lines[i];
+		// Trim inicial y comentarios inline (todo lo que sigue a '#')
+		a = 0;
+		while (line[a] && (line[a] == ' ' || line[a] == '\t'))
+			a++;
+		hash = ft_strchr(line + a, '#');
+		if (hash)
+			*hash = '\0';
+		// Saltar si vacío tras recorte/comment
+		if (line[a] == '\0')
+		{
+			i++;
+			continue ;
+		}
+			// Split por espacios
+		toks = split_ws(line + a);
+		if (!toks || !toks[0])
+		{
+			free_tokens(toks);
+			i++;
+			continue ;
+		}
+		r.ok = true;
+		if (ft_strncmp(toks[0], "A", 2) == 0)
+			r = parse_a(toks, (int)(i + 1), out);
+		else if (ft_strncmp(toks[0], "C", 2) == 0)
+			r = parse_c(toks, (int)(i + 1), out);
+		else if (ft_strncmp(toks[0], "L", 2) == 0)
+			r = parse_l(toks, (int)(i + 1), out);
+		else if (ft_strncmp(toks[0], "sp", 3) == 0)
+			r = parse_sp(toks, (int)(i + 1), out);
+		else if (ft_strncmp(toks[0], "pl", 3) == 0)
+			r = parse_pl(toks, (int)(i + 1), out);
+		else if (ft_strncmp(toks[0], "cy", 3) == 0)
+			r = parse_cy(toks, (int)(i + 1), out);
+		else
+			r = parse_fail((int)(i + 1), "Unknown identifier");
+		free_tokens(toks);
+		if (!r.ok)
+		{
+			res = r;
+			break ;
+		}
+		i++;
+	}
+	if (res.ok)
+	{
+		if (!out->ambient.present)
+			res = parse_fail(0, "Missing Ambient (A)");
+		else if (!out->camera.present)
+			res = parse_fail(0, "Missing Camera (C)");
+		else if (!out->light.present)
+			res = parse_fail(0, "Missing Light (L)");
+	}
+	if (!res.ok) // On error free objects
+		scene_free(out);
+	free_lines(lines, n);
+	return (res);
+}
+/*
+* Purpose: Parse an entire .rt file and populate a t_scene.
+* High-level logic:
+* - Validate .rt extension.
+* - Read all lines, trim leading spaces, and strip inline '#' comments.
+* - Tokenize by whitespace and dispatch on identifier (A, C, L, sp, pl, cy).
+* - Validate duplicates (A/C/L) and field formats/ranges.
+* - At the end, ensure A, C, and L are present; on error, scene_free(out).
+* Errors: Return t_parse_result with ok=false, message, and line when applicable.
+*/

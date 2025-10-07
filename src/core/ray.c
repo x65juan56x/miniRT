@@ -1,9 +1,12 @@
 #include "../../include/ray.h"
 
-t_ray ray(t_vec3 o, t_vec3 d)
+t_ray	ray(t_vec3 o, t_vec3 d)
 {
-	t_ray r = { o, d };
-	return r;
+	t_ray	r;
+
+	r.orig = o;
+	r.dir = d;
+	return (r);
 }
 /*
 * Ray constructor: defines a ray by its origin `o` and its direction `d`.
@@ -12,7 +15,7 @@ t_ray ray(t_vec3 o, t_vec3 d)
 * towards which the ray travels.
 */
 
-t_vec3 ray_at(t_ray r, float t)
+t_vec3	ray_at(t_ray r, float t)
 {
 	return (v3_add(r.orig, v3_mul(r.dir, t)));
 }
