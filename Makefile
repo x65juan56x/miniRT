@@ -7,9 +7,36 @@ LDFLAGS = -ldl -lglfw -pthread -lm -lGL
 SRC_DIR = src
 OBJ_DIR = obj
 
-# All C sources under src, excluding the parser test main from the primary binary
-SRCS_ALL = $(shell find $(SRC_DIR) -name '*.c')
-SRCS = $(filter-out $(SRC_DIR)/parser_main.c,$(SRCS_ALL))
+# Parsing related sources
+PARSE_SRCS = \
+	$(SRC_DIR)/parse/free_lines.c \
+	$(SRC_DIR)/parse/parse_dispatch.c \
+	$(SRC_DIR)/parse/parse_elements.c \
+	$(SRC_DIR)/parse/parse_numbers.c \
+	$(SRC_DIR)/parse/parse_objects.c \
+	$(SRC_DIR)/parse/parse_result.c \
+	$(SRC_DIR)/parse/parser.c \
+	$(SRC_DIR)/parse/parser_utils.c \
+	$(SRC_DIR)/parse/parse_vectors.c \
+	$(SRC_DIR)/parse/token_split.c
+
+# Core & math utilities (no main)
+CORE_SRCS = \
+	$(SRC_DIR)/color/color.c \
+	$(SRC_DIR)/core/ray.c \
+	$(SRC_DIR)/core/scene.c \
+	$(SRC_DIR)/math/vec3.c
+
+# Select the active main (only one file containing main())
+MAIN_SRC = $(SRC_DIR)/main_example01.c
+# PRUEBAS JUAN #
+# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main_redsphere.c # Esfera roja
+# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main_normalsphere.c # 
+# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main_red_t_sphere.c
+
+# Final sources for the primary miniRT binary
+SRCS = $(PARSE_SRCS) $(CORE_SRCS) $(MAIN_SRC)
+
 OBJS = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 DEPS = $(OBJS:.o=.d)
 
@@ -70,11 +97,9 @@ bonus: all
 # -----------------
 # Parser test target
 # -----------------
-# Build a lightweight parser CLI without MLX42
-PARSER_SRCS = $(wildcard $(SRC_DIR)/parse/*.c) \
-		   $(SRC_DIR)/parser_main.c \
-		   $(SRC_DIR)/math/vec3.c \
-		   $(SRC_DIR)/core/scene.c
+# Build a lightweight parser CLI without MLX42 (uses parser_main)
+PARSER_MAIN = $(SRC_DIR)/parser_main.c
+PARSER_SRCS = $(PARSE_SRCS) $(PARSER_MAIN) $(SRC_DIR)/math/vec3.c $(SRC_DIR)/core/scene.c
 PARSER_OBJS = $(PARSER_SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 
 parser: $(LIBFT_LIB) $(GNL_LIB) $(PARSER_OBJS)

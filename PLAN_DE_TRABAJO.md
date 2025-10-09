@@ -4,7 +4,7 @@ Este documento propone un plan gradual para desarrollar miniRT, incluyendo bonus
 
 ## Objetivos por fases
 
-### Fase 0 — Preparación (0.5 semana)
+### Fase 0 — Preparación
 - Acordar convenciones de código (nombres, normas, 80/Norminette, estilo de errores).
 - Configurar Makefile con objetivos: `all clean fclean re bonus` y flags de desarrollo: `-Wall -Wextra -Werror`, opcional `-g`, `-fsanitize=address` para debug.
 - Estructura inicial de carpetas:
@@ -19,7 +19,7 @@ Este documento propone un plan gradual para desarrollar miniRT, incluyendo bonus
   - `tests/` utilidades de test
 - Integración de libft (si se usa) y MiniLibX.
 
-### Fase 1 — Parser y validación (1-1.5 semanas)
+### Fase 1 — Parser y validación
 - Lectura robusta del archivo `.rt` línea a línea (soportar espacios múltiples y líneas en blanco).
 - Tokenización segura y validaciones:
   - Rangos: colores [0–255], ratio [0–1], FOV [0–180], vectores en [-1,1].
@@ -29,37 +29,37 @@ Este documento propone un plan gradual para desarrollar miniRT, incluyendo bonus
 - Mensajes de error claros: `Error\n<detalle>` y salida limpia (free de recursos).
 - Escenas mínimas de prueba y escenas con errores intencionales en `assets/scenes/`.
 
-### Fase 2 — Matemáticas y estructuras (0.5 semana)
+### Fase 2 — Matemáticas y estructuras
 - `vec3`: suma, resta, dot, cross, length, normalize (con tolerancias y guardas).
 - Tipos: `t_ray`, `t_camera`, `t_color`, `t_light`, `t_material`, `t_object` (union para sp/pl/cy), `t_scene`.
 - Utilidades: clamp, mix/lerp, casi-igual con epsilon.
 
-### Fase 3 — Cámara y rayos (0.5-1 semana)
+### Fase 3 — Cámara y rayos
 - Construir rayos primarios desde la cámara (FOV horizontal, aspect ratio, basis u/v/w ortonormal a partir de la orientación).
 - Viewport y mapeo pixel→rayo, con anti-aliasing simple (N muestras opcional).
 
-### Fase 4 — Intersecciones (1.5-2 semanas)
+### Fase 4 — Intersecciones
 - Esfera (cuadrática estable numéricamente, elegir t mínimo positivo > eps).
 - Plano (evitar división por ~0: paralelo; normal orientada correctamente).
 - Cilindro: lateral y tapas (caps), proyecciones y límites por altura; manejar rayos casi paralelos al eje; normal correcta.
 - Estructura `t_hit` con `t`, `p`, `n`, `albedo`, puntero al objeto, etc.
 
-### Fase 5 — Iluminación y sombras (1-1.5 semanas)
+### Fase 5 — Iluminación y sombras
 - Ambient + difusa (Lambert) con clamp a [0,1].
 - Sombras duras: shadow ray con bias para evitar acne (p + n*EPS).
 - Múltiples luces (aunque el mandatory permita 1) para preparar bonus.
 
-### Fase 6 — Integración MLX y UI (0.5 semana)
+### Fase 6 — Integración MLX y UI
 - Ventana, imagen, bucle de eventos.
 - Inputs: ESC cierra; red cross cierra; opcional: cambiar cámara/escena.
 - Render a buffer y volcado a imagen MLX.
 
-### Fase 7 — Calidad, test y fixes (1 semana)
+### Fase 7 — Calidad, test y fixes
 - Pruebas: escenas unitarias por objeto, por luz y por error.
 - Valgrind (mem/leaks), AddressSanitizer (opcional), comprobación de dobles frees.
 - Time profiling simple (gettimeofday) y micro-optimización de hot paths.
 
-### Fase 8 — Bonus (1-2 semanas)
+### Fase 8 — Bonus
 - Reflexiones especulares (Phong): componente specular + shininess; opcional reflexión recursiva con depth limitado.
 - Checkerboard procedural: en planos y/o esferas (patrón en espacio del objeto).
 - Luces coloreadas y múltiples luces.
@@ -144,15 +144,6 @@ Ambos: refactors, optimizaciones y revisión mutua. Pactar interfaces en `includ
 - Checkerboard aplicado y ajustable.
 - Múltiples luces con color.
 - Cono funcional con límites y normal correcta.
-
-## Roadmap semanal (estimado)
-- Semana 0.5: Setup y estructura
-- Semana 1–2: Parser + validaciones + escenas
-- Semana 2–3: Math + estructuras + cámara
-- Semana 3–5: Intersecciones sp/pl/cy
-- Semana 5–6: Iluminación + sombras + MLX
-- Semana 6–7: QA, leaks, segfaults, optimización
-- Semana 7–8: Bonus y pulido final
 
 ## Notas finales
 - Documentar en `README.md` cómo correr escenas y atajos.

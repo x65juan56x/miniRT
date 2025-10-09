@@ -26,6 +26,7 @@ Lógica:
 - Si el valor es mayor que max, devuelve max.
 - Si está en el rango, devuelve el valor original.
 */
+
 static uint32_t	vec3_to_rgba(t_vec3 rgb)
 {
 	int	r;
@@ -57,6 +58,7 @@ Si el resultado es 127.8, con +0.5f → 128.3 → (int) → 128 (correcto).
 Si el resultado es 127.2, con +0.5f → 127.7 → (int) → 127.
 Es una técnica estándar para convertir de float a int con redondeo en vez de truncamiento.
 */
+
 static void	generate_background(uint32_t *fb, int width, int height)
 {
 	const t_vec3	origin = v3(0.0f, 0.0f, 0.0f);
@@ -117,6 +119,7 @@ Variables:
 - t: factor de interpolación vertical.
 - color: color final del píxel.
 */
+
 static void	upload_framebuffer(mlx_image_t *image, const uint32_t *fb)
 {
 	int	y;
@@ -144,6 +147,7 @@ Variables:
 - fb: framebuffer con los colores ya calculados.
 - x, y: índices de píxel.
 */
+
 static void	on_key(mlx_key_data_t keydata, void *param)
 {
 	t_app	*app;
@@ -160,6 +164,7 @@ Variables:
 - keydata: información de la tecla presionada.
 - param: puntero a la app (usado para acceder a mlx).
 */
+
 static int	init_window(t_app *app)
 {
 	app->mlx = mlx_init(WIN_W, WIN_H, "miniRT playground", false);
@@ -180,6 +185,7 @@ Lógica:
 Variables:
 - app: estructura principal de la aplicación (contiene mlx e image).
 */
+
 static void	cleanup_app(t_app *app)
 {
 	if (app->image)
@@ -197,6 +203,7 @@ Lógica:
 Variables:
 - app: estructura principal de la aplicación.
 */
+
 int	main(void)
 {
 	t_app	app;
