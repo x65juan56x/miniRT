@@ -28,10 +28,10 @@ CORE_SRCS = \
 	$(SRC_DIR)/math/vec3.c
 
 # Select the active main (only one file containing main())
-MAIN_SRC = $(SRC_DIR)/main_example01.c
+# MAIN_SRC = $(SRC_DIR)/main_example01.c
 # PRUEBAS JUAN #
 # MAIN_SRC = $(SRC_DIR)/PruebasJuan/main_redsphere.c # Esfera roja
-# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main_normalsphere.c # 
+MAIN_SRC = $(SRC_DIR)/PruebasJuan/main_normalsphere.c # 
 # MAIN_SRC = $(SRC_DIR)/PruebasJuan/main_red_t_sphere.c
 
 # Final sources for the primary miniRT binary

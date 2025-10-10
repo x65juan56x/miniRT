@@ -1,7 +1,7 @@
-/home/juan/Documents/42/CommonCore/Rank04/miniRT/MLX42/build/CMakeFiles/mlx42.dir
-/home/juan/Documents/42/CommonCore/Rank04/miniRT/MLX42/build/CMakeFiles/edit_cache.dir
-/home/juan/Documents/42/CommonCore/Rank04/miniRT/MLX42/build/CMakeFiles/rebuild_cache.dir
-/home/juan/Documents/42/CommonCore/Rank04/miniRT/MLX42/build/CMakeFiles/list_install_components.dir
-/home/juan/Documents/42/CommonCore/Rank04/miniRT/MLX42/build/CMakeFiles/install.dir
-/home/juan/Documents/42/CommonCore/Rank04/miniRT/MLX42/build/CMakeFiles/install/local.dir
-/home/juan/Documents/42/CommonCore/Rank04/miniRT/MLX42/build/CMakeFiles/install/strip.dir
+/home/jmondon/Documents/Git Personal/Rank4/miniRT/libraries/MLX42/build/CMakeFiles/mlx42.dir
+/home/jmondon/Documents/Git Personal/Rank4/miniRT/libraries/MLX42/build/CMakeFiles/edit_cache.dir
+/home/jmondon/Documents/Git Personal/Rank4/miniRT/libraries/MLX42/build/CMakeFiles/rebuild_cache.dir
+/home/jmondon/Documents/Git Personal/Rank4/miniRT/libraries/MLX42/build/CMakeFiles/list_install_components.dir
+/home/jmondon/Documents/Git Personal/Rank4/miniRT/libraries/MLX42/build/CMakeFiles/install.dir
+/home/jmondon/Documents/Git Personal/Rank4/miniRT/libraries/MLX42/build/CMakeFiles/install/local.dir
+/home/jmondon/Documents/Git Personal/Rank4/miniRT/libraries/MLX42/build/CMakeFiles/install/strip.dir
