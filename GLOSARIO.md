@@ -21,7 +21,7 @@ Este glosario explica los términos que aparecen en el subject de miniRT y en el
 - Viewport: rectángulo virtual (plano de imagen) donde se proyecta la escena.
 - Focal length: Distancia desde el origen de los rayos al viewport.
 - Pixel sampling: convertir cada píxel en uno o varios rayos que salen de la cámara.
-- Anti-aliasing: técnica para suavizar bordes dentados promediando varias muestras por píxel.
+- Anti-aliasing: técnica para suavizar bordes dentados promediando varias muestras por píxel. (Ver SSAA en este documento)
 
 ## 3) Objetos geométricos
 
@@ -205,3 +205,25 @@ float v = (phi + PI/2) / PI;         // [0, 1]
 Las coordenadas UV son fundamentales en ray tracing porque proporcionan una forma uniforme y escalable de mapear entre espacios 2D y 3D, permitiendo efectos visuales complejos de manera matemáticamente elegante.
 
 ---
+
+## SSAA - Super Sampling Anti-Aliasing
+
+Es una técnica de anti-aliasing (suavizado de bordes) en gráficos por computadora y ray tracing. Consiste en renderizar cada píxel de la imagen a una resolución mayor (por ejemplo, 2× o 4× más muestras por píxel), promediando los colores de esas submuestras para obtener el color final del píxel.
+
+### ¿Cómo funciona en ray tracing?
+
+- Por cada píxel, lanzas varios rayos ligeramente desplazados dentro del área del píxel (no solo en el centro).
+- Calculas el color de cada rayo.
+- Haces el promedio de todos esos colores y lo usas como color final del píxel.
+
+### Ventaja:
+
+Reduce el aliasing (bordes dentados) y produce imágenes más suaves y realistas.
+
+### Ejemplo:
+
+Para 4× SSAA, lanzas 4 rayos por píxel (en una cuadrícula 2×2 dentro del píxel), sumas los colores y divides por 4.
+
+### Resumen:
+
+SSAA = Super Sampling Anti-Aliasing = suavizado de bordes por muestreo múltiple y promedio por píxel.
