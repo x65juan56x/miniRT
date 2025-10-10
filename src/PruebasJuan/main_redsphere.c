@@ -11,6 +11,9 @@
 #include "../../include/minirt.h"
 #include <math.h>
 #include <string.h>
+#include "../../include/aux_math.h"
+#include "../../include/color.h"
+#include "../../libraries/libft/libft.h"
 
 #define FRAMEBUFFER_SIZE ((size_t)WIN_W * (size_t)WIN_H)
 
@@ -20,29 +23,6 @@ typedef struct s_app
 	mlx_image_t	*image;
 	uint32_t	*framebuffer;
 }	t_app;
-
-// Clamp básico (float en [min,max]).
-static float	clampf(float value, float min, float max)
-{
-	if (value < min)
-		return (min);
-	if (value > max)
-		return (max);
-	return (value);
-}
-
-// Convierte color (0..1) a RGBA empaquetado.
-static uint32_t	vec3_to_rgba(t_vec3 rgb)
-{
-	int	r;
-	int	g;
-	int	b;
-
-	r = (int)(clampf(rgb.x, 0.0f, 1.0f) * 255.0f + 0.5f);
-	g = (int)(clampf(rgb.y, 0.0f, 1.0f) * 255.0f + 0.5f);
-	b = (int)(clampf(rgb.z, 0.0f, 1.0f) * 255.0f + 0.5f);
-	return (rgba_u32(clamp_u8i(r), clamp_u8i(g), clamp_u8i(b), 255));
-}
 
 // Intersección rayo-esfera simple.
 // Devuelve t del impacto más cercano (>0) o -1 si no hay impacto.
@@ -86,10 +66,10 @@ static void	render_scene(uint32_t *fb, int width, int height)
 	const t_vec3	lower_left = v3(-2.0f, -1.0f, -1.0f);
 	const t_vec3	horizontal = v3(4.0f, 0.0f, 0.0f);
 	const t_vec3	vertical = v3(0.0f, 2.0f, 0.0f);
-	int			y;
-	int			x;
-	float		u;
-	float		v;
+	int				y;
+	int				x;
+	float			u;
+	float			v;
 	t_vec3			dir;
 	t_ray			rayp;
 
@@ -199,12 +179,9 @@ int	main(void)
 {
 	t_app	app;
 
-	memset(&app, 0, sizeof(app));
+	ft_memset(&app, 0, sizeof(app));
 	app.framebuffer = malloc(sizeof(uint32_t) * FRAMEBUFFER_SIZE);
-	if (!app.framebuffer)
-		return (fprintf(stderr, "Failed to allocate framebuffer\n"), EXIT_FAILURE);
-	if (init_window(&app) < 0)
-		return (free(app.framebuffer), EXIT_FAILURE);
+	init_window(&app);
 	render_scene(app.framebuffer, WIN_W, WIN_H);
 	upload_framebuffer(app.image, app.framebuffer);
 	mlx_key_hook(app.mlx, &on_key, &app);

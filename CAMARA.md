@@ -109,6 +109,7 @@ void	camera_build_frame(const t_camera *cam, int width, int height,
 	float	half_w;
 	float	half_h;
 	float	focal;
+	t_vec3 center;
 
 	out->origin = cam->pos;
 	out->forward = v3_norm(cam->dir);
@@ -123,15 +124,10 @@ void	camera_build_frame(const t_camera *cam, int width, int height,
 	half_h = half_w / aspect;
 	out->horizontal = v3_mul(out->right, 2.0f * half_w);
 	out->vertical = v3_mul(out->up, 2.0f * half_h);
-	{
-		t_vec3 center;
-		center = v3_add(out->origin, v3_mul(out->forward, focal));
-		out->lower_left = v3_sub(v3_sub(center, v3_mul(out->horizontal, 0.5f)),
-				v3_mul(out->vertical, 0.5f));
-	}
+	center = v3_add(out->origin, v3_mul(out->forward, focal));
+	out->lower_left = v3_sub(v3_sub(center, v3_mul(out->horizontal, 0.5f)), v3_mul(out->vertical, 0.5f));
 }
 ```
-**VER SI ESAS LLAVES DEL FINAL PASAN LA NORMINETTE**
 
 ## EJEMPLOS
 

@@ -204,6 +204,28 @@ float v = (phi + PI/2) / PI;         // [0, 1]
 
 Las coordenadas UV son fundamentales en ray tracing porque proporcionan una forma uniforme y escalable de mapear entre espacios 2D y 3D, permitiendo efectos visuales complejos de manera matemáticamente elegante.
 
+### ¿Pierdo precisión usando coordenadas uv normalizadas?
+
+No. Cuando usas coordenadas $u$ y $v$ en el rango $[0,1]$ para mapear píxeles a posiciones en el plano de imagen, lo que haces es normalizar la posición del píxel respecto a la resolución:
+
+- $u = \frac{x + 0.5}{\text{width}}$ (con $x$ en $[0, \text{width}-1]$)
+- $v = \frac{y + 0.5}{\text{height}}$ (con $y$ en $[0, \text{height}-1]$)
+
+Esto **no implica pérdida de precisión relevante** en la práctica, porque:
+
+- El número de valores distintos de $u$ y $v$ es exactamente igual al número de píxeles en cada eje (por ejemplo, 1920 y 1080).
+- Los floats de 32 bits pueden representar exactamente todos los enteros hasta $2^{24}$, y los pasos entre $u$ adyacentes son $1/\text{width}$, que es perfectamente representable para resoluciones normales.
+- El cálculo de la dirección del rayo y la posición en el plano de imagen se hace con precisión suficiente para cualquier resolución de pantalla típica (hasta 8K o más).
+
+**¿Por qué no escalar el sistema en función de la resolución?**
+- El sistema de $u,v$ en $[0,1]$ desacopla la lógica de la cámara de la resolución: puedes cambiar la resolución y la proyección no cambia.
+- Si escalaras todo en función de la resolución, tendrías que ajustar el tamaño del plano de imagen y la cámara cada vez que cambias la ventana, lo que complica el código y puede introducir distorsiones.
+- El mapeo $u,v$ es estándar en gráficos y ray tracing porque es simple, robusto y portable.
+
+**En resumen:**
+No hay pérdida de precisión significativa usando $u,v$ en $[0,1]$ para resoluciones normales. Es la forma más limpia y flexible de mapear píxeles a rayos, y no necesitas escalar el sistema en función de la resolución.
+
+
 ---
 
 ## SSAA - Super Sampling Anti-Aliasing

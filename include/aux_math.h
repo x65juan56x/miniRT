@@ -1,8 +1,11 @@
 #ifndef AUX_MATH_H
 # define AUX_MATH_H
 
-# define M_PI (double)3.1415926535897932385
+#ifndef M_PI
+# define M_PI 3.1415926535897932385
+#endif
 
-static float	deg2rad(float d);
+float	deg2rad(float d);
+float	clampf(float value, float min, float max);
 
 #endif
