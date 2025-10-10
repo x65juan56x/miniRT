@@ -140,6 +140,11 @@ void	camera_build_frame(const t_camera *cam, int width, int height,
 - width: 800
 - height: 600
 
+**s_camera**
+- pos:      (0.0, 0.0, 0.0)
+- dir:      (0.0, 0.0, -1.0)
+- fov_deg:  90.0
+
 **Plano de imagen:**
 - focal: 1.0
 - aspect: 800/600 = 1.333
@@ -147,11 +152,6 @@ void	camera_build_frame(const t_camera *cam, int width, int height,
 - half_width: tan(1.5708/2) * 1.0 ≈ 1.0
 - half_height: 1.0 / 1.333 ≈ 0.75
 - center: (0, 0, -1)
-
-**s_camera**
-- pos:      (0.0, 0.0, 0.0)
-- dir:      (0.0, 0.0, -1.0)
-- fov_deg:  90.0
 
 **s_cam_frame**
 - origin:      (0.0, 0.0, 0.0)
@@ -178,7 +178,12 @@ void	camera_build_frame(const t_camera *cam, int width, int height,
 ### Ejemplo 2: Plano horizontal (suelo) y esfera azul
 
 - width: 800
-- height: 600
+- height: 800
+
+**s_camera**
+- pos:      (0.0, 1.0, 2.0)
+- dir:      (0.0, -0.287, -0.957)  // normalizado de (0, -0.3, -1)
+- fov_deg:  60.0
 
 **Plano de imagen:**
 - focal: 1.0
@@ -187,11 +192,6 @@ void	camera_build_frame(const t_camera *cam, int width, int height,
 - half_width: tan(1.047/2) * 1.0 ≈ 0.577
 - half_height: 0.577
 - center: (0, 1, 2) + forward * 1.0
-
-**s_camera**
-- pos:      (0.0, 1.0, 2.0)
-- dir:      (0.0, -0.287, -0.957)  // normalizado de (0, -0.3, -1)
-- fov_deg:  60.0
 
 **s_cam_frame**
 - origin:      (0.0, 1.0, 2.0)
@@ -226,6 +226,11 @@ void	camera_build_frame(const t_camera *cam, int width, int height,
 - width: 600
 - height: 400
 
+**s_camera**
+- pos:      (2.0, 1.0, 2.0)
+- dir:      (-0.669, -0.201, -0.715) // normalizado de (-1, -0.3, -1)
+- fov_deg:  45.0
+
 **Plano de imagen:**
 - focal: 1.0
 - aspect: 1.0
@@ -233,11 +238,6 @@ void	camera_build_frame(const t_camera *cam, int width, int height,
 - half_width: tan(1.047/2) * 1.0 ≈ 0.577
 - half_height: 0.577
 - center: (0, 1, 2) + forward * 1.0
-
-**s_camera**
-- pos:      (2.0, 1.0, 2.0)
-- dir:      (-0.669, -0.201, -0.715) // normalizado de (-1, -0.3, -1)
-- fov_deg:  45.0
 
 **s_cam_frame**
 - origin:      (2.0, 1.0, 2.0)
@@ -271,6 +271,11 @@ void	camera_build_frame(const t_camera *cam, int width, int height,
 - width: 1024
 - height: 768
 
+**s_camera**
+- pos:      (0.0, 1.0, 5.0)
+- dir:      (0.196, -0.039, -0.980) // normalizado de (0, -0.2, -1)
+- fov_deg:  70.0
+
 **Plano de imagen:**
 - focal: 1.0
 - aspect: 1024/768 ≈ 1.333
@@ -278,11 +283,6 @@ void	camera_build_frame(const t_camera *cam, int width, int height,
 - half_width: tan(1.221/2) * 1.0 ≈ 0.672
 - half_height: 0.672 / 1.333 ≈ 0.504
 - center: (0, 1, 5) + forward * 1.0
-
-**s_camera**
-- pos:      (0.0, 1.0, 5.0)
-- dir:      (0.196, -0.039, -0.980) // normalizado de (0, -0.2, -1)
-- fov_deg:  70.0
 
 **s_cam_frame**
 - origin:      (0.0, 1.0, 5.0)
@@ -319,6 +319,11 @@ void	camera_build_frame(const t_camera *cam, int width, int height,
 - width: 800
 - height: 600
 
+**s_camera**
+- pos:      (0.0, 0.0, 0.0)
+- dir:      (0.0, 0.0, -1.0)
+- fov_deg:  120.0
+
 **Plano de imagen:**
 - focal: 1.0
 - aspect: 1.333
@@ -326,11 +331,6 @@ void	camera_build_frame(const t_camera *cam, int width, int height,
 - half_width: tan(2.094/2) * 1.0 ≈ 1.732
 - half_height: 1.732 / 1.333 ≈ 1.299
 - center: (0, 0, -1)
-
-**s_camera**
-- pos:      (0.0, 0.0, 0.0)
-- dir:      (0.0, 0.0, -1.0)
-- fov_deg:  120.0
 
 **s_cam_frame**
 - origin:      (0.0, 0.0, 0.0)
