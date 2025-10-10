@@ -1,4 +1,0 @@
-1. [x] Review existing camera utilities in PruebasJuan.
-2. [x] Design simple render loop using camera_build_frame.
-3. [x] Implement new main file under PruebasJuan.
-4. [ ] Build/test to ensure compilation succeeds.
