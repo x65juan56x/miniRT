@@ -57,8 +57,8 @@ static void	render_scene(uint32_t *fb, int width, int height, const t_scene *sce
 	const t_sphere *sphere)
 {
 	t_cam_frame	frame;
-	int		y;
-	int		x;
+	int			y;
+	int			x;
 	t_vec3		sample;
 	t_vec3		dir;
 	t_ray		rayp;
@@ -74,8 +74,7 @@ static void	render_scene(uint32_t *fb, int width, int height, const t_scene *sce
 		{
 			u = ((float)x + 0.5f) / (float)width;
 			v = 1.0f - (((float)y + 0.5f) / (float)height);
-			sample = v3_add(frame.lower_left,
-				v3_add(v3_mul(frame.horizontal, u), v3_mul(frame.vertical, v)));
+			sample = v3_add(frame.lower_left, v3_add(v3_mul(frame.horizontal, u), v3_mul(frame.vertical, v)));
 			dir = v3_sub(sample, frame.origin);
 			rayp = ray(frame.origin, v3_norm(dir));
 			fb[y * width + x] = vec3_to_rgba(ray_color(rayp, sphere));
@@ -139,14 +138,16 @@ static int	load_scene(const char *path, t_scene *scene, const t_sphere **out_sph
 	return (0);
 }
 
-int	main(void)
+int	main(int ac, char **av)
 {
 	const char		*scene_path;
 	t_app			app;
 	t_scene			scene;
 	const t_sphere	*sphere;
 
-	scene_path = "src/PruebasJuan/ejemplos/ejemplo3_dos_esferas.rt";
+	if (ac != 2)
+		return (1);
+	scene_path = av[1];
 	ft_memset(&app, 0, sizeof(app));
 	scene_init(&scene);
 	sphere = NULL;

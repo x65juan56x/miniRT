@@ -28,18 +28,16 @@ CORE_SRCS = \
 	$(SRC_DIR)/math/vec3.c \
 	$(SRC_DIR)/math/trig_aux.c \
 	$(SRC_DIR)/math/aux_maths.c \
-	$(SRC_DIR)/PruebasJuan/camera_test.c
-
-# PRUEBAS JUAN #
+	$(SRC_DIR)/PruebasJuan/camera_test.c # PRUEBAS JUAN #
 
 # Select the active main (only one file containing main())
-# MAIN_SRC = $(SRC_DIR)/main_example01.c
+MAIN_SRC = $(SRC_DIR)/main_example01.c
 # PRUEBAS JUAN #
-# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main_redsphere.c # Esfera roja
-# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main_normalsphere.c # 
-# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main_red_t_sphere.c
-# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main_camera_playground.c
-MAIN_SRC = $(SRC_DIR)/PruebasJuan/main_parser_playground.c
+# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main00_redsphere.c # Esfera roja
+# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main01_normalsphere.c # Esfera con color según normales
+# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main02_red_t_sphere.c # Esfera roja con profundidad
+# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main03_camera_playground.c # Prueba de cámara
+# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main04_parser_playground.c # Prueba del parser (pasar archivo.rt desde la terminal) ejemplo: ./miniRT src/PruebasJuan/ejemplos/parser_playground.rt
 
 # Final sources for the primary miniRT binary
 SRCS = $(PARSE_SRCS) $(CORE_SRCS) $(MAIN_SRC)
