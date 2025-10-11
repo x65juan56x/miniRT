@@ -146,7 +146,7 @@ int	main(void)
 	t_scene			scene;
 	const t_sphere	*sphere;
 
-	scene_path = "src/PruebasJuan/ejemplos/parser_playground.rt";
+	scene_path = "src/PruebasJuan/ejemplos/ejemplo3_dos_esferas.rt";
 	ft_memset(&app, 0, sizeof(app));
 	scene_init(&scene);
 	sphere = NULL;
