@@ -19,6 +19,7 @@ static float	hit_sphere(const t_sphere *sphere, t_ray r)
 	float	b;
 	float	c;
 	float	disc;
+	float	t;
 	float	radius;
 
 	radius = sphere->di * 0.5f;
@@ -29,26 +30,73 @@ static float	hit_sphere(const t_sphere *sphere, t_ray r)
 	disc = b * b - a * c;
 	if (disc < 0.0f)
 		return (-1.0f);
-	return ((-b - sqrtf(disc)) / a);
+	t = (-b - sqrtf(disc)) / a;
+	if (t > 0.0f)
+		return (t);
+	t = (-b + sqrtf(disc)) / a;
+	if (t > 0.0f)
+		return (t);
+	return (-1.0f);
 }
+/*
+* Esta nueva versión de hit_sphere considera la posibilidad de que la cámara
+* esté adentro de la esfera.
+*/
 
-static t_vec3	ray_color(t_ray r, const t_sphere *sphere)
+static float	hit_plane(const t_plane *plane, t_ray r)
 {
-	const t_vec3	white = v3(1.0f, 1.0f, 1.0f);
-	const t_vec3	blue = v3(0.7f, 0.8f, 1.0f);
-	float			t;
-	float			radius;
-	t_vec3			unit_dir;
+	float	denom;
+	float	t;
+	t_vec3	po;
 
-	radius = sphere->di * 0.5f;
-	if (hit_sphere(sphere, r) > 0.0f)
-		return (sphere->color);
-	unit_dir = v3_norm(r.dir);
-	t = 0.5f * (unit_dir.y + 1.0f);
-	return (v3_add(v3_mul(white, 1.0f - t), v3_mul(blue, t)));
+	denom = v3_dot(plane->normal, r.dir);
+	if (fabsf(denom) < 1e-6f)
+		return (-1.0f);
+	po = v3_sub(plane->point, r.orig);
+	t = v3_dot(po, plane->normal) / denom;
+	if (t > 0.0f)
+		return (t);
+	return (-1.0f);
 }
 
-static void	render_scene(uint32_t *fb, int width, int height, const t_scene *scene, const t_sphere *sphere)
+void	trace_closest(const t_scene *scene, t_ray r, t_vec3 *out_col)
+{
+	const t_object	*o;
+	float			t;
+	float			best_t;
+
+	best_t = 1e30;
+	*out_col = v3(0.0f, 0.0f, 0.0f);
+	o = scene->objects;
+	while (o)
+	{
+		t = -1.0f;
+		if (o->type == OBJ_SPHERE)
+			t = hit_sphere(&o->u_obj.sp, r);
+		else if (o->type == OBJ_PLANE)
+			t = hit_plane(&o->u_obj.pl, r);
+		if (t > 0.0f && t < best_t)
+		{
+			best_t = t;
+			if (o->type == OBJ_SPHERE)
+				*out_col = o->u_obj.sp.color;
+			else if (o->type == OBJ_PLANE)
+				*out_col = o->u_obj.pl.color;
+		}
+		o = o->next;
+	}
+	return ;
+}
+
+static t_vec3	ray_color(t_ray r, const t_scene *scene)
+{
+	t_vec3			col;
+
+	trace_closest(scene, r, &col);
+	return (col);
+}
+
+static void	render_scene(uint32_t *fb, int width, int height, const t_scene *scene)
 {
 	t_cam_frame	frame;
 	int			y;
@@ -68,10 +116,12 @@ static void	render_scene(uint32_t *fb, int width, int height, const t_scene *sce
 		{
 			u = ((float)x + 0.5f) / (float)width;
 			v = 1.0f - (((float)y + 0.5f) / (float)height);
-			sample = v3_add(frame.lower_left, v3_add(v3_mul(frame.horizontal, u), v3_mul(frame.vertical, v)));
+			sample = v3_add(frame.lower_left,
+					v3_add(v3_mul(frame.horizontal, u),
+					v3_mul(frame.vertical, v)));
 			dir = v3_sub(sample, frame.origin);
 			rayp = ray(frame.origin, v3_norm(dir));
-			fb[y * width + x] = vec3_to_rgba(ray_color(rayp, sphere));
+			fb[y * width + x] = vec3_to_rgba(ray_color(rayp, scene));
 			x++;
 		}
 		y++;
@@ -107,7 +157,7 @@ static void	on_key(mlx_key_data_t keydata, void *param)
 
 static int	init_window(t_app *app)
 {
-	app->mlx = mlx_init(WIN_W, WIN_H, "parser playground", false);
+	app->mlx = mlx_init(WIN_W, WIN_H, "many objects playground", false);
 	app->image = mlx_new_image(app->mlx, WIN_W, WIN_H);
 	mlx_image_to_window(app->mlx, app->image, 0, 0);
 	return (0);
@@ -122,33 +172,38 @@ static void	cleanup_app(t_app *app)
 	free(app->framebuffer);
 }
 
-static int	load_scene(const char *path, t_scene *scene, const t_sphere **out_sphere)
+static int	load_scene(const char *path, t_scene *scene)
 {
 	t_parse_result	result;
 
 	result = parse_scene(path, scene);
+	if (!result.ok)
+	{
+		if (result.message)
+			ft_putendl_fd(result.message, 2);
+		parse_result_free(&result);
+		return (0);
+	}
 	parse_result_free(&result);
-	*out_sphere = &scene->objects->u_obj.sp;
-	return (0);
+	return (1);
 }
 
 int	main(int ac, char **av)
 {
-	const char		*scene_path;
-	t_app			app;
-	t_scene			scene;
-	const t_sphere	*sphere;
+	const char	*scene_path;
+	t_app		app;
+	t_scene		scene;
 
 	if (ac != 2)
 		return (1);
 	scene_path = av[1];
 	ft_memset(&app, 0, sizeof(app));
 	scene_init(&scene);
-	sphere = NULL;
-	load_scene(scene_path, &scene, &sphere);
+	if (!load_scene(scene_path, &scene))
+		return (1);
 	app.framebuffer = malloc(sizeof(uint32_t) * FRAMEBUFFER_SIZE);
 	init_window(&app);
-	render_scene(app.framebuffer, WIN_W, WIN_H, &scene, sphere);
+	render_scene(app.framebuffer, WIN_W, WIN_H, &scene);
 	upload_framebuffer(app.image, app.framebuffer);
 	mlx_key_hook(app.mlx, &on_key, &app);
 	mlx_loop(app.mlx);

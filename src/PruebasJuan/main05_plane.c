@@ -1,4 +1,5 @@
 #include "camera_test.h"
+#include "../../include/parser.h"
 #include <math.h>
 #include <string.h>
 
@@ -9,56 +10,62 @@ typedef struct s_app
 	mlx_t		*mlx;
 	mlx_image_t	*image;
 	uint32_t	*framebuffer;
-}   t_app;
+}t_app;
 
-static float	hit_sphere(t_ray r)
+/*
+* Ray-plane intersection
+* Plane defined by point P0 and normal N (assumed normalized by the parser)
+* Ray: R(t) = O + t D
+* t = dot(P0 - O, N) / dot(D, N)
+* Retorna t (>0) para la intersección mas cercana o -1.0f si no hay intersección
+*/
+static float	hit_plane(const t_plane *plane, t_ray r)
 {
-	t_vec3	oc;
-	float	a;
-	float	b;
-	float	c;
-	float	disc;
+	float		denom;
+	float		t;
+	t_vec3		po;
 
-	oc = v3_sub(r.orig, v3(0.0f, 0.0f, -1.0f));
-	a = v3_dot(r.dir, r.dir);
-	b = v3_dot(oc, r.dir);
-	c = v3_dot(oc, oc) - 0.5f * 0.5f;
-	disc = b * b - a * c;
-	if (disc < 0.0f)
+	denom = v3_dot(plane->normal, r.dir);
+	if (fabsf(denom) < 1e-6f)
 		return (-1.0f);
-	return ((-b - sqrtf(disc)) / a);
+	po = v3_sub(plane->point, r.orig);
+	t = v3_dot(po, plane->normal) / denom;
+	if (t > 0.0f)
+		return (t);
+	return (-1.0f);
 }
 
-static t_vec3	ray_color(t_ray r)
+static t_vec3	ray_color(t_ray r, const t_plane *plane)
 {
 	const t_vec3	white = v3(1.0f, 1.0f, 1.0f);
 	const t_vec3	blue = v3(0.7f, 0.8f, 1.0f);
+	float			hit;
 	float			t;
 	t_vec3			unit_dir;
 
-	if (hit_sphere(r) > 0.0f)
-		return (v3(1.0f, 0.0f, 0.0f));
+	if (plane)
+	{
+		hit = hit_plane(plane, r);
+		if (hit > 0.0f)
+			return (plane->color);
+	}
 	unit_dir = v3_norm(r.dir);
 	t = 0.5f * (unit_dir.y + 1.0f);
 	return (v3_add(v3_mul(white, 1.0f - t), v3_mul(blue, t)));
 }
 
-static void	render_scene(uint32_t *fb, int width, int height)
+static void	render_scene(uint32_t *fb, int width, int height, const t_scene *scene, const t_plane *plane)
 {
-	t_camera	camera;
 	t_cam_frame	frame;
-	int		x;
-	int		y;
+	int			y;
+	int			x;
+	t_vec3		sample;
 	t_vec3		dir;
 	t_ray		rayp;
-	t_vec3		sample;
 	float		u;
 	float		v;
 
-	camera.pos = v3(0.0f, 0.0f, 0.0f);
-	camera.dir = v3_norm(v3(0.0f, 0.0f, -1.0f));
-	camera.fov_deg = 120.0f;
-	camera_build_frame(&camera, width, height, &frame);
+	camera_build_frame(&scene->camera, width, height, &frame);
 	y = 0;
 	while (y < height)
 	{
@@ -67,11 +74,10 @@ static void	render_scene(uint32_t *fb, int width, int height)
 		{
 			u = ((float)x + 0.5f) / (float)width;
 			v = 1.0f - (((float)y + 0.5f) / (float)height);
-			sample = v3_add(frame.lower_left,
-				v3_add(v3_mul(frame.horizontal, u), v3_mul(frame.vertical, v)));
+			sample = v3_add(frame.lower_left, v3_add(v3_mul(frame.horizontal, u), v3_mul(frame.vertical, v)));
 			dir = v3_sub(sample, frame.origin);
 			rayp = ray(frame.origin, v3_norm(dir));
-			fb[y * width + x] = vec3_to_rgba(ray_color(rayp));
+			fb[y * width + x] = vec3_to_rgba(ray_color(rayp, plane));
 			x++;
 		}
 		y++;
@@ -80,8 +86,8 @@ static void	render_scene(uint32_t *fb, int width, int height)
 
 static void	upload_framebuffer(mlx_image_t *image, const uint32_t *fb)
 {
-	int	x;
 	int	y;
+	int	x;
 
 	y = 0;
 	while ((uint32_t)y < image->height)
@@ -107,7 +113,7 @@ static void	on_key(mlx_key_data_t keydata, void *param)
 
 static int	init_window(t_app *app)
 {
-	app->mlx = mlx_init(WIN_W, WIN_H, "camera playground", false);
+	app->mlx = mlx_init(WIN_W, WIN_H, "parser playground (plane)", false);
 	app->image = mlx_new_image(app->mlx, WIN_W, WIN_H);
 	mlx_image_to_window(app->mlx, app->image, 0, 0);
 	return (0);
@@ -122,17 +128,37 @@ static void	cleanup_app(t_app *app)
 	free(app->framebuffer);
 }
 
-int	main(void)
+static int	load_scene(const char *path, t_scene *scene, const t_plane **out_plane)
 {
-	t_app	app;
+	t_parse_result	result;
 
+	result = parse_scene(path, scene);
+	parse_result_free(&result);
+	*out_plane = &scene->objects->u_obj.pl;
+	return (0);
+}
+
+int	main(int ac, char **av)
+{
+	const char		*scene_path;
+	t_app			app;
+	t_scene			scene;
+	const t_plane	*plane;
+
+	if (ac != 2)
+		return (1);
+	scene_path = av[1];
 	ft_memset(&app, 0, sizeof(app));
+	scene_init(&scene);
+	plane = NULL;
+	load_scene(scene_path, &scene, &plane);
 	app.framebuffer = malloc(sizeof(uint32_t) * FRAMEBUFFER_SIZE);
-    init_window(&app);
-	render_scene(app.framebuffer, WIN_W, WIN_H);
+	init_window(&app);
+	render_scene(app.framebuffer, WIN_W, WIN_H, &scene, plane);
 	upload_framebuffer(app.image, app.framebuffer);
 	mlx_key_hook(app.mlx, &on_key, &app);
 	mlx_loop(app.mlx);
 	cleanup_app(&app);
+	scene_free(&scene);
 	return (EXIT_SUCCESS);
 }

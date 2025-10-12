@@ -1,6 +1,6 @@
 #include "camera_test.h"
 #include <math.h>
-#include "../../include/aux_math.h"
+#include "../../include/math_utils.h"
 
 void	camera_build_frame(const t_camera *cam, int width, int height,
 			t_cam_frame *out)

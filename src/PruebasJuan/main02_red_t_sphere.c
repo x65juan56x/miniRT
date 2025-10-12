@@ -11,9 +11,6 @@
 #include "../../include/minirt.h"
 #include <math.h>
 #include <string.h>
-#include "../../include/aux_math.h"
-#include "../../include/color.h"
-#include "../../libraries/libft/libft.h"
 
 #define FRAMEBUFFER_SIZE ((size_t)WIN_W * (size_t)WIN_H)
 
@@ -26,7 +23,7 @@ typedef struct s_app
 
 // Intersección rayo-esfera simple.
 // Devuelve t del impacto más cercano (>0) o -1 si no hay impacto.
-static float	hit_sphere(t_vec3 center, float radius, t_ray r)
+static float	hit_sphere(t_ray r)
 {
 	t_vec3	oc;
 	float	a;
@@ -34,11 +31,11 @@ static float	hit_sphere(t_vec3 center, float radius, t_ray r)
 	float	c;
 	float	disc;
 
-	oc = v3_sub(r.orig, center);
+	oc = v3_sub(r.orig, v3(0.0f, 0.0f, -1.0f));
 	a = v3_dot(r.dir, r.dir);
 	b = v3_dot(oc, r.dir);
-	c = v3_dot(oc, oc) - radius * radius;
-	disc = b * b - a * c; // discriminante de la cuadrática
+	c = v3_dot(oc, oc) - 0.5f * 0.5f;
+	disc = b * b - a * c;
 	if (disc < 0.0f)
 		return (-1.0f);
 	return ((-b - sqrtf(disc)) / a);
@@ -53,15 +50,17 @@ static t_vec3	ray_color(t_ray r)
 	const t_vec3	blue = v3(0.5f, 0.7f, 1.0f);
 	float			t;
 	t_vec3			unit_dir;
-	const t_vec3 center = v3(0.0f, 0.0f, -1.0f);
-	const float radius = 0.5f;
-	float t_hit = hit_sphere(center, radius, r);
+	float			t_hit;
+	float			k;
+	float			attenuation;
+
+	t_hit = hit_sphere(r);
 	if (t_hit > 0.0f)
 	{
 		// Factor de atenuación: 1 / (1 + k * t_hit)
 		// k controla cuánto se oscurece con la distancia.
-		const float k = 1.0f;
-		float attenuation = 1.0f / (1.0f + k * t_hit);
+		k = 1.0f;
+		attenuation = 1.0f / (1.0f + k * t_hit);
 		if (attenuation < 0.0f)
 			attenuation = 0.0f;
 		return (v3(attenuation, 0.0f, 0.0f));

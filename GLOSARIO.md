@@ -46,6 +46,7 @@ Este glosario explica los términos que aparecen en el subject de miniRT y en el
 
 - Color: combinación de componentes R, G, B. Puede representarse como [0–255] o [0–1].
 - Albedo: color/reflectividad difusa base de un material (cuánto color refleja sin brillo).
+    - Color difuso se refiere al color base de un material, es decir, el color que ves cuando la luz incide sobre la superficie y se dispersa en todas direcciones. Es el color “real” del objeto, sin reflejos ni brillos especulares. En ray tracing, este color suele llamarse albedo.
 - Luz ambiental (ambient): luz base global que ilumina todo ligeramente (evita negro total).
 - Luz puntual (spot/light): fuente de luz en una posición; emite luz en todas direcciones.
 - Difusa (Lambert): componente que depende del ángulo entre la luz y la normal; máximo cuando la luz pega frontalmente.

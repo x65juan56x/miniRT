@@ -11,9 +11,6 @@
 #include "../../include/minirt.h"
 #include <math.h>
 #include <string.h>
-#include "../../include/aux_math.h"
-#include "../../include/color.h"
-#include "../../libraries/libft/libft.h"
 
 #define FRAMEBUFFER_SIZE ((size_t)WIN_W * (size_t)WIN_H)
 
@@ -51,15 +48,20 @@ static t_vec3	ray_color(t_ray r)
 	const t_vec3	blue = v3(0.5f, 0.7f, 1.0f);
 	float			t;
 	t_vec3			unit_dir;
+	t_vec3			center;
+	float			radius;
+	float			t_hit;
+	t_vec3	p;
+	t_vec3	n;
 	// Definición de la esfera
-	const t_vec3 center = v3(0.0f, 0.0f, -1.0f);
-	const float radius = 0.5f;
-	float t_hit = hit_sphere(center, radius, r);
+	center = v3(0.0f, 0.0f, -1.0f);
+	radius = 0.5f;
+	t_hit = hit_sphere(center, radius, r);
 	if (t_hit > 0.0f)
 	{
 		// Punto de impacto y normal
-		const t_vec3 p = ray_at(r, t_hit);
-		const t_vec3 n = v3_div(v3_sub(p, center), radius);
+		p = ray_at(r, t_hit);
+		n = v3_div(v3_sub(p, center), radius);
 		// Mapear de [-1,1] a [0,1]
 		return (v3_mul(v3_add(n, v3(1.0f, 1.0f, 1.0f)), 0.5f));
 	}

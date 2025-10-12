@@ -11,9 +11,6 @@
 #include "../../include/minirt.h"
 #include <math.h>
 #include <string.h>
-#include "../../include/aux_math.h"
-#include "../../include/color.h"
-#include "../../libraries/libft/libft.h"
 
 #define FRAMEBUFFER_SIZE ((size_t)WIN_W * (size_t)WIN_H)
 
@@ -26,7 +23,7 @@ typedef struct s_app
 
 // Intersección rayo-esfera simple.
 // Devuelve t del impacto más cercano (>0) o -1 si no hay impacto.
-static float	hit_sphere(t_vec3 center, float radius, t_ray r)
+static float	hit_sphere(t_ray r)
 {
 	t_vec3	oc;
 	float	a;
@@ -34,10 +31,10 @@ static float	hit_sphere(t_vec3 center, float radius, t_ray r)
 	float	c;
 	float	disc;
 
-	oc = v3_sub(r.orig, center);
+	oc = v3_sub(r.orig, v3(0.0f, 0.0f, -1.0f));
 	a = v3_dot(r.dir, r.dir);
 	b = v3_dot(oc, r.dir);
-	c = v3_dot(oc, oc) - radius * radius;
+	c = v3_dot(oc, oc) - 0.5f * 0.5f;
 	disc = b * b - a * c; // discriminante de la cuadrática
 	if (disc < 0.0f)
 		return (-1.0f);
@@ -52,7 +49,7 @@ static t_vec3	ray_color(t_ray r)
 	float			t;
 	t_vec3			unit_dir;
 
-	if (hit_sphere(v3(0.0f, 0.0f, -1.0f), 0.5f, r) > 0.0f)
+	if (hit_sphere(r) > 0.0f)
 		return (v3(1.0f, 0.0f, 0.0f)); // esfera roja
 	unit_dir = v3_norm(r.dir);
 	t = 0.5f * (unit_dir.y + 1.0f);
