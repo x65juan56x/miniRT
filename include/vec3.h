@@ -19,6 +19,7 @@ t_vec3	v3_div(t_vec3 a, float s);
 
 // Dot/Cross and length
 float	v3_dot(t_vec3 a, t_vec3 b);
+t_vec3	v3_ctoc(t_vec3 a, t_vec3 b);
 t_vec3	v3_cross(t_vec3 a, t_vec3 b);
 float	v3_len2(t_vec3 a);
 float	v3_len(t_vec3 a);

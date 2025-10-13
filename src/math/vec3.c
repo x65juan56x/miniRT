@@ -51,6 +51,17 @@ float v3_dot(t_vec3 a, t_vec3 b)
 * Useful for angles and shading.
 */
 
+t_vec3	v3_ctoc(t_vec3 a, t_vec3 b)
+{
+	return (v3(
+		a.x * b.x,
+		a.y * b.y,
+		a.z * b.z));
+}
+/*
+* Component to component product
+*/
+
 t_vec3 v3_cross(t_vec3 a, t_vec3 b)
 {
 	return (v3(

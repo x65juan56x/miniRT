@@ -38,7 +38,10 @@ CORE_SRCS = \
 # MAIN_SRC = $(SRC_DIR)/PruebasJuan/main03_camera_playground.c # Prueba de cámara
 # MAIN_SRC = $(SRC_DIR)/PruebasJuan/main04_parser_playground.c # Prueba del parser (pasar archivo.rt desde la terminal) ejemplo: ./miniRT src/PruebasJuan/ejemplos/parser_playground.rt
 # MAIN_SRC = $(SRC_DIR)/PruebasJuan/main05_plane.c # Plano
-MAIN_SRC = $(SRC_DIR)/PruebasJuan/main06_many_objects.c # Planos y esferas
+# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main06_many_objects.c # Planos y esferas
+# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main07_lambert.c
+MAIN_SRC = $(SRC_DIR)/PruebasJuan/main08_shadows.c
+# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main09_normals.c
 
 # Final sources for the primary miniRT binary
 SRCS = $(PARSE_SRCS) $(CORE_SRCS) $(MAIN_SRC)
