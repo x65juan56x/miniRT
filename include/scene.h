@@ -59,7 +59,8 @@ typedef enum e_objtype
 {
 	OBJ_SPHERE,
 	OBJ_PLANE,
-	OBJ_CYLINDER
+	OBJ_CYLINDER,
+	OBJ_TRIANGLE
 }	t_objtype;
 
 /*
@@ -92,6 +93,19 @@ typedef struct s_cyl
 }	t_cyl;
 
 /*
+* Triangle primitive (non-mandatory; used by OBJ->RT tool and tests).
+* a,b,c: triangle vertices in world space.
+* color: albedo per channel in [0,1].
+*/
+typedef struct s_triangle
+{
+	t_vec3	a;
+	t_vec3	b;
+	t_vec3	c;
+	t_vec3	color;
+}	t_triangle;
+
+/*
 * Scene object node (singly-linked list).
 * type: which shape the union holds.
 * u: shape data.
@@ -105,6 +119,7 @@ typedef struct s_object
 		t_sphere	sp;
 		t_plane		pl;
 		t_cyl		cy;
+		t_triangle	tr;
 	} u_obj;
 	struct s_object	*next;
 }	t_object;

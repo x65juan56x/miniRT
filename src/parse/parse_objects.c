@@ -102,3 +102,31 @@ t_parse_result	parse_cy(char **tkns, int line, t_scene *scene)
 * Actions: Allocate, parse center/axis/diameter/height/color, then link object.
 * Failure: Returns descriptive parse_error while freeing allocated memory.
 */
+
+t_parse_result	parse_tr(char **tokens, int line, t_scene *scene)
+{
+	t_object *obj;
+
+	// Format: tr x1,y1,z1 x2,y2,z2 x3,y3,z3 r,g,b
+	if (!tokens[1] || !tokens[2] || !tokens[3] || !tokens[4] || tokens[5])
+		return (parse_error(line, "tr: invalid format"));
+	obj = (t_object *)malloc(sizeof(t_object));
+	if (!obj)
+		return (parse_error(line, "tr: not enough memory"));
+	obj->type = OBJ_TRIANGLE;
+	if (!parse_vec3(tokens[1], &obj->u_obj.tr.a))
+		return (object_error(obj, line, "tr: invalid vertex a"));
+	if (!parse_vec3(tokens[2], &obj->u_obj.tr.b))
+		return (object_error(obj, line, "tr: invalid vertex b"));
+	if (!parse_vec3(tokens[3], &obj->u_obj.tr.c))
+		return (object_error(obj, line, "tr: invalid vertex c"));
+	if (!parse_color_255(tokens[4], &obj->u_obj.tr.color))
+		return (object_error(obj, line, "tr: invalid color"));
+	obj->next = NULL;
+	scene_add_object(scene, obj);
+	return (parse_ok());
+}
+/*
+* Purpose: Parse a triangle primitive from three 3D points and an RGB color.
+* Notes: This is an extension to support models converted by obj_to_rt.
+*/
