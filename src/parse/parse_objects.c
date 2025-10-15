@@ -103,11 +103,11 @@ t_parse_result	parse_cy(char **tkns, int line, t_scene *scene)
 * Failure: Returns descriptive parse_error while freeing allocated memory.
 */
 
+// Format: tr x1,y1,z1 x2,y2,z2 x3,y3,z3 r,g,b
 t_parse_result	parse_tr(char **tokens, int line, t_scene *scene)
 {
-	t_object *obj;
+	t_object	*obj;
 
-	// Format: tr x1,y1,z1 x2,y2,z2 x3,y3,z3 r,g,b
 	if (!tokens[1] || !tokens[2] || !tokens[3] || !tokens[4] || tokens[5])
 		return (parse_error(line, "tr: invalid format"));
 	obj = (t_object *)malloc(sizeof(t_object));

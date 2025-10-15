@@ -6,7 +6,7 @@
 /*   By: jmondon <jmondon@student.42malaga.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 16:53:52 by jmondon           #+#    #+#             */
-/*   Updated: 2025/07/21 11:09:21 by jmondon          ###   ########.fr       */
+/*   Updated: 2025/05/16 19:11:10 by jmondon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,11 +26,11 @@ char	*ft_pnt_nl(char *str)
 	return (NULL);
 }
 
-int	ft_fwd_lst(t_list_gnl **list_static_ptr, t_list_gnl **frst_nd_head_ptr)
+int	ft_fwd_lst(t_list **list_static_ptr, t_list **frst_nd_head_ptr)
 {
-	t_list_gnl	*new_node;
+	t_list	*new_node;
 
-	new_node = malloc(sizeof(t_list_gnl));
+	new_node = malloc(sizeof(t_list));
 	if (!new_node)
 	{
 		ft_free_lst(*frst_nd_head_ptr);
@@ -47,9 +47,9 @@ int	ft_fwd_lst(t_list_gnl **list_static_ptr, t_list_gnl **frst_nd_head_ptr)
 	return (1);
 }
 
-void	*ft_free_lst(t_list_gnl *list)
+void	*ft_free_lst(t_list *list)
 {
-	t_list_gnl	*aux_nd;
+	t_list	*aux_nd;
 
 	while (list)
 	{
@@ -70,7 +70,7 @@ size_t	ft_str_len(const char *str)
 	return (i);
 }
 
-size_t	ft_ln_len(t_list_gnl *list)
+size_t	ft_ln_len(t_list *list)
 {
 	size_t	l;
 
