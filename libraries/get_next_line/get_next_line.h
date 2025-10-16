@@ -22,24 +22,24 @@ typedef struct s_list
 {
 	char			str[BUFFER_SIZE + 1];
 	struct s_list	*next;
-}				t_list;
+}				t_list_gnl;
 
 char	*get_next_line(int fd);
 
-int		ft_read_til_nl(char **nl_pos, t_list **frst_nd, int fd, t_list **list);
+int		ft_read_til_nl(char **nl_pos, t_list_gnl **frst_nd, int fd, t_list_gnl **list);
 
 char	*ft_pnt_nl(char *str);
 
-int		ft_fwd_lst(t_list **list, t_list **frst_nd);
+int		ft_fwd_lst(t_list_gnl **list, t_list_gnl **frst_nd);
 
-void	*ft_free_lst(t_list *lst);
+void	*ft_free_lst(t_list_gnl *lst);
 
-t_list	*ft_get_tail(t_list *list, char *nl_pos);
+t_list_gnl	*ft_get_tail(t_list_gnl *list, char *nl_pos);
 
 size_t	ft_str_len(const char *str);
 
-char	*ft_get_line(t_list *frst_nd);
+char	*ft_get_line(t_list_gnl *frst_nd);
 
-size_t	ft_ln_len(t_list *lst);
+size_t	ft_ln_len(t_list_gnl *lst);
 
 #endif

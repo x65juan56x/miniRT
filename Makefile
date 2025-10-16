@@ -28,6 +28,7 @@ CORE_SRCS = \
 	$(SRC_DIR)/math/vec3.c \
 	$(SRC_DIR)/math/math_utils.c \
 	$(SRC_DIR)/PruebasJuan/camera_test.c \
+	$(SRC_DIR)/PruebasJuan/toggle_info.c \
 
 # Select the active main (only one file containing main())
 # MAIN_SRC = $(SRC_DIR)/main_example01.c
@@ -42,7 +43,8 @@ CORE_SRCS = \
 # MAIN_SRC = $(SRC_DIR)/PruebasJuan/main07_lambert.c
 # MAIN_SRC = $(SRC_DIR)/PruebasJuan/main08_shadows.c
 # MAIN_SRC = $(SRC_DIR)/PruebasJuan/main09_normals.c
-MAIN_SRC = $(SRC_DIR)/PruebasJuan/main10_triangle.c
+# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main10_triangle.c
+MAIN_SRC = $(SRC_DIR)/PruebasJuan/main11_info.c
 
 # Final sources for the primary miniRT binary
 SRCS = $(PARSE_SRCS) $(CORE_SRCS) $(MAIN_SRC)

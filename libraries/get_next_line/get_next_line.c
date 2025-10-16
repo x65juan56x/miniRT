@@ -12,12 +12,12 @@
 
 #include "get_next_line.h"
 
-char	*ft_get_line(t_list *frst_nd)
+char	*ft_get_line(t_list_gnl *frst_nd)
 {
 	size_t	ln_len;
 	size_t	i;
 	size_t	j;
-	t_list	*aux_nd;
+	t_list_gnl	*aux_nd;
 	char	*line;
 
 	aux_nd = frst_nd;
@@ -57,15 +57,15 @@ static void	ft_fill_remainder_str(char *dest_str, char *src_nl_ptr)
 	dest_str[dst_i] = '\0';
 }
 
-t_list	*ft_get_tail(t_list *node_with_nl, char *nl_ptr_in_node_str)
+t_list_gnl	*ft_get_tail(t_list_gnl *node_with_nl, char *nl_ptr_in_node_str)
 {
-	t_list	*new_tail_node;
+	t_list_gnl	*new_tail_node;
 
 	if (!node_with_nl || !nl_ptr_in_node_str || nl_ptr_in_node_str[0] != '\n')
 		return (NULL);
 	if (nl_ptr_in_node_str[1] == '\0')
 		return (NULL);
-	new_tail_node = malloc(sizeof(t_list));
+	new_tail_node = malloc(sizeof(t_list_gnl));
 	if (!new_tail_node)
 	{
 		nl_ptr_in_node_str[1] = '\0';
@@ -82,7 +82,7 @@ t_list	*ft_get_tail(t_list *node_with_nl, char *nl_ptr_in_node_str)
 	return (new_tail_node);
 }
 
-int	ft_read_til_nl(char **nl_pos, t_list **frst_nd, int fd, t_list **list)
+int	ft_read_til_nl(char **nl_pos, t_list_gnl **frst_nd, int fd, t_list_gnl **list)
 {
 	int	rd_chr;
 
@@ -113,11 +113,11 @@ int	ft_read_til_nl(char **nl_pos, t_list **frst_nd, int fd, t_list **list)
 
 char	*get_next_line(int fd)
 {
-	static t_list	*list_static = NULL;
-	t_list			*frst_nd_cur_line;
+	static t_list_gnl	*list_static = NULL;
+	t_list_gnl			*frst_nd_cur_line;
 	char			*nl_pos_in_cur_node;
 	int				rd_chr;
-	t_list			*new_tail;
+	t_list_gnl			*new_tail;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);

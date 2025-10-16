@@ -26,11 +26,11 @@ char	*ft_pnt_nl(char *str)
 	return (NULL);
 }
 
-int	ft_fwd_lst(t_list **list_static_ptr, t_list **frst_nd_head_ptr)
+int	ft_fwd_lst(t_list_gnl **list_static_ptr, t_list_gnl **frst_nd_head_ptr)
 {
-	t_list	*new_node;
+	t_list_gnl	*new_node;
 
-	new_node = malloc(sizeof(t_list));
+	new_node = malloc(sizeof(t_list_gnl));
 	if (!new_node)
 	{
 		ft_free_lst(*frst_nd_head_ptr);
@@ -47,9 +47,9 @@ int	ft_fwd_lst(t_list **list_static_ptr, t_list **frst_nd_head_ptr)
 	return (1);
 }
 
-void	*ft_free_lst(t_list *list)
+void	*ft_free_lst(t_list_gnl *list)
 {
-	t_list	*aux_nd;
+	t_list_gnl	*aux_nd;
 
 	while (list)
 	{
@@ -70,7 +70,7 @@ size_t	ft_str_len(const char *str)
 	return (i);
 }
 
-size_t	ft_ln_len(t_list *list)
+size_t	ft_ln_len(t_list_gnl *list)
 {
 	size_t	l;
 
