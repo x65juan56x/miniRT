@@ -11,6 +11,7 @@ void	scene_init(t_scene *s)
 	s->camera.pos = v3(0, 0, 0);
 	s->camera.dir = v3(0, 0, -1);
 	s->camera.fov_deg = 70.0f;
+	s->camera.focal = 1.0f;
 	s->camera.present = false;
 	s->light.pos = v3(0, 0, 0);
 	s->light.bright = 0.0f;

@@ -20,17 +20,39 @@ PARSE_SRCS = \
 	$(SRC_DIR)/parse/parse_vectors.c \
 	$(SRC_DIR)/parse/token_split.c
 
-# Core & math utilities (no main)
+CAMERA_SRCS = \
+	$(SRC_DIR)/camera/camera.c
+
+GEOM_SRCS = \
+	$(SRC_DIR)/geom/sphere.c \
+	$(SRC_DIR)/geom/plane.c \
+	$(SRC_DIR)/geom/cylinder.c \
+	$(SRC_DIR)/geom/triangle_bonus.c
+
+RENDER_SRCS = \
+	$(SRC_DIR)/render/framebuffer.c \
+	$(SRC_DIR)/render/render.c
+
+SHADING_SRCS = \
+	$(SRC_DIR)/shading/lambert.c \
+	$(SRC_DIR)/shading/shadow.c
+
 CORE_SRCS = \
 	$(SRC_DIR)/color/color.c \
+	$(SRC_DIR)/core/intersect.c \
 	$(SRC_DIR)/core/ray.c \
 	$(SRC_DIR)/core/scene.c \
 	$(SRC_DIR)/math/vec3.c \
 	$(SRC_DIR)/math/math_utils.c \
-	$(SRC_DIR)/PruebasJuan/camera_test.c \
-	$(SRC_DIR)/PruebasJuan/toggle_info.c \
+	$(SRC_DIR)/app/input.c \
+	$(SRC_DIR)/app/toggle_info.c \
+	$(CAMERA_SRCS) \
+	$(GEOM_SRCS) \
+	$(RENDER_SRCS) \
+	$(SHADING_SRCS)
 
 # Select the active main (only one file containing main())
+MAIN_SRC = $(SRC_DIR)/minirt.c
 # MAIN_SRC = $(SRC_DIR)/main_example01.c
 # PRUEBAS JUAN #
 # MAIN_SRC = $(SRC_DIR)/PruebasJuan/main00_redsphere.c # Esfera roja
@@ -44,7 +66,7 @@ CORE_SRCS = \
 # MAIN_SRC = $(SRC_DIR)/PruebasJuan/main08_shadows.c
 # MAIN_SRC = $(SRC_DIR)/PruebasJuan/main09_normals.c
 # MAIN_SRC = $(SRC_DIR)/PruebasJuan/main10_triangle.c
-MAIN_SRC = $(SRC_DIR)/PruebasJuan/main11_info.c
+# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main11_info.c
 
 # Final sources for the primary miniRT binary
 SRCS = $(PARSE_SRCS) $(CORE_SRCS) $(MAIN_SRC)
@@ -111,7 +133,10 @@ bonus: all
 # -----------------
 # Build a lightweight parser CLI without MLX42 (uses parser_main)
 PARSER_MAIN = $(SRC_DIR)/parser_main.c
-PARSER_SRCS = $(PARSE_SRCS) $(PARSER_MAIN) $(SRC_DIR)/math/vec3.c $(SRC_DIR)/core/scene.c
+PARSER_SRCS = $(PARSE_SRCS) $(PARSER_MAIN) \
+	$(SRC_DIR)/math/vec3.c \
+	$(SRC_DIR)/math/math_utils.c \
+	$(SRC_DIR)/core/scene.c
 PARSER_OBJS = $(PARSER_SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 
 parser: $(LIBFT_LIB) $(GNL_LIB) $(PARSER_OBJS)

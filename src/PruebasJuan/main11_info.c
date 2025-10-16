@@ -44,7 +44,7 @@ static float	hit_sphere(const t_sphere *sp, t_ray r)
 	return (-1.0f);
 }
 
-static float hit_plane(const t_plane *pl, t_ray r)
+static float	hit_plane(const t_plane *pl, t_ray r)
 {
 	float	den;
 	float	t;
@@ -153,7 +153,7 @@ static t_hit	intersect_scene(const t_scene *scene, t_ray r)
 	return (hit);
 }
 
-static int in_shadow(const t_scene *scene, t_vec3 p, t_vec3 l_pos)
+static int	in_shadow(const t_scene *scene, t_vec3 p, t_vec3 l_pos)
 {
 	t_vec3			to_l;
 	float			max_d;
@@ -185,7 +185,7 @@ static int in_shadow(const t_scene *scene, t_vec3 p, t_vec3 l_pos)
 	return (0);
 }
 
-static t_vec3 shade_lambert_shadow(const t_scene *scene, const t_hit *hit)
+static t_vec3	shade_lambert_shadow(const t_scene *scene, const t_hit *hit)
 {
 	t_vec3	ambient;
 	t_vec3	l_dir;
@@ -207,7 +207,7 @@ static t_vec3 shade_lambert_shadow(const t_scene *scene, const t_hit *hit)
 	return (c);
 }
 
-static void render_scene(uint32_t *fb, int width, int height, const t_scene *scene, int show_normals)
+static void	render_scene(uint32_t *fb, int width, int height, const t_scene *scene, int show_normals)
 {
 	t_cam_frame	frame;
 	int			x;
@@ -299,7 +299,7 @@ static void	on_key(mlx_key_data_t keydata, void *param)
 	}
 }
 
-int main(int ac, char **av)
+int	main(int ac, char **av)
 {
 	if (ac != 2)
 		return 1;

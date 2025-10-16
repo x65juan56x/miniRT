@@ -36,6 +36,7 @@ typedef struct s_camera
 	t_vec3	dir; // normalized
 	float	fov_deg; // (0,180)
 	bool	present;
+	float	focal;
 }	t_camera;
 
 /*

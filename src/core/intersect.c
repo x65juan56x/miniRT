@@ -1,0 +1,101 @@
+#include "../../include/minirt.h"
+#include "../../include/scene.h"
+#include "../../include/hit.h"
+
+static void	set_common_hit(t_hit *dst, float t, t_vec3 p, t_vec3 n, t_vec3 albedo)
+{
+	dst->ok = 1;
+	dst->t = t;
+	dst->p = p;
+	dst->n = n;
+	dst->albedo = albedo;
+}
+
+static void	orient_normal(t_hit *hit, t_ray r)
+{
+	if (v3_dot(hit->n, r.dir) > 0.0f)
+		hit->n = v3_mul(hit->n, -1.0f);
+}
+
+static int	record_sphere(const t_sphere *sp, t_ray r, float t, t_hit *out)
+{
+	t_vec3	p;
+	t_vec3	n;
+
+	p = ray_at(r, t);
+	n = v3_norm(v3_sub(p, sp->center));
+	set_common_hit(out, t, p, n, sp->color);
+	orient_normal(out, r);
+	return (1);
+}
+
+static int	record_plane(const t_plane *pl, t_ray r, float t, t_hit *out)
+{
+	t_vec3	p;
+
+	p = ray_at(r, t);
+	set_common_hit(out, t, p, pl->normal, pl->color);
+	orient_normal(out, r);
+	return (1);
+}
+
+static int	record_triangle(const t_triangle *tr, t_ray r, float t, t_hit *out)
+{
+	t_vec3	p;
+	t_vec3	e1;
+	t_vec3	e2;
+	t_vec3	n;
+
+	p = ray_at(r, t);
+	e1 = v3_sub(tr->b, tr->a);
+	e2 = v3_sub(tr->c, tr->a);
+	n = v3_norm(v3_cross(e1, e2));
+	set_common_hit(out, t, p, n, tr->color);
+	orient_normal(out, r);
+	return (1);
+}
+
+static int	object_hit(const t_object *obj, t_ray r, t_hit *out)
+{
+	float	t;
+
+	t = -1.0f;
+	if (obj->type == OBJ_SPHERE)
+		t = hit_sphere(&obj->u_obj.sp, r);
+	else if (obj->type == OBJ_PLANE)
+		t = hit_plane(&obj->u_obj.pl, r);
+	else if (obj->type == OBJ_TRIANGLE)
+		t = hit_triangle(&obj->u_obj.tr, r);
+	if (t <= 0.0f)
+		return (0);
+	if (obj->type == OBJ_SPHERE)
+		return (record_sphere(&obj->u_obj.sp, r, t, out));
+	if (obj->type == OBJ_PLANE)
+		return (record_plane(&obj->u_obj.pl, r, t, out));
+	return (record_triangle(&obj->u_obj.tr, r, t, out));
+	
+}
+
+int	scene_hit(const t_scene *scene, t_ray r, float max_dist, t_hit *out)
+{
+	const t_object	*o;
+	float			best;
+	t_hit			cur;
+	int				found;
+
+	out->ok = 0;
+	found = 0;
+	best = max_dist;
+	o = scene->objects;
+	while (o)
+	{
+		if (object_hit(o, r, &cur) && cur.t > EPSILON && cur.t < best)
+		{
+			best = cur.t;
+			*out = cur;
+			found = 1;
+		}
+		o = o->next;
+	}
+	return (found);
+}
