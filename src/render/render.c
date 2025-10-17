@@ -14,31 +14,30 @@ static t_vec3	trace_pixel(const t_scene *scene, t_ray r, int show_normals)
 	return (shade_lambert(scene, &hit));
 }
 
-void	render_scene(uint32_t *fb, int width, int height, const t_scene *scene, int show_normals)
+void	render_scene(t_app *app)
 {
-	t_cam_frame	frame;
-	int			x;
-	int			y;
-	float		u;
-	float		v;
-	t_vec3		sample;
-	t_vec3		dir;
+	int				x;
+	int				y;
+	t_render_aux	vars;
 
-	camera_build_frame(&scene->camera, width, height, &frame);
-	y = 0;
-	while (y < height)
+	camera_build_frame(&app->scene.camera, app->image->width,
+		app->image->height, &vars.frame);
+	y = -1;
+	while ((uint32_t)++y < app->image->height)
 	{
-		x = 0;
-		while (x < width)
+		x = -1;
+		while ((uint32_t)++x < app->image->width)
 		{
-			u = ((float)x + 0.5f) / (float)width;
-			v = 1.0f - (((float)y + 0.5f) / (float)height);
-			sample = v3_add(frame.lower_left, v3_add(v3_mul(frame.horizontal, u), v3_mul(frame.vertical, v)));
-			dir = v3_norm(v3_sub(sample, frame.origin));
-			dir = v3_norm(v3_sub(sample, frame.origin));
-			fb[y * width + x] = vec3_to_rgba(trace_pixel(scene, ray(frame.origin, dir), show_normals));
-			x++;
+			vars.u = ((float)x + 0.5f) / (float)app->image->width;
+			vars.v = 1.0f - (((float)y + 0.5f) / (float)app->image->height);
+			vars.sample = v3_add(vars.frame.lower_left,
+					v3_add(v3_mul(vars.frame.horizontal, vars.u),
+						v3_mul(vars.frame.vertical, vars.v)));
+			vars.dir = v3_norm(v3_sub(vars.sample, vars.frame.origin));
+			vars.dir = v3_norm(v3_sub(vars.sample, vars.frame.origin));
+			app->framebuffer[y * app->image->width + x]
+				= vec3_to_rgba(trace_pixel(&app->scene,
+						ray(vars.frame.origin, vars.dir), app->show_normals));
 		}
-		y++;
 	}
 }
