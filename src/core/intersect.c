@@ -55,6 +55,11 @@ static int	record_triangle(const t_triangle *tr, t_ray r, float t, t_hit *out)
 	return (1);
 }
 
+static int record_cylinder(const t_cyl *cy, t_ray r, float t, t_hit *out)
+{
+	
+}
+
 static int	object_hit(const t_object *obj, t_ray r, t_hit *out)
 {
 	float	t;
@@ -66,6 +71,8 @@ static int	object_hit(const t_object *obj, t_ray r, t_hit *out)
 		t = hit_plane(&obj->u_obj.pl, r);
 	else if (obj->type == OBJ_TRIANGLE)
 		t = hit_triangle(&obj->u_obj.tr, r);
+	else if (obj->type == OBJ_CYLINDER)
+		t = hit_cylinder(&obj->u_obj.cy, r);
 	if (t <= 0.0f)
 		return (0);
 	if (obj->type == OBJ_SPHERE)
