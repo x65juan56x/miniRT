@@ -8,8 +8,7 @@
 
 static void render_and_present(t_app *app)
 {
-	render_scene(app->framebuffer, app->image->width, app->image->height,
-		&app->scene, app->show_normals);
+	render_scene(app);
 	upload_framebuffer(app->image, app->framebuffer);
 }
 

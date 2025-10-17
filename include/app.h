@@ -10,7 +10,7 @@ typedef struct s_app
 	mlx_image_t		*image;
 	uint32_t		*framebuffer;
 	int				show_normals;
-	t_scene		scene;
+	t_scene			scene;
 	t_toggle_info	overlay;
 }	t_app;
 
