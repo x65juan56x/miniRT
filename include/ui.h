@@ -12,13 +12,13 @@
 # define AXIS_COLOR_NEG_Y 0x006600FFu
 # define AXIS_COLOR_NEG_Z 0x000066FFu
 
-# define AXIS_LENGTH 4.0f
+# define AXIS_LENGTH 16.0f
 
 typedef struct s_toggle_info
 {
 	mlx_t		*mlx;
 	mlx_image_t	*overlay;
-	uint8_t	*pixels;
+	uint32_t	*buffer;
 	int			w;
 	int			h;
 	int			visible;

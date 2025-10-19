@@ -1,5 +1,7 @@
+#include <stdlib.h>
 #include "../../include/ui.h"
 #include "../../include/vec3.h"
+#include "../../include/render.h"
 #include "../../libraries/libft/libft.h"
 
 static int	ti_abs(int value)
@@ -9,23 +11,12 @@ static int	ti_abs(int value)
 	return (value);
 }
 
-static void	ti_put_pixel(uint8_t *fb, int w, int h,
-		int x, int y, uint32_t color)
+static int ti_inside(int x, int y, int w, int h)
 {
-	size_t	index;
-
-	if ((unsigned int)x < (unsigned int)w
-		&& (unsigned int)y < (unsigned int)h)
-	{
-		index = ((size_t)y * (size_t)w + (size_t)x) * 4;
-		fb[index + 0] = (uint8_t)((color >> 24) & 0xFF);
-		fb[index + 1] = (uint8_t)((color >> 16) & 0xFF);
-		fb[index + 2] = (uint8_t)((color >> 8) & 0xFF);
-		fb[index + 3] = (uint8_t)(color & 0xFF);
-	}
+	return (x >= 0 && x < w && y >= 0 && y < h);
 }
 
-static void	ti_draw_line(uint8_t *fb, int w, int h,
+static void	ti_draw_line(uint32_t *fb, int w, int h,
 		int x0, int y0, int x1, int y1, uint32_t color)
 {
 	int	dx;
@@ -48,7 +39,9 @@ static void	ti_draw_line(uint8_t *fb, int w, int h,
 		err = dx / 2;
 	while (1)
 	{
-		ti_put_pixel(fb, w, h, x0, y0, color);
+		if ((unsigned int)x0 < (unsigned int)w
+			&& (unsigned int)y0 < (unsigned int)h)
+			fb[(size_t)y0 * (size_t)w + (size_t)x0] = color;
 		if (x0 == x1 && y0 == y1)
 			break ;
 		e2 = err;
@@ -110,32 +103,102 @@ static int	ti_project(const t_cam_frame *fr, t_vec3 point,
 static void	ti_draw_axis(t_toggle_info *ti, const t_cam_frame *fr,
 	int origin_x, int origin_y, t_vec3 axis, uint32_t color)
 {
-	float	length;
-	int		attempt;
-	int		end_x;
-	int		end_y;
-	t_vec3	endpoint;
+	float	step;
+	float	inside_t;
+	float	outside_t;
+	int	end_x;
+	int	end_y;
+	int	px;
+	int	py;
+	int	found_inside;
+	int	found_outside;
+	int	iter;
+	float	min_step;
+	t_vec3	point;
 
-	length = AXIS_LENGTH;
-	attempt = 0;
-	while (attempt < 8)
+	step = AXIS_LENGTH;
+	inside_t = 0.0f;
+	outside_t = 0.0f;
+	end_x = origin_x;
+	end_y = origin_y;
+	found_inside = 0;
+	found_outside = 0;
+	min_step = 0.01f;
+	iter = 0;
+	while (iter < 24)
 	{
-		endpoint = v3_mul(axis, length);
-		if (ti_project(fr, endpoint, ti->w, ti->h, &end_x, &end_y))
+		point = v3_mul(axis, step);
+		if (!ti_project(fr, point, ti->w, ti->h, &px, &py))
 		{
-			if (ti_abs(end_x - origin_x) <= ti->w
-				&& ti_abs(end_y - origin_y) <= ti->h)
+			if (!found_inside)
 			{
-				ti_draw_line(ti->pixels, ti->w, ti->h,
-					origin_x, origin_y, end_x, end_y, color);
-				return ;
+				step *= 0.5f;
+				if (step < min_step)
+					break ;
 			}
+			else
+			{
+				outside_t = step;
+				found_outside = 1;
+				break ;
+			}
+			iter++;
+			continue ;
 		}
-		length = length * 0.5f;
-		if (length < 0.01f)
+		if (ti_inside(px, py, ti->w, ti->h))
+		{
+			inside_t = step;
+			end_x = px;
+			end_y = py;
+			found_inside = 1;
+			step *= 2.0f;
+			iter++;
+			continue ;
+		}
+		if (!found_inside)
+		{
+			step *= 0.5f;
+			if (step < min_step)
+				break ;
+		}
+		else
+		{
+			outside_t = step;
+			found_outside = 1;
 			break ;
-		attempt++;
+		}
+		iter++;
 	}
+	if (!found_inside)
+		return ;
+	if (found_outside)
+	{
+		float	low;
+		float	high;
+		int	k;
+
+		low = inside_t;
+		high = outside_t;
+		for (k = 0; k < 20; ++k)
+		{
+			float mid = (low + high) * 0.5f;
+			if (!ti_project(fr, v3_mul(axis, mid), ti->w, ti->h, &px, &py))
+			{
+				high = mid;
+				continue ;
+			}
+			if (ti_inside(px, py, ti->w, ti->h))
+			{
+				end_x = px;
+				end_y = py;
+				low = mid;
+			}
+			else
+				high = mid;
+		}
+	}
+	ti_draw_line(ti->buffer, ti->w, ti->h,
+		origin_x, origin_y, end_x, end_y, color);
 }
 
 static void	ti_draw_axes(t_toggle_info *ti, const t_cam_frame *fr)
@@ -166,20 +229,30 @@ void	ti_init(t_toggle_info *ti, mlx_t *mlx, mlx_image_t *img)
 	ti->overlay = mlx_new_image(mlx, img->width, img->height);
 	ti->w = 0;
 	ti->h = 0;
-	ti->pixels = NULL;
+	ti->buffer = NULL;
 	ti->visible = 0;
 	if (!ti->overlay)
 		return ;
 	ti->w = (int)ti->overlay->width;
 	ti->h = (int)ti->overlay->height;
-	ti->pixels = ti->overlay->pixels;
-	ft_memset(ti->overlay->pixels, 0, (size_t)ti->w * (size_t)ti->h * 4);
+	ti->buffer = (uint32_t *)malloc(sizeof(uint32_t)
+			* (size_t)ti->w * (size_t)ti->h);
+	if (!ti->buffer)
+	{
+		mlx_delete_image(mlx, ti->overlay);
+		ti->overlay = NULL;
+		return ;
+	}
+	ft_memset(ti->buffer, 0,
+		(size_t)ti->w * (size_t)ti->h * sizeof(uint32_t));
+	upload_framebuffer(ti->overlay, ti->buffer);
 	int32_t instance_id = mlx_image_to_window(mlx, ti->overlay, 0, 0);
 	if (instance_id < 0)
 	{
 		mlx_delete_image(mlx, ti->overlay);
 		ti->overlay = NULL;
-		ti->pixels = NULL;
+		free(ti->buffer);
+		ti->buffer = NULL;
 		return ;
 	}
 	ti->overlay->instances[instance_id].z = 1;
@@ -190,9 +263,11 @@ void	ti_hide(t_toggle_info *ti)
 {
 	uint32_t	index;
 
-	if (!ti->overlay || !ti->pixels)
+	if (!ti->overlay || !ti->buffer)
 		return ;
-	ft_memset(ti->overlay->pixels, 0, (size_t)ti->w * (size_t)ti->h * 4);
+	ft_memset(ti->buffer, 0,
+		(size_t)ti->w * (size_t)ti->h * sizeof(uint32_t));
+	upload_framebuffer(ti->overlay, ti->buffer);
 	index = 0;
 	while (index < ti->overlay->count)
 	{
@@ -206,10 +281,12 @@ void	ti_show_axes(t_toggle_info *ti, const t_cam_frame *fr)
 {
 	uint32_t	index;
 
-	if (!ti->overlay || !ti->pixels)
+	if (!ti->overlay || !ti->buffer)
 		return ;
-	ft_memset(ti->overlay->pixels, 0, (size_t)ti->w * (size_t)ti->h * 4);
+	ft_memset(ti->buffer, 0,
+		(size_t)ti->w * (size_t)ti->h * sizeof(uint32_t));
 	ti_draw_axes(ti, fr);
+	upload_framebuffer(ti->overlay, ti->buffer);
 	index = 0;
 	while (index < ti->overlay->count)
 	{

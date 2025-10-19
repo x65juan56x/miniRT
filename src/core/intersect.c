@@ -55,10 +55,10 @@ static int	record_triangle(const t_triangle *tr, t_ray r, float t, t_hit *out)
 	return (1);
 }
 
-static int record_cylinder(const t_cyl *cy, t_ray r, float t, t_hit *out)
-{
+// static int record_cylinder(const t_cyl *cy, t_ray r, float t, t_hit *out)
+// {
 	
-}
+// }
 
 static int	object_hit(const t_object *obj, t_ray r, t_hit *out)
 {
