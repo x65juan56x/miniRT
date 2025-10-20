@@ -1,5 +1,5 @@
 #include "../../include/minirt.h"
-#include "../../include/hit.h"
+#include "../../include/hit_bonus.h"
 
 float	hit_triangle(const t_triangle *tr, t_ray r)
 {

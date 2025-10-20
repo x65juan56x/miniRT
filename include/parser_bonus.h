@@ -2,14 +2,11 @@
 * Parser API: parse a .rt scene file into a t_scene model.
 * Provides a simple result struct for error reporting and helpers for tests.
 */
-#ifndef PARSER_H
-# define PARSER_H
+#ifndef PARSER_BONUS_H
+# define PARSER_BONUS_H
 
 # include <stdbool.h>
-#ifndef SCENE_HEADER
-# define SCENE_HEADER "scene.h"
-#endif
-# include SCENE_HEADER
+# include "scene_bonus.h"
 
 /*
 * Parsing result descriptor.

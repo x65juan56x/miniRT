@@ -80,22 +80,22 @@ Significado de cada argumento y su efecto geométrico:
 - axis (vec3 normalizado): eje del paraboloide en mundo. Define la dirección del eje z local. Rota la superficie para que su “columna” se alinee con este vector.
 - rx (float > 0): semi-eje en el eje local x para el recorte elíptico de la sección transversal. Visualmente, estira/encoge el lóbulo negativo en X (apertura en X).
 - ry (float > 0): semi-eje en el eje local y para el recorte elíptico. Visualmente, estira/encoge el lóbulo positivo en Y (apertura en Y).
-- height (float > 0): altura total del recorte a lo largo del eje del paraboloide (axis). Se usa como recorte en |z| <= height/2. Visualmente, “corta” el paraboloide arriba y abajo.
+- height (float > 0): altura total del recorte a lo largo del eje del paraboloide (axis). Se usa como recorte en |z| <= height (clamp vertical completo). Visualmente, “corta” el paraboloide arriba y abajo con mayor holgura que el recorte a la mitad.
 - color (RGB 0..255): albedo del objeto. Se normaliza a [0,1] por canal y se usa en el sombreado Lambert.
 
 Notas prácticas:
 - El parser valida normalización de axis y valores positivos para rx, ry, height.
 - Los colores en 0..255 se convierten a floats en [0,1].
-- La escena de ejemplo `scenes/ejemplo_hp.rt` define un hp de color lila y un plano/sphere para contexto visual.
+- La escena de ejemplo `scenes/ejemplo_hp_suite.rt` reúne varios hp para comprobar rx/ry/height y un caso con axis inclinado.
 
 ## Representación interna (`t_hparab`)
 
 Estructura definida en `include/scene.h`:
 - center: centro en mundo.
 - axis: eje local z (normalizado).
-- u, v: ejes ortogonales locales x, y construidos perpendiculares a axis.
+- u, v: ejes ortonormales locales x, y construidos perpendiculares a axis.
 - rx, ry: radios de recorte en los ejes u y v.
-- height: altura total; half_height = height/2 para recorte vertical.
+- height: altura total; half_height = height (recorte vertical simétrico a altura completa).
 - inv_rx2, inv_ry2: inversos precalculados de rx^2 y ry^2 para rendimiento.
 - inv_height: 1.0/height (se usa en la forma implícita). Si height → 0 no es válido.
 - color: albedo en [0,1]^3.
@@ -141,7 +141,7 @@ Detalles de implementación (`src/geom/hparaboloid_bonus.c`):
 
 El paraboloide es infinito; lo acotamos con dos condiciones:
 1) Recorte elíptico lateral: (x^2/rx^2 + y^2/ry^2) <= 1 + 1e−4
-2) Recorte vertical: |z| <= half_height + 1e−4
+2) Recorte vertical: |z| <= half_height + 2e−4 (con half_height = height)
 
 El pequeño margen 1e−4 estabiliza errores numéricos en los bordes.
 Además, se exige t > EPSILON para evitar auto-intersecciones.
@@ -187,7 +187,7 @@ Errores comunes detectados:
 ## Notas numéricas
 
 - EPSILON = 1e−4 para ignorar intersecciones a t ≈ 0.
-- Tolerancias 1e−4 en los recortes para robustez frente a coma flotante.
+- Tolerancias: elíptica 1e−4; vertical 2e−4 para robustez adicional en el clamp superior/inferior.
 - Se usan inversos precalculados para minimizar multiplicaciones/divisiones por rayo.
 
 ## Ejemplo anotado
@@ -197,10 +197,10 @@ hp 0,0,0 0,1,0 2.0 3.0 3.5 180,120,255
 - center = (0,0,0)
 - axis = (0,1,0) → eje del hp apunta al +Y mundo
 - rx = 2.0, ry = 3.0 → elipse de recorte lateral ancha en v
-- height = 3.5 → half_height = 1.75; se corta a z_local ∈ [−1.75, 1.75]
+- height = 3.5 → clamp vertical en |z_local| ≤ 3.5 (half_height = height)
 - color = (180,120,255)/255 → albedo ~ (0.706, 0.471, 1.0)
 
-Con esto, el hp luce como una “silla de montar” centrada en el origen, extendida más a lo largo de v (ry=3) que de u (rx=2), y recortada verticalmente para no ser infinita.
+Con esto, el hp luce como una “silla de montar” centrada en el origen, extendida más a lo largo de v (ry=3) que de u (rx=2), recortada por una elipse lateral y verticalmente a |z_local| ≤ height.
 - Elige el menor $t > epsilon$ (para evitar self-intersection).
 
 

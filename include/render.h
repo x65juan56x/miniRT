@@ -2,10 +2,17 @@
 # define  RENDER_H
 
 # include <stdint.h>
-# include "scene.h"
 # include "minirt.h"
-# include "camera.h"
-# include "app.h"
+
+// Allow selecting the scene header used by camera.h from callers (bonus vs mandatory)
+#ifndef SCENE_HEADER
+# define SCENE_HEADER "scene.h"
+#endif
+#include "camera.h"
+
+// Forward declaration to avoid pulling app/scene into this public header
+struct s_app;
+typedef struct s_app t_app;
 
 typedef struct s_render_aux
 {

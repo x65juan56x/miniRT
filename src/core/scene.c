@@ -1,5 +1,15 @@
 #include <stdlib.h>
-#include "../../include/scene.h"
+#ifndef SCENE_HEADER
+# define SCENE_HEADER "scene.h"
+#endif
+#include "../../include/minirt.h"
+#include "../../include/vec3.h"
+#include "../../include/ray.h"
+#include "../../include/math_utils.h"
+#include "../../include/color.h"
+#include "../../include/ui.h"
+#include "../../include/camera.h"
+#include SCENE_HEADER
 
 // Inicializa la escena con valores por defecto y flags de presencia en falso.
 // Esto permite validar que A, C, L se declaren exactamente una vez en el parser.

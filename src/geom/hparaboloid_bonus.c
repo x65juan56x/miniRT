@@ -1,6 +1,6 @@
 #include <math.h>
 #include "../../include/minirt.h"
-#include "../../include/hit.h"
+#include "../../include/hit_bonus.h"
 
 static void	hp_project(const t_hparab *hp, t_ray r, t_hp_aux *aux)
 {
@@ -44,7 +44,8 @@ static float	check_solution(const t_hparab *hp, const t_hp_aux *aux, float t)
 	inside = x * x * hp->inv_rx2 + y * y * hp->inv_ry2;
 	if (inside > 1.0f + 1e-4f)
 		return (-1.0f);
-	if (fabsf(z) > hp->half_height + 1e-4f)
+	// Vertical clamp: allow full height (half_height set to height) with a small tolerance
+	if (fabsf(z) > hp->half_height + 2e-4f)
 		return (-1.0f);
 	return (t);
 }

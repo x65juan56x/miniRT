@@ -3,8 +3,8 @@
 * This header declares the core data structures produced by the parser and
 * consumed by the renderer/shading code.
 */
-#ifndef SCENE_H
-# define SCENE_H
+#ifndef SCENE_BONUS_H
+# define SCENE_BONUS_H
 
 # include <stdbool.h>
 # include <stdint.h>
@@ -60,7 +60,9 @@ typedef enum e_objtype
 {
 	OBJ_SPHERE,
 	OBJ_PLANE,
-	OBJ_CYLINDER
+	OBJ_CYLINDER,
+	OBJ_TRIANGLE,
+	OBJ_HPARABOLOID
 }	t_objtype;
 
 /*
@@ -74,6 +76,8 @@ typedef struct s_sphere
 	t_vec3	center;
 	float	di;
 	t_vec3	color;
+	int		has_checker;
+	float	checker_scale;
 }	t_sphere;
 
 typedef struct s_plane
@@ -81,6 +85,10 @@ typedef struct s_plane
 	t_vec3	point;
 	t_vec3	normal;
 	t_vec3	color;
+	int		has_checker;
+	float	checker_scale;
+	t_vec3	u;
+	t_vec3	v;
 }	t_plane;
 
 typedef struct s_cyl
@@ -91,6 +99,41 @@ typedef struct s_cyl
 	float	he;
 	t_vec3	color;
 }	t_cyl;
+
+/*
+* Triangle primitive (non-mandatory; used by OBJ->RT tool and tests).
+* a,b,c: triangle vertices in world space.
+* color: albedo per channel in [0,1].
+*/
+typedef struct s_triangle
+{
+	t_vec3	a;
+	t_vec3	b;
+	t_vec3	c;
+	t_vec3	color;
+	int		has_checker;
+	float	checker_scale;
+	t_vec3	u;
+	t_vec3	v;
+}	t_triangle;
+
+typedef struct s_hparab
+{
+	t_vec3	center;
+	t_vec3	axis;
+	t_vec3	u;
+	t_vec3	v;
+	float	rx;
+	float	ry;
+	float	height;
+	float	half_height;
+	float	inv_rx2;
+	float	inv_ry2;
+	float	inv_height;
+	t_vec3	color;
+	int		has_checker;
+	float	checker_scale;
+}	t_hparab;
 
 /*
 * Scene object node (singly-linked list).
@@ -106,6 +149,8 @@ typedef struct s_object
 		t_sphere	sp;
 		t_plane		pl;
 		t_cyl		cy;
+		t_triangle	tr;
+		t_hparab	hp;
 	} u_obj;
 	struct s_object	*next;
 }	t_object;

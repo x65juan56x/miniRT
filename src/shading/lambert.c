@@ -1,5 +1,4 @@
 #include "../../include/minirt.h"
-#include "../../include/scene.h"
 #include "../../include/hit.h"
 #include "../../include/shading.h"
 

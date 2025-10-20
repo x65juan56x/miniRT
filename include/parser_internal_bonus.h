@@ -1,9 +1,9 @@
-#ifndef PARSER_INTERNAL_H
-# define PARSER_INTERNAL_H
+#ifndef PARSER_INTERNAL_BONUS_H
+# define PARSER_INTERNAL_BONUS_H
 
 # include <stddef.h>
 # include <stdbool.h>
-# include "parser.h"
+# include "parser_bonus.h"
 
 char			**read_file_lines(const char *path, size_t *out_count);
 void			free_lines(char **lines, size_t count);
@@ -25,5 +25,7 @@ t_parse_result	parse_l(char **tokens, int line, t_scene *scene);
 t_parse_result	parse_sp(char **tokens, int line, t_scene *scene);
 t_parse_result	parse_pl(char **tokens, int line, t_scene *scene);
 t_parse_result	parse_cy(char **tokens, int line, t_scene *scene);
+t_parse_result	parse_tr(char **tokens, int line, t_scene *scene);
+t_parse_result	parse_hp(char **tokens, int line, t_scene *scene);
 
 #endif

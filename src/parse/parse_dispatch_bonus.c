@@ -1,5 +1,5 @@
 #include "../../libraries/libft/libft.h"
-#include "../../include/parser_internal.h"
+#include "../../include/parser_internal_bonus.h"
 
 t_parse_result	dispatch_tokens(char **tokens, int line, t_scene *scene)
 {
@@ -15,6 +15,10 @@ t_parse_result	dispatch_tokens(char **tokens, int line, t_scene *scene)
 		return (parse_pl(tokens, line, scene));
 	if (ft_strncmp(tokens[0], "cy", 3) == 0)
 		return (parse_cy(tokens, line, scene));
+	if (ft_strncmp(tokens[0], "tr", 3) == 0)
+		return (parse_tr(tokens, line, scene));
+	if (ft_strncmp(tokens[0], "hp", 3) == 0)
+		return (parse_hp(tokens, line, scene));
 	return (parse_error(line, "Unknown identifier"));
 }
 /*

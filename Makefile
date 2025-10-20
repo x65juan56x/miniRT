@@ -1,14 +1,31 @@
-NAME = miniRT
-CC = cc
-CFLAGS = -Wall -Wextra -Werror
-INCLUDES = -I include -I libraries/MLX42/include -I libraries/MLX42/include/MLX42 -I libraries/libft
-LDFLAGS = -ldl -lglfw -pthread -lm -lGL -Ofast -march=native
+NAME        = miniRT
+NAME_BONUS  = miniRT_bonus
+CC          = cc
+CFLAGS      = -Wall -Wextra -Werror
+CFLAGS_BONUS = $(CFLAGS) -DSCENE_HEADER='"scene_bonus.h"'
+INCLUDES    = -I include -I libraries/MLX42/include -I libraries/MLX42/include/MLX42 -I libraries/libft
+LDFLAGS     = -ldl -lglfw -pthread -lm -lGL -Ofast -march=native -O3 -ffast-math
 
-SRC_DIR = src
-OBJ_DIR = obj
+SRC_DIR     = src
+OBJ_DIR     = obj
 
-# Parsing related sources
-PARSE_SRCS = \
+# Common (shared by both builds)
+COMMON_SRCS = \
+	$(SRC_DIR)/color/color.c \
+	$(SRC_DIR)/core/ray.c \
+	$(SRC_DIR)/core/scene.c \
+	$(SRC_DIR)/math/vec3.c \
+	$(SRC_DIR)/math/math_utils.c \
+	$(SRC_DIR)/camera/camera.c \
+	$(SRC_DIR)/render/framebuffer.c \
+	$(SRC_DIR)/render/render.c \
+	$(SRC_DIR)/shading/lambert.c \
+	$(SRC_DIR)/shading/shadow.c \
+	$(SRC_DIR)/app/input.c \
+	$(SRC_DIR)/app/toggle_info.c
+
+# ---------- Mandatory set ----------
+PARSE_M_SRCS = \
 	$(SRC_DIR)/parse/free_lines.c \
 	$(SRC_DIR)/parse/parse_dispatch.c \
 	$(SRC_DIR)/parse/parse_elements.c \
@@ -20,77 +37,66 @@ PARSE_SRCS = \
 	$(SRC_DIR)/parse/parse_vectors.c \
 	$(SRC_DIR)/parse/token_split.c
 
-CAMERA_SRCS = \
-	$(SRC_DIR)/camera/camera.c
+GEOM_M_SRCS = \
+	$(SRC_DIR)/geom/sphere.c \
+	$(SRC_DIR)/geom/plane.c \
+	$(SRC_DIR)/geom/cylinder.c
 
-GEOM_SRCS = \
+CORE_M_SRCS = \
+	$(SRC_DIR)/core/intersect.c
+
+MAIN_M      = $(SRC_DIR)/minirt.c
+SRCS_M      = $(PARSE_M_SRCS) $(COMMON_SRCS) $(GEOM_M_SRCS) $(CORE_M_SRCS) $(MAIN_M)
+OBJS_M      = $(SRCS_M:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
+
+# ---------- Bonus set ----------
+PARSE_B_SRCS = \
+	$(SRC_DIR)/parse/free_lines.c \
+	$(SRC_DIR)/parse/parse_dispatch_bonus.c \
+	$(SRC_DIR)/parse/parse_elements.c \
+	$(SRC_DIR)/parse/parse_numbers.c \
+	$(SRC_DIR)/parse/parse_objects_bonus.c \
+	$(SRC_DIR)/parse/parse_result.c \
+	$(SRC_DIR)/parse/parser.c \
+	$(SRC_DIR)/parse/parser_utils.c \
+	$(SRC_DIR)/parse/parse_vectors.c \
+	$(SRC_DIR)/parse/token_split.c
+
+GEOM_B_SRCS = \
 	$(SRC_DIR)/geom/sphere.c \
 	$(SRC_DIR)/geom/plane.c \
 	$(SRC_DIR)/geom/cylinder.c \
 	$(SRC_DIR)/geom/triangle_bonus.c \
 	$(SRC_DIR)/geom/hparaboloid_bonus.c
 
-RENDER_SRCS = \
-	$(SRC_DIR)/render/framebuffer.c \
-	$(SRC_DIR)/render/render.c
+CORE_B_SRCS = \
+	$(SRC_DIR)/core/intersect_bonus.c
 
-SHADING_SRCS = \
-	$(SRC_DIR)/shading/lambert.c \
-	$(SRC_DIR)/shading/shadow.c
+MAIN_B      = $(SRC_DIR)/minirt_bonus.c
+SRCS_B      = $(PARSE_B_SRCS) $(COMMON_SRCS) $(GEOM_B_SRCS) $(CORE_B_SRCS) $(MAIN_B)
+OBJS_B      = $(SRCS_B:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.bo)
 
-CORE_SRCS = \
-	$(SRC_DIR)/color/color.c \
-	$(SRC_DIR)/core/intersect.c \
-	$(SRC_DIR)/core/ray.c \
-	$(SRC_DIR)/core/scene.c \
-	$(SRC_DIR)/math/vec3.c \
-	$(SRC_DIR)/math/math_utils.c \
-	$(SRC_DIR)/app/input.c \
-	$(SRC_DIR)/app/toggle_info.c \
-	$(CAMERA_SRCS) \
-	$(GEOM_SRCS) \
-	$(RENDER_SRCS) \
-	$(SHADING_SRCS)
+DEPS_M      = $(OBJS_M:.o=.d)
+DEPS_B      = $(OBJS_B:.bo=.d)
 
-# Select the active main (only one file containing main())
-MAIN_SRC = $(SRC_DIR)/minirt.c
-# MAIN_SRC = $(SRC_DIR)/main_example01.c
-# PRUEBAS JUAN #
-# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main00_redsphere.c # Esfera roja
-# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main01_normalsphere.c # Esfera con color según normales
-# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main02_red_t_sphere.c # Esfera roja con profundidad
-# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main03_camera_playground.c # Prueba de cámara
-# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main04_parser_playground.c # Prueba del parser (pasar archivo.rt desde la terminal) ejemplo: ./miniRT src/PruebasJuan/ejemplos/parser_playground.rt
-# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main05_plane.c # Plano
-# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main06_many_objects.c # Planos y esferas
-# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main07_lambert.c
-# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main08_shadows.c
-# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main09_normals.c
-# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main10_triangle.c
-# MAIN_SRC = $(SRC_DIR)/PruebasJuan/main11_info.c
-
-# Final sources for the primary miniRT binary
-SRCS = $(PARSE_SRCS) $(CORE_SRCS) $(MAIN_SRC)
-
-OBJS = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
-DEPS = $(OBJS:.o=.d)
-
-# libft
-LIBFT_DIR = libraries/libft
-LIBFT_LIB = $(LIBFT_DIR)/libft.a
-
-# get_next_line
-GNL_DIR = libraries/get_next_line
-GNL_LIB = $(GNL_DIR)/get_next_line.a
-
-MLX_DIR = libraries/MLX42
+# Libraries
+LIBFT_DIR   = libraries/libft
+LIBFT_LIB   = $(LIBFT_DIR)/libft.a
+GNL_DIR     = libraries/get_next_line
+GNL_LIB     = $(GNL_DIR)/get_next_line.a
+MLX_DIR     = libraries/MLX42
 MLX_BUILD_DIR = $(MLX_DIR)/build
-MLX_LIB = $(MLX_BUILD_DIR)/libmlx42.a
+MLX_LIB     = $(MLX_BUILD_DIR)/libmlx42.a
 
 all: $(NAME)
 
-$(NAME): $(MLX_LIB) $(LIBFT_LIB) $(GNL_LIB) $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) $(MLX_LIB) $(LIBFT_LIB) $(GNL_LIB) $(LDFLAGS) -o $@
+$(NAME): $(MLX_LIB) $(LIBFT_LIB) $(GNL_LIB) $(OBJS_M)
+	$(CC) $(CFLAGS) $(OBJS_M) $(MLX_LIB) $(LIBFT_LIB) $(GNL_LIB) $(LDFLAGS) -o $@
+
+bonus: $(NAME_BONUS)
+
+$(NAME_BONUS): $(MLX_LIB) $(LIBFT_LIB) $(GNL_LIB) $(OBJS_B)
+	$(CC) $(CFLAGS_BONUS) $(filter %.bo,$(OBJS_B)) $(MLX_LIB) $(LIBFT_LIB) $(GNL_LIB) $(LDFLAGS) -o $@
 
 $(MLX_LIB):
 	cmake -S $(MLX_DIR) -B $(MLX_BUILD_DIR) -DMLX_BUILD_EXAMPLES=OFF
@@ -105,9 +111,14 @@ $(GNL_LIB):
 $(OBJ_DIR):
 	@mkdir -p $(OBJ_DIR)
 
+
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) -MMD -MP -c $< -o $@
+
+$(OBJ_DIR)/%.bo: $(SRC_DIR)/%.c | $(OBJ_DIR)
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS_BONUS) $(INCLUDES) -MMD -MP -c $< -o $@
 
 clean:
 	rm -rf $(OBJ_DIR)
@@ -115,7 +126,7 @@ clean:
 	$(MAKE) -C $(GNL_DIR) clean
 
 fclean: clean
-	rm -f $(NAME) parser
+	rm -f $(NAME) $(NAME_BONUS) parser
 	$(MAKE) -C $(LIBFT_DIR) fclean
 	$(MAKE) -C $(GNL_DIR) fclean
 
@@ -123,22 +134,7 @@ re:
 	$(MAKE) fclean
 	$(MAKE) all
 
-bonus: all
-
--include $(DEPS)
+-include $(DEPS_M)
+-include $(DEPS_B)
 
 .PHONY: all clean fclean re bonus
-
-# -----------------
-# Parser test target
-# -----------------
-# Build a lightweight parser CLI without MLX42 (uses parser_main)
-PARSER_MAIN = $(SRC_DIR)/parser_main.c
-PARSER_SRCS = $(PARSE_SRCS) $(PARSER_MAIN) \
-	$(SRC_DIR)/math/vec3.c \
-	$(SRC_DIR)/math/math_utils.c \
-	$(SRC_DIR)/core/scene.c
-PARSER_OBJS = $(PARSER_SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
-
-parser: $(LIBFT_LIB) $(GNL_LIB) $(PARSER_OBJS)
-	$(CC) $(CFLAGS) $(PARSER_OBJS) $(LIBFT_LIB) $(GNL_LIB) -lm -o $@

@@ -1,7 +1,7 @@
 #include <float.h>
 #include "../../include/render.h"
 #include "../../include/camera.h"
-#include "../../include/hit.h"
+#include "../../include/app.h"
 #include "../../include/shading.h"
 
 static t_vec3	trace_pixel(const t_scene *scene, t_ray r, int show_normals)
@@ -33,7 +33,6 @@ void	render_scene(t_app *app)
 			vars.sample = v3_add(vars.frame.lower_left,
 					v3_add(v3_mul(vars.frame.horizontal, vars.u),
 						v3_mul(vars.frame.vertical, vars.v)));
-			vars.dir = v3_norm(v3_sub(vars.sample, vars.frame.origin));
 			vars.dir = v3_norm(v3_sub(vars.sample, vars.frame.origin));
 			app->framebuffer[y * app->image->width + x]
 				= vec3_to_rgba(trace_pixel(&app->scene,
