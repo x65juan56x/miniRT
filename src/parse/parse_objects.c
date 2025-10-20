@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdlib.h>
 #include "../../include/parser_internal.h"
 
@@ -102,6 +103,75 @@ t_parse_result	parse_cy(char **tkns, int line, t_scene *scene)
 * Actions: Allocate, parse center/axis/diameter/height/color, then link object.
 * Failure: Returns descriptive parse_error while freeing allocated memory.
 */
+
+static t_parse_result	hp_create_object(char **tok, int line, t_object **out)
+{
+	t_object	*obj;
+
+	if (!tok[1] || !tok[2] || !tok[3] || !tok[4] || !tok[5] || !tok[6]
+		|| tok[7])
+		return (parse_error(line, "hp: invalid format"));
+	obj = (t_object *)malloc(sizeof(t_object));
+	if (!obj)
+		return (parse_error(line, "hp: not enough memory"));
+	obj->type = OBJ_HPARABOLOID;
+	obj->next = NULL;
+	*out = obj;
+	return (parse_ok());
+}
+
+static t_parse_result	hp_parse_attributes(char **tok, int line, t_object *obj)
+{
+	if (!parse_vec3(tok[1], &obj->u_obj.hp.center))
+		return (object_error(obj, line, "hp: invalid centre"));
+	if (!parse_vec3(tok[2], &obj->u_obj.hp.axis))
+		return (object_error(obj, line, "hp: invalid axis"));
+	if (!vec3_components_in_range(obj->u_obj.hp.axis, -1.0f, 1.0f))
+		return (object_error(obj, line, "hp: axis out of range [-1,1]"));
+	if (!vec3_is_normalized(obj->u_obj.hp.axis))
+		return (object_error(obj, line, "hp: not normalized axis"));
+	if (!parse_float(tok[3], &obj->u_obj.hp.rx) || obj->u_obj.hp.rx <= 0.0f)
+		return (object_error(obj, line, "hp: invalid rx"));
+	if (!parse_float(tok[4], &obj->u_obj.hp.ry) || obj->u_obj.hp.ry <= 0.0f)
+		return (object_error(obj, line, "hp: invalid ry"));
+	if (!parse_float(tok[5], &obj->u_obj.hp.height)
+		|| obj->u_obj.hp.height <= 0.0f)
+		return (object_error(obj, line, "hp: invalid height"));
+	if (!parse_color_255(tok[6], &obj->u_obj.hp.color))
+		return (object_error(obj, line, "hp: invalid color"));
+	return (parse_ok());
+}
+
+static void	hp_finalize(t_hparab *hp)
+{
+	t_vec3	up;
+
+	up = v3(0.0f, 1.0f, 0.0f);
+	if (fabsf(v3_dot(hp->axis, up)) > 0.999f)
+		up = v3(1.0f, 0.0f, 0.0f);
+	hp->u = v3_norm(v3_cross(up, hp->axis));
+	hp->v = v3_cross(hp->axis, hp->u);
+	hp->half_height = hp->height * 0.5f;
+	hp->inv_rx2 = 1.0f / (hp->rx * hp->rx);
+	hp->inv_ry2 = 1.0f / (hp->ry * hp->ry);
+	hp->inv_height = 1.0f / hp->height;
+}
+
+t_parse_result	parse_hp(char **tok, int line, t_scene *scene)
+{
+	t_object		*obj;
+	t_parse_result	result;
+
+	result = hp_create_object(tok, line, &obj);
+	if (!result.ok)
+		return (result);
+	result = hp_parse_attributes(tok, line, obj);
+	if (!result.ok)
+		return (result);
+	hp_finalize(&obj->u_obj.hp);
+	scene_add_object(scene, obj);
+	return (parse_ok());
+}
 
 // Format: tr x1,y1,z1 x2,y2,z2 x3,y3,z3 r,g,b
 t_parse_result	parse_tr(char **tokens, int line, t_scene *scene)

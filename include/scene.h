@@ -61,7 +61,8 @@ typedef enum e_objtype
 	OBJ_SPHERE,
 	OBJ_PLANE,
 	OBJ_CYLINDER,
-	OBJ_TRIANGLE
+	OBJ_TRIANGLE,
+	OBJ_HPARABOLOID
 }	t_objtype;
 
 /*
@@ -106,6 +107,22 @@ typedef struct s_triangle
 	t_vec3	color;
 }	t_triangle;
 
+typedef struct s_hparab
+{
+	t_vec3	center;
+	t_vec3	axis;
+	t_vec3	u;
+	t_vec3	v;
+	float	rx;
+	float	ry;
+	float	height;
+	float	half_height;
+	float	inv_rx2;
+	float	inv_ry2;
+	float	inv_height;
+	t_vec3	color;
+}	t_hparab;
+
 /*
 * Scene object node (singly-linked list).
 * type: which shape the union holds.
@@ -121,6 +138,7 @@ typedef struct s_object
 		t_plane		pl;
 		t_cyl		cy;
 		t_triangle	tr;
+		t_hparab	hp;
 	} u_obj;
 	struct s_object	*next;
 }	t_object;

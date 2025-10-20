@@ -25,7 +25,7 @@ t_parse_result	parse_l(char **tokens, int line, t_scene *scene);
 t_parse_result	parse_sp(char **tokens, int line, t_scene *scene);
 t_parse_result	parse_pl(char **tokens, int line, t_scene *scene);
 t_parse_result	parse_cy(char **tokens, int line, t_scene *scene);
-// Non-mandatory extension: triangle support used by obj_to_rt tool
 t_parse_result	parse_tr(char **tokens, int line, t_scene *scene);
+t_parse_result	parse_hp(char **tokens, int line, t_scene *scene);
 
 #endif

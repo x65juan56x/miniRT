@@ -55,6 +55,30 @@ static int	record_triangle(const t_triangle *tr, t_ray r, float t, t_hit *out)
 	return (1);
 }
 
+static int	record_hparaboloid(const t_hparab *hp, t_ray r, float t, t_hit *out)
+{
+	t_vec3	p;
+	t_vec3	rel;
+	float	x;
+	float	y;
+	t_vec3	grad_local;
+	t_vec3	n;
+
+	p = ray_at(r, t);
+	rel = v3_sub(p, hp->center);
+	x = v3_dot(rel, hp->u);
+	y = v3_dot(rel, hp->v);
+	grad_local = v3(-2.0f * x * hp->inv_rx2, 2.0f * y * hp->inv_ry2,
+		-hp->inv_height);
+	n = v3_add(v3_add(v3_mul(hp->u, grad_local.x),
+			v3_mul(hp->v, grad_local.y)),
+		v3_mul(hp->axis, grad_local.z));
+	n = v3_norm(n);
+	set_common_hit(out, t, p, n, hp->color);
+	orient_normal(out, r);
+	return (1);
+}
+
 // static int record_cylinder(const t_cyl *cy, t_ray r, float t, t_hit *out)
 // {
 	
@@ -73,14 +97,17 @@ static int	object_hit(const t_object *obj, t_ray r, t_hit *out)
 		t = hit_triangle(&obj->u_obj.tr, r);
 	else if (obj->type == OBJ_CYLINDER)
 		t = hit_cylinder(&obj->u_obj.cy, r);
+	else if (obj->type == OBJ_HPARABOLOID)
+		t = hit_hparaboloid(&obj->u_obj.hp, r);
 	if (t <= 0.0f)
 		return (0);
 	if (obj->type == OBJ_SPHERE)
 		return (record_sphere(&obj->u_obj.sp, r, t, out));
 	if (obj->type == OBJ_PLANE)
 		return (record_plane(&obj->u_obj.pl, r, t, out));
+	if (obj->type == OBJ_HPARABOLOID)
+		return (record_hparaboloid(&obj->u_obj.hp, r, t, out));
 	return (record_triangle(&obj->u_obj.tr, r, t, out));
-	
 }
 
 int	scene_hit(const t_scene *scene, t_ray r, float max_dist, t_hit *out)

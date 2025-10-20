@@ -2,7 +2,7 @@ NAME = miniRT
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
 INCLUDES = -I include -I libraries/MLX42/include -I libraries/MLX42/include/MLX42 -I libraries/libft
-LDFLAGS = -ldl -lglfw -pthread -lm -lGL
+LDFLAGS = -ldl -lglfw -pthread -lm -lGL -Ofast -march=native
 
 SRC_DIR = src
 OBJ_DIR = obj
@@ -27,7 +27,8 @@ GEOM_SRCS = \
 	$(SRC_DIR)/geom/sphere.c \
 	$(SRC_DIR)/geom/plane.c \
 	$(SRC_DIR)/geom/cylinder.c \
-	$(SRC_DIR)/geom/triangle_bonus.c
+	$(SRC_DIR)/geom/triangle_bonus.c \
+	$(SRC_DIR)/geom/hparaboloid_bonus.c
 
 RENDER_SRCS = \
 	$(SRC_DIR)/render/framebuffer.c \
