@@ -4,7 +4,6 @@
 # Object files
 *.o
 *.ko
-*.obj
 *.elf
 
 # Linker output
@@ -56,6 +55,7 @@ dkms.conf
 
 # Project binary
 /miniRT
+/miniRT_bonus
 
 # MLX42 build artifacts (keep sources tracked)
 /MLX42/build/

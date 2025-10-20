@@ -487,15 +487,21 @@ static void	write_triangle_entry(int fd, t_vec3 a, t_vec3 b, t_vec3 c, int idx)
     write(fd, "\n", 1);
 }
 
-static void	center_mesh(t_mesh *mesh)
+static void	center_mesh(t_mesh *mesh, t_vec3 *out_min, t_vec3 *out_max)
 {
     size_t	i;
     t_vec3	min;
     t_vec3	max;
     t_vec3	shift;
 
-    if (mesh->v_count == 0)
+	if (mesh->v_count == 0)
+    {
+        if (out_min)
+            *out_min = make_vec3(0.0f, 0.0f, 0.0f);
+        if (out_max)
+            *out_max = make_vec3(0.0f, 0.0f, 0.0f);
         return ;
+    }
     min = mesh->vertices[0];
     max = mesh->vertices[0];
     i = 1;
@@ -525,6 +531,18 @@ static void	center_mesh(t_mesh *mesh)
         mesh->vertices[i].y -= shift.y;
         mesh->vertices[i].z -= shift.z;
         i++;
+    }
+    if (out_min)
+    {
+        out_min->x = min.x - shift.x;
+        out_min->y = min.y - shift.y;
+        out_min->z = min.z - shift.z;
+    }
+    if (out_max)
+    {
+        out_max->x = max.x - shift.x;
+        out_max->y = max.y - shift.y;
+        out_max->z = max.z - shift.z;
     }
 }
 
@@ -557,7 +575,17 @@ static int	write_header(int fd)
     return (1);
 }
 
-static int	write_rt(const char *path, const t_mesh *mesh)
+static void	write_bounds(int fd, t_vec3 min, t_vec3 max)
+{
+    write(fd, "# Bounds min ", sizeof("# Bounds min ") - 1);
+    write_vec3(fd, min);
+    write(fd, "\n", 1);
+    write(fd, "# Bounds max ", sizeof("# Bounds max ") - 1);
+    write_vec3(fd, max);
+    write(fd, "\n", 1);
+}
+
+static int	write_rt(const char *path, const t_mesh *mesh, t_vec3 min, t_vec3 max)
 {
     int	fd;
 
@@ -570,6 +598,7 @@ static int	write_rt(const char *path, const t_mesh *mesh)
         return (0);
     }
     write_faces_as_triangles(fd, mesh);
+    write_bounds(fd, min, max);
     close(fd);
     return (1);
 }
@@ -577,6 +606,8 @@ static int	write_rt(const char *path, const t_mesh *mesh)
 int	main(int ac, char **av)
 {
     t_mesh	mesh;
+    t_vec3	bbox_min;
+    t_vec3	bbox_max;
 
     if (ac != 3)
         return (error_msg("usage: ./obj_to_rt input.obj output.rt"));
@@ -586,8 +617,8 @@ int	main(int ac, char **av)
         free_mesh(&mesh);
         return (error_msg("failed to load .obj"));
     }
-    center_mesh(&mesh);
-    if (!write_rt(av[2], &mesh))
+    center_mesh(&mesh, &bbox_min, &bbox_max);
+    if (!write_rt(av[2], &mesh, bbox_min, bbox_max))
     {
         free_mesh(&mesh);
         return (error_msg("failed to write .rt"));
