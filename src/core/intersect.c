@@ -55,9 +55,30 @@ static int	record_triangle(const t_triangle *tr, t_ray r, float t, t_hit *out)
 	return (1);
 }
 
+t_vec3 normal(const t_cyl *cylinder, t_vec3 p)
+{
+	t_vec3 radial;
+	//radial = p - center;
+	//p = punto extern
+	//center = base + centro del cilindro;
+	//radidal = vector que va desde el centro del cilindro hacia el punto p;
+	radial = v3_sub(p, cylinder->center);
+	//Proyecta el vector radial sobre el eje del cilindro (axis).
+	float axial = v3_dot(radial, cylinder->axis);
+	//vector perpendicular
+	radial = v3_sub(radial, v3_mul(cylinder->axis, axial));
+	return (radial);
+}
+
 static int record_cylinder(const t_cyl *cy, t_ray r, float t, t_hit *out)
 {
-	
+	t_vec3 p;
+	t_vec3 n;
+	p = ray_at(r, t);
+	n = v3_norm(normal(cy, p));
+	set_common_hit(out, t, p, n, cy->color);
+	orient_normal(out, r);
+	return (1);
 }
 
 static int	object_hit(const t_object *obj, t_ray r, t_hit *out)
@@ -79,6 +100,8 @@ static int	object_hit(const t_object *obj, t_ray r, t_hit *out)
 		return (record_sphere(&obj->u_obj.sp, r, t, out));
 	if (obj->type == OBJ_PLANE)
 		return (record_plane(&obj->u_obj.pl, r, t, out));
+	if	(obj->type == OBJ_CYLINDER)
+		return(record_cylinder(&obj->u_obj.cy, r, t, out));
 	return (record_triangle(&obj->u_obj.tr, r, t, out));
 	
 }

@@ -2,12 +2,31 @@
 #include "../../include/hit.h"
 
 
-int inside_cyl(const t_cyl *cylinder, t_vec3 p, t_vec3 v)
+int inside_cyl_height(const t_cyl *cylinder, t_vec3 p, t_vec3 v)
 {
 	float height_pos = v3_dot(v3_sub(p, cylinder->center), v);
-	if ((height_pos > 0 && height_pos <= - cylinder->he/2) || (height_pos < 0 && height_pos >= - cylinder->he/2))
+	if ((fabsf(height_pos) <= cylinder->he * 0.5f))
 		return 1;
 	return 0;
+}
+
+int inside_cyl(const t_cyl *cylinder, t_vec3 p, t_vec3 v)
+{
+	t_vec3 radial;
+	//radial = p - center;
+	//p = punto extern
+	//center = base + centro del cilindro;
+	//radidal = vector que va desde el centro del cilindro hacia el punto p;
+	float radio = cylinder->di/2;
+	radial = v3_sub(p, cylinder->center);
+	
+	//Proyecta el vector radial sobre el eje del cilindro (axis).
+	float axial = v3_dot(radial, v);
+	radial = v3_sub(radial, v3_mul(v, axial));
+	if (v3_dot(radial, radial) < radio * radio)
+		return (1);
+	else
+		return 0;
 }
 
 float	hit_cylinder(const t_cyl *cylinder, t_ray r)
@@ -49,7 +68,7 @@ float	hit_cylinder(const t_cyl *cylinder, t_ray r)
 		t = t1;
 	if (t2 > 0 && t2 < t)
 		t = t2;
-	if(t < 0)
+	if(t < 0.0f)
 		return -1.0f;
 	// Paso 6 = calcular punto de impacto
 	
@@ -59,9 +78,15 @@ float	hit_cylinder(const t_cyl *cylinder, t_ray r)
 	//condicion de tapas, si es menor que el radio y es perpendicular al punto de la base
 	//cylinder->center no es la base
 
-	if (inside_cyl(cylinder, p, v))
-		return(t);
+	if (inside_cyl_height(cylinder, p, v3_norm(v))/*  && inside_cyl(cylinder, p, v) */)
+		return(t1);
+	/* if(inside_cyl (cylinder, p, v))
+		return(t2); */
 	return -1.0f;
 }
+
+
+
+
 
 
