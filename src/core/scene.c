@@ -10,6 +10,9 @@
 #include "../../include/ui.h"
 #include "../../include/camera.h"
 #include SCENE_HEADER
+#ifdef BONUS_BUILD
+# include "../../include/bump_bonus.h"
+#endif
 
 // Inicializa la escena con valores por defecto y flags de presencia en falso.
 // Esto permite validar que A, C, L se declaren exactamente una vez en el parser.
@@ -45,6 +48,16 @@ void	scene_free(t_scene *s)
 	while (it)
 	{
 		n = it->next;
+#ifdef BONUS_BUILD
+		if (it->type == OBJ_SPHERE && it->u_obj.sp.bump)
+			bump_free(it->u_obj.sp.bump);
+		else if (it->type == OBJ_PLANE && it->u_obj.pl.bump)
+			bump_free(it->u_obj.pl.bump);
+		else if (it->type == OBJ_TRIANGLE && it->u_obj.tr.bump)
+			bump_free(it->u_obj.tr.bump);
+		else if (it->type == OBJ_HPARABOLOID && it->u_obj.hp.bump)
+			bump_free(it->u_obj.hp.bump);
+#endif
 		free(it);
 		it = n;
 	}

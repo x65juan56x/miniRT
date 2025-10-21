@@ -75,6 +75,3 @@ dkms.conf
 /.cache/
 /.clangd/
 
-# Render outputs (optional; comment these if you want to commit results)
-*.ppm
-*.png

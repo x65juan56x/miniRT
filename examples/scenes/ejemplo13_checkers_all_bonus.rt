@@ -1,0 +1,20 @@
+# Bonus scene demonstrating checker patterns on all supported objects
+# Camera and lighting
+A  0.15  255,255,255
+C  0,1,8  0,0,-1  50
+L  5,6,4  0.9  255,255,255
+
+# Ground plane with checker (blue base)
+pl  0,-1,0   0,1,0   30,60,200   cb 1.0
+
+# Sphere with checker (red base)
+sp  -2,0,0   2.0     220,50,50   cb 0.4
+
+# Triangle with checker (green base)
+# Vertices form a tilted triangle in front-left
+tr  -3,-1,-2   -1,1,-3   -2,-1,-4   50,200,80   cb 0.6
+
+# Hyperbolic paraboloid with checker (magenta base)
+# center axis rx ry height color cb <scale>
+# Axis roughly up; rx,ry ~ span along u/v; height controls curvature scale
+hp  2,-0.5,-2   0,1,0   1.2  1.0  1.5   200,60,200   cb 0.5

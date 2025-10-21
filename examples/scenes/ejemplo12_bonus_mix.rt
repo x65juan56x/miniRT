@@ -1,0 +1,16 @@
+# Bonus scene: triangle + HP + checker plane
+A 0.12 255,255,255
+C 0,2,10  0,0,-1  55
+L 6,6,6  0.8  255,240,230
+
+# Ground plane with checker using complementary color cells
+pl 0,-2,0  0,1,0  200,200,200  cb 0.6
+
+# Triangle in front
+tr -1,-1,-4   1,-1,-4   0,1,-4   180,120,255
+
+# Hyperbolic paraboloid demo (upright axis)
+hp 0,-2,-7  0,1,0  2.0  3.0  2.2  120,200,255
+
+# Reference sphere
+sp -3,-1,-3  1.3  240,180,60

@@ -1,0 +1,10 @@
+A 0.12 255,240,225
+L 4,5,2 0.8 255,255,255
+C 0,2,3 0,0,-1 90
+
+sp -1.5,2,0 2 255,255,255 bm /home/juan/Documents/42/CommonCore/Rank04/miniRT/examples/bump_maps/12135954763939.png 0.001
+sp 1.5,2,0 2 200,200,200 bm /home/juan/Documents/42/CommonCore/Rank04/miniRT/examples/bump_maps/12135954763939.png 0.001
+
+pl 0,0,0 0,1,0 240,240,240 bm /home/juan/Documents/42/CommonCore/Rank04/miniRT/examples/bump_maps/earthNormalMap_8k-tig.png 0.0001
+
+tr -1.5,0,1 1.5,0,1 0,3,1 180,180,180 bm examples/bump_maps/eye2.png 0.001

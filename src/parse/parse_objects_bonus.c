@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "../../libraries/libft/libft.h"
 #include "../../include/parser_internal_bonus.h"
+#include "../../include/bump_bonus.h"
 
 static t_parse_result	object_error(t_object *obj, int line, const char *msg)
 {
@@ -33,6 +34,26 @@ static int	parse_optional_checker(char **tokens, int idx, int *has_checker, floa
 	return (1);
 }
 
+static int parse_optional_bump(char **tokens, int idx, int *has_bump,
+		float *out_strength, t_bumpmap **out_bump)
+{
+	*has_bump = 0;
+	*out_bump = NULL;
+	if (!tokens[idx])
+		return (1);
+	if (ft_strncmp(tokens[idx], "bm", 3) != 0)
+		return (1);
+	if (!tokens[idx + 1] || !tokens[idx + 2] || tokens[idx + 3])
+		return (0);
+	if (!parse_float(tokens[idx + 2], out_strength) || *out_strength < 0.0f)
+		return (0);
+	*out_bump = bump_load_png(tokens[idx + 1]);
+	if (!*out_bump)
+		return (0);
+	*has_bump = 1;
+	return (1);
+}
+
 t_parse_result	parse_sp(char **tokens, int line, t_scene *scene)
 {
 	t_object	*obj;
@@ -51,9 +72,16 @@ t_parse_result	parse_sp(char **tokens, int line, t_scene *scene)
 	if (!parse_color_255(tokens[3], &obj->u_obj.sp.color))
 		return (object_error(obj, line, "sp: invalid color"));
 	obj->u_obj.sp.has_checker = 0;
-	obj->u_obj.sp.checker_scale = 1.0f;
-	done = parse_optional_checker(tokens, 4, &obj->u_obj.sp.has_checker,
-			&obj->u_obj.sp.checker_scale);
+	obj->u_obj.sp.checker_scale = 1.0f; // also used as UV scale for bump
+	obj->u_obj.sp.has_bump = 0;
+	obj->u_obj.sp.bump_strength = 0.0f;
+	obj->u_obj.sp.bump = NULL;
+	if (tokens[4] && ft_strncmp(tokens[4], "bm", 3) == 0)
+		done = parse_optional_bump(tokens, 4, &obj->u_obj.sp.has_bump,
+				&obj->u_obj.sp.bump_strength, &obj->u_obj.sp.bump);
+	else
+		done = parse_optional_checker(tokens, 4, &obj->u_obj.sp.has_checker,
+				&obj->u_obj.sp.checker_scale);
 	if (!done)
 		return (object_error(obj, line, "sp: invalid checker (cb <scale>)"));
 	obj->next = NULL;
@@ -102,7 +130,16 @@ t_parse_result	parse_pl(char **tokens, int line, t_scene *scene)
 	if (!parse_color_255(tokens[3], &obj->u_obj.pl.color))
 		return (object_error(obj, line, "pl: invalid color"));
 	plane_build_basis(&obj->u_obj.pl);
-	if (!parse_optional_checker(tokens, 4, &obj->u_obj.pl.has_checker,
+	obj->u_obj.pl.has_bump = 0;
+	obj->u_obj.pl.bump_strength = 0.0f;
+	obj->u_obj.pl.bump = NULL;
+	if (tokens[4] && ft_strncmp(tokens[4], "bm", 3) == 0)
+	{
+		if (!parse_optional_bump(tokens, 4, &obj->u_obj.pl.has_bump,
+				&obj->u_obj.pl.bump_strength, &obj->u_obj.pl.bump))
+			return (object_error(obj, line, "pl: invalid bump (bm <png> <strength>)"));
+	}
+	else if (!parse_optional_checker(tokens, 4, &obj->u_obj.pl.has_checker,
 			&obj->u_obj.pl.checker_scale))
 		return (object_error(obj, line, "pl: invalid checker (cb <scale>)"));
 	obj->next = NULL;
@@ -216,12 +253,24 @@ t_parse_result	parse_hp(char **tok, int line, t_scene *scene)
 	if (!result.ok)
 		return (result);
 	hp_finalize(&obj->u_obj.hp);
-	obj->u_obj.hp.has_checker = 0;
-	obj->u_obj.hp.checker_scale = 1.0f;
+    obj->u_obj.hp.has_checker = 0;
+    obj->u_obj.hp.checker_scale = 1.0f; // also used as UV scale for bump
+    obj->u_obj.hp.has_bump = 0;
+    obj->u_obj.hp.bump_strength = 0.0f;
+    obj->u_obj.hp.bump = NULL;
+    if (tok[7] && ft_strncmp(tok[7], "bm", 3) == 0)
+    {
+	if (!parse_optional_bump(tok, 7, &obj->u_obj.hp.has_bump,
+		&obj->u_obj.hp.bump_strength, &obj->u_obj.hp.bump))
+	    return (object_error(obj, line, "hp: invalid bump (bm <png> <strength>)"));
+    }
+    else
+    {
 	cbcons = parse_optional_checker(tok, 7, &obj->u_obj.hp.has_checker,
-			&obj->u_obj.hp.checker_scale);
+		&obj->u_obj.hp.checker_scale);
 	if (!cbcons)
-		return (object_error(obj, line, "hp: invalid checker (cb <scale>)"));
+	    return (object_error(obj, line, "hp: invalid checker (cb <scale>)"));
+    }
 	scene_add_object(scene, obj);
 	return (parse_ok());
 }
@@ -254,12 +303,24 @@ t_parse_result	parse_tr(char **tokens, int line, t_scene *scene)
 		obj->u_obj.tr.u = v3_norm(e1);
 		obj->u_obj.tr.v = v3_norm(v3_sub(e2, v3_mul(obj->u_obj.tr.u, v3_dot(e2, obj->u_obj.tr.u))));
 	}
-	obj->u_obj.tr.has_checker = 0;
-	obj->u_obj.tr.checker_scale = 1.0f;
+    obj->u_obj.tr.has_checker = 0;
+    obj->u_obj.tr.checker_scale = 1.0f;
+    obj->u_obj.tr.has_bump = 0;
+    obj->u_obj.tr.bump_strength = 0.0f;
+    obj->u_obj.tr.bump = NULL;
+    if (tokens[5] && ft_strncmp(tokens[5], "bm", 3) == 0)
+    {
+	if (!parse_optional_bump(tokens, 5, &obj->u_obj.tr.has_bump,
+		&obj->u_obj.tr.bump_strength, &obj->u_obj.tr.bump))
+	    return (object_error(obj, line, "tr: invalid bump (bm <png> <strength>)"));
+    }
+    else
+    {
 	cbcons = parse_optional_checker(tokens, 5, &obj->u_obj.tr.has_checker,
-			&obj->u_obj.tr.checker_scale);
+		&obj->u_obj.tr.checker_scale);
 	if (!cbcons)
-		return (object_error(obj, line, "tr: invalid checker (cb <scale>)"));
+	    return (object_error(obj, line, "tr: invalid checker (cb <scale>)"));
+    }
 	obj->next = NULL;
 	scene_add_object(scene, obj);
 	return (parse_ok());

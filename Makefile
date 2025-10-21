@@ -2,7 +2,7 @@ NAME        = miniRT
 NAME_BONUS  = miniRT_bonus
 CC          = cc
 CFLAGS      = -Wall -Wextra -Werror
-CFLAGS_BONUS = $(CFLAGS) -DSCENE_HEADER='"scene_bonus.h"'
+CFLAGS_BONUS = $(CFLAGS) -DSCENE_HEADER='"scene_bonus.h"' -DBONUS_BUILD
 INCLUDES    = -I include -I libraries/MLX42/include -I libraries/MLX42/include/MLX42 -I libraries/libft
 LDFLAGS     = -ldl -lglfw -pthread -lm -lGL -Ofast -march=native -O3 -ffast-math
 
@@ -70,7 +70,8 @@ GEOM_B_SRCS = \
 	$(SRC_DIR)/geom/hparaboloid_bonus.c
 
 CORE_B_SRCS = \
-	$(SRC_DIR)/core/intersect_bonus.c
+	$(SRC_DIR)/core/intersect_bonus.c \
+	$(SRC_DIR)/shading/bump_bonus.c
 
 MAIN_B      = $(SRC_DIR)/minirt_bonus.c
 SRCS_B      = $(PARSE_B_SRCS) $(COMMON_SRCS) $(GEOM_B_SRCS) $(CORE_B_SRCS) $(MAIN_B)

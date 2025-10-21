@@ -1,6 +1,7 @@
 #include "../../include/minirt.h"
 #include "../../include/scene_bonus.h"
 #include "../../include/hit_bonus.h"
+#include "../../include/bump_bonus.h"
 
 static void	set_common_hit(t_hit *dst, float t, t_vec3 p, t_vec3 n, t_vec3 albedo)
 {
@@ -24,6 +25,10 @@ static int	record_sphere(const t_sphere *sp, t_ray r, float t, t_hit *out)
 	float	uang;
 	int		iu;
 	int		iv;
+	float	u;
+	float	v;
+	t_vec3	tan;
+	t_vec3	bit;
 
 	p = ray_at(r, t);
 	n = v3_norm(v3_sub(p, sp->center));
@@ -42,6 +47,20 @@ static int	record_sphere(const t_sphere *sp, t_ray r, float t, t_hit *out)
 	}
 	else
 		set_common_hit(out, t, p, n, sp->color);
+	// Apply bump after albedo selection
+	if (sp->has_bump && sp->bump)
+	{
+		// UV from normal
+		u = (atan2f(n.z, n.x) + (float)M_PI) / (2.0f * (float)M_PI);
+		v = acosf(n.y) / (float)M_PI;
+		// Tangent basis from normal
+		tan = v3_cross(v3(0.0f, 1.0f, 0.0f), n);
+		if (v3_len2(tan) < 1e-6f)
+			tan = v3_cross(v3(1.0f, 0.0f, 0.0f), n);
+		tan = v3_norm(tan);
+		bit = v3_cross(n, tan);
+		bump_perturb(sp->bump, u, v, tan, bit, sp->bump_strength, &out->n);
+	}
 	orient_normal(out, r);
 	return (1);
 }
@@ -53,6 +72,8 @@ static int	record_plane(const t_plane *pl, t_ray r, float t, t_hit *out)
 	int		ix;
 	int		iy;
 	t_vec3	comp;
+	float	u;
+	float	v;
 
 	p = ray_at(r, t);
 	if (pl->has_checker)
@@ -69,36 +90,66 @@ static int	record_plane(const t_plane *pl, t_ray r, float t, t_hit *out)
 	}
 	else
 		set_common_hit(out, t, p, pl->normal, pl->color);
+	if (pl->has_bump && pl->bump)
+	{
+		rel = v3_sub(p, pl->point);
+		u = v3_dot(rel, pl->u) / (pl->checker_scale > 0.0f ? pl->checker_scale : 1.0f);
+		v = v3_dot(rel, pl->v) / (pl->checker_scale > 0.0f ? pl->checker_scale : 1.0f);
+		bump_perturb(pl->bump, u, v, pl->u, pl->v, pl->bump_strength, &out->n);
+	}
 	orient_normal(out, r);
 	return (1);
 }
 
 static int	record_triangle(const t_triangle *tr, t_ray r, float t, t_hit *out)
 {
-	t_vec3	p;
-	t_vec3	e1;
-	t_vec3	e2;
-	t_vec3	n;
-	int		par;
+    t_vec3	p;
+    t_vec3	e1;
+    t_vec3	e2;
+    t_vec3	n;
+    int		par;
+    float	u;
+    float	v;
 
-	p = ray_at(r, t);
-	e1 = v3_sub(tr->b, tr->a);
-	e2 = v3_sub(tr->c, tr->a);
-	n = v3_norm(v3_cross(e1, e2));
-	if (tr->has_checker)
-	{
-		par = (int)floorf(v3_dot(v3_sub(p, tr->a), tr->u) / tr->checker_scale) // proyecciones en la base precomputada tr->u, tr->v
-			+ (int)floorf(v3_dot(v3_sub(p, tr->a), tr->v) / tr->checker_scale);
-		if (par & 1)
-			set_common_hit(out, t, p, n, v3_sub(v3(1.0f, 1.0f, 1.0f),
-				tr->color));
-		else
-			set_common_hit(out, t, p, n, tr->color);
-	}
-	else
-		set_common_hit(out, t, p, n, tr->color);
-	orient_normal(out, r);
-	return (1);
+    p = ray_at(r, t);
+    e1 = v3_sub(tr->b, tr->a);
+    e2 = v3_sub(tr->c, tr->a);
+    n = v3_norm(v3_cross(e1, e2));
+    if (tr->has_checker)
+    {
+        par = (int)floorf(v3_dot(v3_sub(p, tr->a), tr->u) / tr->checker_scale)
+            + (int)floorf(v3_dot(v3_sub(p, tr->a), tr->v) / tr->checker_scale);
+        if (par & 1)
+            set_common_hit(out, t, p, n, v3_sub(v3(1.0f, 1.0f, 1.0f), tr->color));
+        else
+            set_common_hit(out, t, p, n, tr->color);
+    }
+    else
+        set_common_hit(out, t, p, n, tr->color);
+    // Bump: usar baricéntricas para estirar el mapa a todo el triángulo
+    if (tr->has_bump && tr->bump)
+    {
+        t_vec3 pa = v3_sub(p, tr->a);
+        float d00 = v3_dot(e1, e1);
+        float d01 = v3_dot(e1, e2);
+        float d11 = v3_dot(e2, e2);
+        float d20 = v3_dot(pa, e1);
+        float d21 = v3_dot(pa, e2);
+        float denom = d00 * d11 - d01 * d01;
+        if (fabsf(denom) > 1e-12f)
+        {
+            float vb = (d11 * d20 - d01 * d21) / denom;
+            float wb = (d00 * d21 - d01 * d20) / denom;
+            u = vb;        // (u,v) de textura = (vb, wb)
+            v = wb;
+            // Base tangente a partir de e1,e2
+            t_vec3 tan = v3_norm(e1);
+            t_vec3 bit = v3_norm(v3_cross(n, tan));
+            bump_perturb(tr->bump, u, v, tan, bit, tr->bump_strength, &out->n);
+        }
+    }
+    orient_normal(out, r);
+    return (1);
 }
 
 static t_vec3	hp_checker_color(const t_hparab *hp, float x, float y)
@@ -114,27 +165,34 @@ static t_vec3	hp_checker_color(const t_hparab *hp, float x, float y)
 
 static int	record_hparaboloid(const t_hparab *hp, t_ray r, float t, t_hit *out)
 {
-	t_vec3	p;
-	float	x;
-	float	y;
-	t_vec3	grad_local;
-	t_vec3	n;
+    t_vec3	p;
+    float	x;
+    float	y;
+    t_vec3	grad_local;
+    t_vec3	n;
+    float	u;
+    float	v;
 
-	p = ray_at(r, t);
-	x = v3_dot(v3_sub(p, hp->center), hp->u);
-	y = v3_dot(v3_sub(p, hp->center), hp->v);
-	grad_local = v3(-2.0f * x * hp->inv_rx2, 2.0f * y * hp->inv_ry2,
-		-hp->inv_height);
-	n = v3_add(v3_add(v3_mul(hp->u, grad_local.x),
-			v3_mul(hp->v, grad_local.y)),
-		v3_mul(hp->axis, grad_local.z));
-	n = v3_norm(n);
-	if (hp->has_checker)
-		set_common_hit(out, t, p, n, hp_checker_color(hp, x, y));
-	else
-		set_common_hit(out, t, p, n, hp->color);
-	orient_normal(out, r);
-	return (1);
+    p = ray_at(r, t);
+    x = v3_dot(v3_sub(p, hp->center), hp->u);
+    y = v3_dot(v3_sub(p, hp->center), hp->v);
+    grad_local = v3(-2.0f * x * hp->inv_rx2, 2.0f * y * hp->inv_ry2, -hp->inv_height);
+    n = v3_add(v3_add(v3_mul(hp->u, grad_local.x), v3_mul(hp->v, grad_local.y)),
+        v3_mul(hp->axis, grad_local.z));
+    n = v3_norm(n);
+    if (hp->has_checker)
+        set_common_hit(out, t, p, n, hp_checker_color(hp, x, y));
+    else
+        set_common_hit(out, t, p, n, hp->color);
+    // Bump: normalizar UV con rx,ry para cubrir la elipse una vez
+    if (hp->has_bump && hp->bump)
+    {
+        u = (x / hp->rx) * 0.5f + 0.5f;
+        v = (y / hp->ry) * 0.5f + 0.5f;
+        bump_perturb(hp->bump, u, v, hp->u, hp->v, hp->bump_strength, &out->n);
+    }
+    orient_normal(out, r);
+    return (1);
 }
 
 // static int record_cylinder(const t_cyl *cy, t_ray r, float t, t_hit *out)

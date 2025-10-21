@@ -10,6 +10,9 @@
 # include <stdint.h>
 # include "vec3.h"
 
+/* Forward declaration for bump map resource (defined in bump_bonus.h) */
+struct s_bumpmap;
+
 /*
 * Ambient light declaration.
 * ratio: strength in [0,1].
@@ -78,6 +81,9 @@ typedef struct s_sphere
 	t_vec3	color;
 	int		has_checker;
 	float	checker_scale;
+	int		has_bump;
+	float	bump_strength;
+	struct s_bumpmap	*bump;
 }	t_sphere;
 
 typedef struct s_plane
@@ -89,6 +95,9 @@ typedef struct s_plane
 	float	checker_scale;
 	t_vec3	u;
 	t_vec3	v;
+	int		has_bump;
+	float	bump_strength;
+	struct s_bumpmap	*bump;
 }	t_plane;
 
 typedef struct s_cyl
@@ -115,6 +124,9 @@ typedef struct s_triangle
 	float	checker_scale;
 	t_vec3	u;
 	t_vec3	v;
+	int		has_bump;
+	float	bump_strength;
+	struct s_bumpmap	*bump;
 }	t_triangle;
 
 typedef struct s_hparab
@@ -133,6 +145,9 @@ typedef struct s_hparab
 	t_vec3	color;
 	int		has_checker;
 	float	checker_scale;
+	int		has_bump;
+	float	bump_strength;
+	struct s_bumpmap	*bump;
 }	t_hparab;
 
 /*

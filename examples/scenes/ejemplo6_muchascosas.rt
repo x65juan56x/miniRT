@@ -1,0 +1,17 @@
+A 0.1 255,255,255
+C 0,0,0 0,0,-1 90
+L -1.5,-1.5,-1.5 0.8 255,255,255
+
+sp 0,0,-3 1.0 255,0,255 # Esfera central
+pl 0,-2,0 0,1,0 255,255,255 # Plano inferior
+pl 2,0,0 1,0,0 255,255,0 # Plano derecho
+pl -2,0,0 1,0,0 0,255,255 # Plano izquierdo 
+pl 0,2,0 0,1,0 0,255,0 # Plano superior
+sp 2,0,-2 1.0 255,0,0 # Esfera derecha
+sp -2,0,-2.75 1.0 0,0,255 # Esfera izquierda
+pl 0,0,-6 0,0,1 0,0,0 # Plano trasero
+sp 2,-2,-6 1.0 128,128,128 # Esfera esquinera
+sp -2,-2,-6 1.0 128,128,128 # Esfera esquinera
+sp 2,2,-6 1.0 128,128,128 # Esfera esquinera
+sp -2,2,-6 1.0 128,128,128 # Esfera esquinera
+pl 0.6,0.6,-5.5 -0.57735,-0.57735,0.57735 64,64,64
