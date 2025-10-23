@@ -54,7 +54,7 @@ static int	record_triangle(const t_triangle *tr, t_ray r, float t, t_hit *out)
 	orient_normal(out, r);
 	return (1);
 }
-
+/*CYLINDER STUFF*/
 t_vec3 normal(const t_cyl *cylinder, t_vec3 p)
 {
 	t_vec3 radial;
@@ -70,21 +70,24 @@ t_vec3 normal(const t_cyl *cylinder, t_vec3 p)
 	return (radial);
 }
 
-static int record_cylinder(const t_cyl *cy, t_ray r, float t, t_hit *out)
+void	part_hitten(const t_cyl *cylinder, float t_side, float t_cap, float t_bottom, float t_final)
 {
-	t_vec3 p;
-	t_vec3 n;
-	p = ray_at(r, t);
-	n = v3_norm(normal(cy, p));
-	set_common_hit(out, t, p, n, cy->color);
-	orient_normal(out, r);
-	return (1);
+	int hit_part = -1;
+
+	if (t_final == t_cap)
+		hit_part = 1;
+	else if (t_final == t_bottom)
+		hit_part = 2;
+	else if (t_final == t_side)
+		hit_part = 0;
+
+	return(hit_part);
 }
 
 static int	object_hit(const t_object *obj, t_ray r, t_hit *out)
 {
 	float	t;
-
+	int hit_part = -1;
 	t = -1.0f;
 	if (obj->type == OBJ_SPHERE)
 		t = hit_sphere(&obj->u_obj.sp, r);
@@ -93,7 +96,7 @@ static int	object_hit(const t_object *obj, t_ray r, t_hit *out)
 	else if (obj->type == OBJ_TRIANGLE)
 		t = hit_triangle(&obj->u_obj.tr, r);
 	else if (obj->type == OBJ_CYLINDER)
-		t = hit_cylinder(&obj->u_obj.cy, r);
+		t = hit_cylinder(&obj->u_obj.cy, r, &hit_part);
 	if (t <= 0.0f)
 		return (0);
 	if (obj->type == OBJ_SPHERE)
@@ -101,7 +104,7 @@ static int	object_hit(const t_object *obj, t_ray r, t_hit *out)
 	if (obj->type == OBJ_PLANE)
 		return (record_plane(&obj->u_obj.pl, r, t, out));
 	if	(obj->type == OBJ_CYLINDER)
-		return(record_cylinder(&obj->u_obj.cy, r, t, out));
+		return(record_cylinder(&obj->u_obj.cy, r, t, out, hit_part));
 	return (record_triangle(&obj->u_obj.tr, r, t, out));
 	
 }

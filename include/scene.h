@@ -91,6 +91,7 @@ typedef struct s_cyl
 	float	di;
 	float	he;
 	t_vec3	color;
+	int		hit_part; // 0=body 1=top_cap 2=bottom_cap
 }	t_cyl;
 
 /*
