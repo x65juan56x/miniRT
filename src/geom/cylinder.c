@@ -13,17 +13,19 @@ int inside_cyl_height(const t_cyl *cylinder, t_vec3 p, t_vec3 v)
 float hit_top_cap(const t_cyl *cylinder, t_ray r, t_vec3 v)
 {
 	float t;
-	float denom = v3_dot(r.dir, v);
+	//float denom = v3_dot(r.dir, v);
 	t_vec3 p;
-	if (fabsf(denom) < 1e-6f)
+	t_vec3 c_top;
+	float radio;
+	t_vec3 radial;
+
+	if (fabsf(v3_dot(r.dir, v)) < 1e-6f)
     	return (-1.0f); //paralelo no hay interseccion
-	t_vec3 c_top = v3_add(cylinder->center, v3_mul(v ,(cylinder->he * 0.5f)));
-	t = v3_dot(v3_sub(c_top, r.orig), v) / denom;
+	c_top = v3_add(cylinder->center, v3_mul(v ,(cylinder->he * 0.5f)));
+	t = v3_dot(v3_sub(c_top, r.orig), v) / v3_dot(r.dir, v);
 	p = v3_add(r.orig, v3_mul(r.dir, t));
-	float radio = cylinder->di * 0.5f;
-	t_vec3 radial = v3_sub(p, c_top);
-	//𝑃=O+tD.
-	//∥P−Ctop​∥2≤r2
+	radio = cylinder->di * 0.5f;
+	radial = v3_sub(p, c_top);
 	if(t < 0.0f)
 		return (-1.0f);
 	if(v3_dot(radial, radial) <= radio * radio)
@@ -34,43 +36,69 @@ float hit_top_cap(const t_cyl *cylinder, t_ray r, t_vec3 v)
 float hit_botton_cap(const t_cyl *cylinder, t_ray r, t_vec3 v)
 {
 	float t;
-	float denom = v3_dot(r.dir, v); //-1.0f)
+	//float denom = v3_dot(r.dir, v);
 	t_vec3 p;
-	if (fabsf(denom) < 1e-6f)
+	t_vec3 c_bottom;
+	float radio;
+	t_vec3 radial;
+	
+	if (fabsf(v3_dot(r.dir, v)) < 1e-6f)
     	return (-1.0f); //paralelo no hay interseccion
-	t_vec3 c_bottom = v3_sub(cylinder->center, v3_mul(v ,(cylinder->he * 0.5f)));
-	t = v3_dot(v3_sub(c_bottom, r.orig), v) / denom;
+	c_bottom = v3_sub(cylinder->center, v3_mul(v ,(cylinder->he * 0.5f)));
+	t = v3_dot(v3_sub(c_bottom, r.orig), v) / v3_dot(r.dir, v);
+	p = v3_add(r.orig, v3_mul(r.dir, t));
+	radio = cylinder->di * 0.5f;
+	radial = v3_sub(p, c_bottom);
 	if(t < 0.0f)
 		return (-1.0f);
-	p = v3_add(r.orig, v3_mul(r.dir, t));
-	float radio = cylinder->di * 0.5f;
-	t_vec3 radial = v3_sub(p, c_bottom);
 	if(v3_dot(radial, radial) <= radio * radio)
 		return t;
 	return (-1.0f);
 }
 
+typedef struct s_quad {
+    float a;
+    float b;
+    float c;
+} t_quad;
+
+t_quad solve_quadratic(const t_cyl *cylinder, t_ray r, t_vec3 x, t_vec3 v)
+{
+	t_quad q;
+
+	ft_memset(&q, 0,sizeof(t_quad));
+	float x_dot_v = v3_dot(x, v);
+	float d_dot_v = v3_dot(r.dir, v);
+
+	q.a = v3_dot(v3_sub(r.dir, v3_mul(v, d_dot_v)), v3_sub(r.dir, v3_mul(v, d_dot_v)));
+	q.b = 2.0f * v3_dot(v3_sub(r.dir, v3_mul(v, d_dot_v)), v3_sub(x, v3_mul(v, x_dot_v)));
+	q.c = (v3_dot(v3_sub(x, v3_mul(v, x_dot_v)), v3_sub(x, v3_mul(v, x_dot_v)))) - (cylinder->di*0.5f) * (cylinder->di*0.5f);
+	return q;
+}
+
 float hit_side(const t_cyl *cylinder, t_ray r, t_vec3 v)
 {
-	t_vec3		x;
+	t_vec3	x;
+	t_quad	q;
+	float disc;
 	x = v3_sub(r.orig, cylinder->center);
-	float x_dot_v = v3_dot(x, v);
+	/* float x_dot_v = v3_dot(x, v);
 	float d_dot_v = v3_dot(r.dir, v);
 	float a;
 	float b;
 	float c;
 	a = v3_dot(v3_sub(r.dir, v3_mul(v, d_dot_v)), v3_sub(r.dir, v3_mul(v, d_dot_v)));
 	b = 2.0f * v3_dot(v3_sub(r.dir, v3_mul(v, d_dot_v)), v3_sub(x, v3_mul(v, x_dot_v)));
-	c = (v3_dot(v3_sub(x, v3_mul(v, x_dot_v)), v3_sub(x, v3_mul(v, x_dot_v)))) - (cylinder->di*0.5f) * (cylinder->di*0.5f);
-	
-	if (a == 0.0f)
+	c = (v3_dot(v3_sub(x, v3_mul(v, x_dot_v)), v3_sub(x, v3_mul(v, x_dot_v)))) - (cylinder->di*0.5f) * (cylinder->di*0.5f); */
+	q = solve_quadratic(cylinder, r, x, v);
+	if (q.a == 0.0f)
 		return -1.0f;
-	float disc = (b * b) - (4 * a * c);
+	disc = (q.b * q.b) - (4 * q.a * q.c);
 	if(disc < 0.0f)
 		return (-1.0f);
 
-	float t1 = (-b - sqrt(disc)) / (2.0f*a);
-	float t2 = (-b + sqrt(disc)) / (2.0f*a);
+	float t1 = (-q.b - sqrt(disc)) / (2.0f*q.a);
+	float t2 = (-q.b + sqrt(disc)) / (2.0f*q.a);
 	float t = 1e30;
 	if(t1 > 0.0f)
 	{
