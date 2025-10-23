@@ -62,7 +62,7 @@ typedef struct s_quad {
     float c;
 } t_quad;
 
-t_quad solve_quadratic(const t_cyl *cylinder, t_ray r, t_vec3 x, t_vec3 v)
+t_quad cyl_quadratic(const t_cyl *cylinder, t_ray r, t_vec3 x, t_vec3 v)
 {
 	t_quad q;
 
@@ -76,30 +76,11 @@ t_quad solve_quadratic(const t_cyl *cylinder, t_ray r, t_vec3 x, t_vec3 v)
 	return q;
 }
 
-float hit_side(const t_cyl *cylinder, t_ray r, t_vec3 v)
+float pick_valid_t(const t_cyl *cylinder, t_ray r, float t1, float t2)
 {
-	t_vec3	x;
-	t_quad	q;
-	float disc;
-	x = v3_sub(r.orig, cylinder->center);
-	/* float x_dot_v = v3_dot(x, v);
-	float d_dot_v = v3_dot(r.dir, v);
-	float a;
-	float b;
-	float c;
-	a = v3_dot(v3_sub(r.dir, v3_mul(v, d_dot_v)), v3_sub(r.dir, v3_mul(v, d_dot_v)));
-	b = 2.0f * v3_dot(v3_sub(r.dir, v3_mul(v, d_dot_v)), v3_sub(x, v3_mul(v, x_dot_v)));
-	c = (v3_dot(v3_sub(x, v3_mul(v, x_dot_v)), v3_sub(x, v3_mul(v, x_dot_v)))) - (cylinder->di*0.5f) * (cylinder->di*0.5f); */
-	q = solve_quadratic(cylinder, r, x, v);
-	if (q.a == 0.0f)
-		return -1.0f;
-	disc = (q.b * q.b) - (4 * q.a * q.c);
-	if(disc < 0.0f)
-		return (-1.0f);
-
-	float t1 = (-q.b - sqrt(disc)) / (2.0f*q.a);
-	float t2 = (-q.b + sqrt(disc)) / (2.0f*q.a);
 	float t = 1e30;
+	t_vec3 v = v3_norm(cylinder->axis);
+
 	if(t1 > 0.0f)
 	{
 		t_vec3 p1 = v3_add(r.orig, v3_mul(r.dir, t1));
@@ -117,12 +98,33 @@ float hit_side(const t_cyl *cylinder, t_ray r, t_vec3 v)
 	return (-1.0f);
 }
 
+float hit_side(const t_cyl *cylinder, t_ray r, t_vec3 v)
+{
+	t_vec3	x;
+	t_quad	q;
+	float disc;
+	float t1;
+	float t2;
+
+	x = v3_sub(r.orig, cylinder->center);
+	q = cyl_quadratic(cylinder, r, x, v);
+	if (q.a == 0.0f)
+		return -1.0f;
+	disc = (q.b * q.b) - (4 * q.a * q.c);
+	if(disc < 0.0f)
+		return (-1.0f);
+	t1 = (-q.b - sqrt(disc)) / (2.0f*q.a);
+	t2 = (-q.b + sqrt(disc)) / (2.0f*q.a);
+	return(pick_valid_t(cylinder, r, t1, t2));
+}
+
 float	hit_cylinder(const t_cyl *cylinder, t_ray r, int *hit_part)
 {
 	t_vec3 v = v3_norm(cylinder->axis);
 	float best_t = 1e30f;
-	*hit_part = -1;
 	float t_side = hit_side(cylinder, r, v);
+
+	*hit_part = -1;
 	if(t_side > 0.0f && t_side < best_t)
 	{
 		best_t = t_side;
