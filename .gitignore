@@ -65,6 +65,7 @@ dkms.conf
 /MLX42/**/Makefile
 /MLX42/**/.cmake/
 /MLX42/**/compile_commands.json
+/MLX
 
 # Generic CMake build dirs in this repo (optional)
 /build/
@@ -78,3 +79,4 @@ dkms.conf
 # Render outputs (optional; comment these if you want to commit results)
 *.ppm
 *.png
+

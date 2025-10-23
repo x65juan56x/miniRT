@@ -43,6 +43,6 @@ int		scene_hit(const t_scene *scene, t_ray r, float max_dist, t_hit *out);
 float	hit_sphere(const t_sphere *sp, t_ray r);
 float	hit_plane(const t_plane *pl, t_ray r);
 float	hit_triangle(const t_triangle *tr, t_ray r);
-float	hit_cylinder(const t_cyl *cy, t_ray r);
+float	hit_cylinder(const t_cyl *cy, t_ray r, int *hit_part);
 
 #endif

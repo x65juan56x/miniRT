@@ -55,7 +55,8 @@ static int	record_triangle(const t_triangle *tr, t_ray r, float t, t_hit *out)
 	return (1);
 }
 /*CYLINDER STUFF*/
-t_vec3 normal(const t_cyl *cylinder, t_vec3 p)
+
+t_vec3 normal_cyl(const t_cyl *cylinder, t_vec3 p)
 {
 	t_vec3 radial;
 	//radial = p - center;
@@ -70,18 +71,31 @@ t_vec3 normal(const t_cyl *cylinder, t_vec3 p)
 	return (radial);
 }
 
-void	part_hitten(const t_cyl *cylinder, float t_side, float t_cap, float t_bottom, float t_final)
+
+static int record_cylinder(const t_cyl *cy, t_ray r, float t, t_hit *out, int hit_part)
 {
-	int hit_part = -1;
-
-	if (t_final == t_cap)
-		hit_part = 1;
-	else if (t_final == t_bottom)
-		hit_part = 2;
-	else if (t_final == t_side)
-		hit_part = 0;
-
-	return(hit_part);
+	t_vec3 p;
+	t_vec3 n;
+	p = ray_at(r, t);
+    if (hit_part == 0)
+    {
+        n = v3_norm(normal_cyl(cy, p));
+    }
+    else if (hit_part == 1)
+    {
+        n = v3_norm(cy->axis);
+    }
+    else if (hit_part == 2)
+    {
+        n = v3_norm(v3_mul(cy->axis, -1));
+    }
+    else
+    {
+		return 0;
+	}
+	set_common_hit(out, t, p, n, cy->color);
+	orient_normal(out, r);
+	return (1);
 }
 
 static int	object_hit(const t_object *obj, t_ray r, t_hit *out)
