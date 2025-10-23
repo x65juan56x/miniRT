@@ -1,0 +1,13 @@
+A 0.12 255,240,225
+L 4,5,4 0.8 255,255,255
+C 0,2.5,6 0,0,-1 90
+
+sp -3,2.5,0 2 255,255,255 bm examples/bump_maps/stone1.png 0.001
+sp 3,2.5,0 2 255,255,255 bm examples/bump_maps/stone2.png 0.001
+sp 0,2.5,0 2 255,255,255 bm examples/bump_maps/stone3.png 0.001
+sp 1.5,4,0 2 255,255,255 bm examples/bump_maps/stone4.png 0.001
+sp 1.5,1,0 2 255,255,255 bm examples/bump_maps/stone5.png 0.001
+sp -1.5,4,0 2 255,255,255 bm examples/bump_maps/stone6.png 0.001
+sp -1.5,1,0 2 255,255,255 bm examples/bump_maps/stone7.png 0.001
+
+pl 0,0,0 0,1,0 240,240,240

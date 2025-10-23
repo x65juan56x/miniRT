@@ -1,0 +1,14 @@
+A 0.12 255,240,225
+L 4,5,4 0.8 255,255,255
+C 0,2.5,12 0,0,-1 90
+
+hp 0,1,0 0,1,0 2 3 0.75 238,202,127 bm examples/bump_maps/stone3.png 0.001
+hp 0,1.1,0 0,1,0 2 3 0.75 238,202,127 bm examples/bump_maps/stone3.png 0.001
+hp 0,1.2,0 0,1,0 2 3 0.75 238,202,127 bm examples/bump_maps/stone3.png 0.001
+hp 0,1.3,0 0,1,0 2 3 0.75 238,202,127 bm examples/bump_maps/stone3.png 0.001
+hp 0,1.4,0 0,1,0 2 3 0.75 238,202,127 bm examples/bump_maps/stone3.png 0.001
+hp 0,1.5,0 0,1,0 2 3 0.75 238,202,127 bm examples/bump_maps/stone3.png 0.001
+hp 0,1.6,0 0,1,0 2 3 0.75 238,202,127 bm examples/bump_maps/stone3.png 0.001
+hp 0,1.7,0 0,1,0 2 3 0.75 238,202,127 bm examples/bump_maps/stone3.png 0.001
+
+pl 0,0,0 0,1,0 240,240,240
