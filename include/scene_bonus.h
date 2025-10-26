@@ -9,9 +9,7 @@
 # include <stdbool.h>
 # include <stdint.h>
 # include "vec3.h"
-
-/* Forward declaration for bump map resource (defined in bump_bonus.h) */
-struct s_bumpmap;
+# include "bump_bonus.h"
 
 /*
 * Ambient light declaration.
@@ -76,37 +74,42 @@ typedef enum e_objtype
 */
 typedef struct s_sphere
 {
-	t_vec3	center;
-	float	di;
-	t_vec3	color;
-	int		has_checker;
-	float	checker_scale;
-	int		has_bump;
-	float	bump_strength;
-	struct s_bumpmap	*bump;
+	t_vec3		center;
+	float		di;
+	t_vec3		color;
+	int			has_checker;
+	float		checker_scale;
+	int			has_bump;
+	float		bump_strength;
+	t_bumpmap	*bump;
 }	t_sphere;
 
 typedef struct s_plane
 {
-	t_vec3	point;
-	t_vec3	normal;
-	t_vec3	color;
-	int		has_checker;
-	float	checker_scale;
-	t_vec3	u;
-	t_vec3	v;
-	int		has_bump;
-	float	bump_strength;
-	struct s_bumpmap	*bump;
+	t_vec3		point;
+	t_vec3		normal;
+	t_vec3		color;
+	int			has_checker;
+	float		checker_scale;
+	t_vec3		u;
+	t_vec3		v;
+	int			has_bump;
+	float		bump_strength;
+	t_bumpmap	*bump;
 }	t_plane;
 
 typedef struct s_cyl
 {
-	t_vec3	center;
-	t_vec3	axis;
-	float	di;
-	float	he;
-	t_vec3	color;
+	t_vec3		center;
+	t_vec3		axis;
+	float		di;
+	float		he;
+	t_vec3		color;
+	int			has_checker;
+	float		checker_scale;
+	int			has_bump;
+	float		bump_strength;
+	t_bumpmap	*bump;
 }	t_cyl;
 
 /*
@@ -116,38 +119,38 @@ typedef struct s_cyl
 */
 typedef struct s_triangle
 {
-	t_vec3	a;
-	t_vec3	b;
-	t_vec3	c;
-	t_vec3	color;
-	int		has_checker;
-	float	checker_scale;
-	t_vec3	u;
-	t_vec3	v;
-	int		has_bump;
-	float	bump_strength;
-	struct s_bumpmap	*bump;
+	t_vec3		a;
+	t_vec3		b;
+	t_vec3		c;
+	t_vec3		color;
+	int			has_checker;
+	float		checker_scale;
+	t_vec3		u;
+	t_vec3		v;
+	int			has_bump;
+	float		bump_strength;
+	t_bumpmap	*bump;
 }	t_triangle;
 
 typedef struct s_hparab
 {
-	t_vec3	center;
-	t_vec3	axis;
-	t_vec3	u;
-	t_vec3	v;
-	float	rx;
-	float	ry;
-	float	height;
-	float	half_height;
-	float	inv_rx2;
-	float	inv_ry2;
-	float	inv_height;
-	t_vec3	color;
-	int		has_checker;
-	float	checker_scale;
-	int		has_bump;
-	float	bump_strength;
-	struct s_bumpmap	*bump;
+	t_vec3		center;
+	t_vec3		axis;
+	t_vec3		u;
+	t_vec3		v;
+	float		rx;
+	float		ry;
+	float		height;
+	float		half_height;
+	float		inv_rx2;
+	float		inv_ry2;
+	float		inv_height;
+	t_vec3		color;
+	int			has_checker;
+	float		checker_scale;
+	int			has_bump;
+	float		bump_strength;
+	t_bumpmap	*bump;
 }	t_hparab;
 
 /*

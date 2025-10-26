@@ -19,16 +19,29 @@ typedef struct s_sp_aux
 {
 	t_vec3	oc;
 	float	radius;
+	float	radius2;     // cached: radius^2
+	float	inv_radius;  // cached: 1/radius (if needed)
 	float	a;
 	float	half_b;
 	float	c;
 	float	disc;
 }	t_sp_aux;
 
+// Plane cached constants (computed once per object)
+typedef struct s_pl_aux
+{
+	float	d;      // plane equation: dot(n, x) = d
+	t_vec3	u;      // tangent basis U (orthonormal to normal)
+	t_vec3	v;      // tangent basis V (orthonormal to normal)
+}	t_pl_aux;
+
 typedef struct s_tr_aux
 {
 	t_vec3	e1;
 	t_vec3	e2;
+	t_vec3	n;      // cached normal (normalize(cross(e1,e2)))
+	t_vec3	tan;    // tangent for UV/bump
+	t_vec3	bit;    // bitangent for UV/bump
 	t_vec3	pvec;
 	float	det;
 	float	inv_det;
@@ -40,18 +53,24 @@ typedef struct s_tr_aux
 
 typedef struct s_hp_aux
 {
-	float		ox;
-	float		oy;
-	float		oz;
-	float		dx;
-	float		dy;
-	float		dz;
-	float		a;
-	float		b;
-	float		c;
-	float		disc;
-	float		denom;
-	float		cands[2];
+	float	ox;
+	float	oy;
+	float	oz;
+	float	dx;
+	float	dy;
+	float	dz;
+	float	rx2;        // cached: rx^2
+	float	ry2;        // cached: ry^2
+	float	inv_rx2;    // cached: 1/(rx^2)
+	float	inv_ry2;    // cached: 1/(ry^2)
+	float	half_height;// cached: height * 0.5
+	float	inv_height; // cached: 1/height
+	float	a;
+	float	b;
+	float	c;
+	float	disc;
+	float	denom;
+	float	cands[2];
 }	t_hp_aux;
 
 int		scene_hit(const t_scene *scene, t_ray r, float max_dist, t_hit *out);

@@ -88,7 +88,7 @@ static int	object_hit(const t_object *obj, t_ray r, t_hit *out)
 		return (record_sphere(&obj->u_obj.sp, r, t, out));
 	if (obj->type == OBJ_PLANE)
 		return (record_plane(&obj->u_obj.pl, r, t, out));
-	return (record_cylinder(&obj->u_obj.cy, r, t, out, hit_part)); // cambiar por record_cylinder cuando esté lista
+	return (record_cylinder(&obj->u_obj.cy, r, t, out, hit_part));
 }
 
 int	scene_hit(const t_scene *scene, t_ray r, float max_dist, t_hit *out)

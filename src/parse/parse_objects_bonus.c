@@ -156,7 +156,7 @@ t_parse_result	parse_cy(char **tkns, int line, t_scene *scene)
 {
 	t_object	*obj;
 
-	if (!tkns[1] || !tkns[2] || !tkns[3] || !tkns[4] || !tkns[5] || tkns[6])
+	if (!tkns[1] || !tkns[2] || !tkns[3] || !tkns[4] || !tkns[5])
 		return (parse_error(line, "cy: invalid format"));
 	obj = (t_object *)malloc(sizeof(t_object));
 	if (!obj)
@@ -176,6 +176,25 @@ t_parse_result	parse_cy(char **tkns, int line, t_scene *scene)
 		return (object_error(obj, line, "cy: invalid height"));
 	if (!parse_color_255(tkns[5], &obj->u_obj.cy.color))
 		return (object_error(obj, line, "cy: invalid color"));
+		// Bonus options: either bump (bm <png> <strength>) or checker (cb <scale>)
+	obj->u_obj.cy.has_checker = 0;
+	obj->u_obj.cy.checker_scale = 1.0f;
+	obj->u_obj.cy.has_bump = 0;
+	obj->u_obj.cy.bump_strength = 0.0f;
+	obj->u_obj.cy.bump = NULL;
+	if (tkns[6] && ft_strncmp(tkns[6], "bm", 3) == 0)
+	{
+		if (!parse_optional_bump(tkns, 6, &obj->u_obj.cy.has_bump,
+				&obj->u_obj.cy.bump_strength, &obj->u_obj.cy.bump))
+			return (object_error(obj, line, "cy: invalid bump (bm <png> <strength>)"));
+	}
+	else if (tkns[6])
+	{
+		int ok = parse_optional_checker(tkns, 6, &obj->u_obj.cy.has_checker,
+				&obj->u_obj.cy.checker_scale);
+		if (!ok)
+			return (object_error(obj, line, "cy: invalid checker (cb <scale>)"));
+	}
 	obj->next = NULL;
 	scene_add_object(scene, obj);
 	return (parse_ok());

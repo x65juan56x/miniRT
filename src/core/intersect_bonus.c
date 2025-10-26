@@ -210,17 +210,124 @@ static int record_cylinder(const t_cyl *cy, t_ray r, float t, t_hit *out, int hi
 {
 	t_vec3 p;
 	t_vec3 n;
+	float radius;
+	float half_h;
+	t_vec3 up;
+	t_vec3 U;
+	t_vec3 V;
+	t_vec3 rel;
+	float h;
+	t_vec3 radial;
+	float theta;
+	int iu;
+	int iv;
+	t_vec3 comp;
+	float u;
+	float v;
+	t_vec3 tan;
+	t_vec3 bit;
 
 	p = ray_at(r, t);
+	radius = cy->di * 0.5f;
+	half_h = cy->he * 0.5f;
+	// Build an orthonormal basis (U,V) around the axis for angular/planar mapping
+	up = v3(0.0f, 1.0f, 0.0f);
+	if (fabsf(v3_dot(cy->axis, up)) > 0.999f)
+		up = v3(1.0f, 0.0f, 0.0f);
+	U = v3_norm(v3_cross(up, cy->axis));
+	V = v3_cross(cy->axis, U);
 	if (hit_part == 0)
+	{
+		// Side
 		n = v3_norm(normal_cyl(cy, p));
+		rel = v3_sub(p, cy->center);
+		h = v3_dot(rel, cy->axis);
+		radial = v3_norm(v3_sub(rel, v3_mul(cy->axis, h)));
+		theta = atan2f(v3_dot(radial, V), v3_dot(radial, U));
+		if (theta < 0.0f)
+			theta += 6.283185307179586f; // 2*pi
+		if (cy->has_checker)
+		{
+			iu = (int)floorf((radius * theta) / cy->checker_scale);
+			iv = (int)floorf(((h + half_h)) / cy->checker_scale);
+			comp = v3_sub(v3(1.0f, 1.0f, 1.0f), cy->color);
+			if ((iu + iv) & 1)
+				set_common_hit(out, t, p, n, comp);
+			else
+				set_common_hit(out, t, p, n, cy->color);
+		}
+		else
+			set_common_hit(out, t, p, n, cy->color);
+		// Bump on side: cylindrical UV in [0,1]x[0,1]
+		if (cy->has_bump && cy->bump)
+		{
+			u = theta / (2.0f * (float)M_PI);
+			v = (h + half_h) / cy->he;
+			// Tangent basis: around azimuth and along axis
+			tan = v3_norm(v3_cross(cy->axis, n));
+			if (v3_len2(tan) < 1e-8f)
+				tan = U; // fallback
+			bit = cy->axis;
+			bump_perturb(cy->bump, u, v, tan, bit, cy->bump_strength, &out->n);
+		}
+	}
 	else if (hit_part == 1)
+	{
+		// Top cap
 		n = cy->axis;
+		t_vec3 ctop = v3_add(cy->center, v3_mul(cy->axis, half_h));
+		t_vec3 q = v3_sub(p, ctop);
+		if (cy->has_checker)
+		{
+			iu = (int)floorf(v3_dot(q, U) / cy->checker_scale);
+			iv = (int)floorf(v3_dot(q, V) / cy->checker_scale);
+			comp = v3_sub(v3(1.0f, 1.0f, 1.0f), cy->color);
+			if ((iu + iv) & 1)
+				set_common_hit(out, t, p, n, comp);
+			else
+				set_common_hit(out, t, p, n, cy->color);
+		}
+		else
+			set_common_hit(out, t, p, n, cy->color);
+		if (cy->has_bump && cy->bump)
+		{
+			float x = v3_dot(q, U);
+			float y = v3_dot(q, V);
+			// Normalize to [0,1] across the disk extent
+			u = (x / radius) * 0.5f + 0.5f;
+			v = (y / radius) * 0.5f + 0.5f;
+			bump_perturb(cy->bump, u, v, U, V, cy->bump_strength, &out->n);
+		}
+	}
 	else if (hit_part == 2)
+	{
+		// Bottom cap
 		n = v3_mul(cy->axis, -1.0f);
+		t_vec3 cbot = v3_sub(cy->center, v3_mul(cy->axis, half_h));
+		t_vec3 q = v3_sub(p, cbot);
+		if (cy->has_checker)
+		{
+			iu = (int)floorf(v3_dot(q, U) / cy->checker_scale);
+			iv = (int)floorf(v3_dot(q, V) / cy->checker_scale);
+			comp = v3_sub(v3(1.0f, 1.0f, 1.0f), cy->color);
+			if ((iu + iv) & 1)
+				set_common_hit(out, t, p, n, comp);
+			else
+				set_common_hit(out, t, p, n, cy->color);
+		}
+		else
+			set_common_hit(out, t, p, n, cy->color);
+		if (cy->has_bump && cy->bump)
+		{
+			float x = v3_dot(q, U);
+			float y = v3_dot(q, V);
+			u = (x / radius) * 0.5f + 0.5f;
+			v = (y / radius) * 0.5f + 0.5f;
+			bump_perturb(cy->bump, u, v, U, V, cy->bump_strength, &out->n);
+		}
+	}
 	else
 		return (0);
-	set_common_hit(out, t, p, n, cy->color);
 	orient_normal(out, r);
 	return (1);
 }
