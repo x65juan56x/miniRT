@@ -128,4 +128,7 @@ void	scene_free(t_scene *s);
 /* Push an object into the scene object list (O(1)). */
 void	scene_add_object(t_scene *s, t_object *obj);
 
+/* Compute per-object auxiliary data (no-op in mandatory build). */
+void	scene_finalize(t_scene *s);
+
 #endif

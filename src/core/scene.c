@@ -12,6 +12,7 @@
 #include SCENE_HEADER
 #ifdef BONUS_BUILD
 # include "../../include/bump_bonus.h"
+# include "../../include/finalize_bonus.h"
 #endif
 
 // Inicializa la escena con valores por defecto y flags de presencia en falso.
@@ -48,6 +49,8 @@ void	scene_free(t_scene *s)
 	while (it)
 	{
 		n = it->next;
+#if 0
+#endif
 #ifdef BONUS_BUILD
 		if (it->type == OBJ_SPHERE && it->u_obj.sp.bump)
 			bump_free(it->u_obj.sp.bump);
@@ -67,6 +70,28 @@ void	scene_free(t_scene *s)
 * Purpose: Free all scene objects and leave the scene in a clean state.
 * Logic: Walk the linked list, free each node, and set objects = NULL.
 */
+
+// Compute per-object auxiliary data after parsing (bases, inverses, etc.)
+void	scene_finalize(t_scene *s)
+{
+	t_object *o;
+
+	o = s->objects;
+	while (o)
+	{
+#ifdef BONUS_BUILD
+		if (o->type == OBJ_PLANE)
+			finalize_plane(&o->u_obj.pl);
+		else if (o->type == OBJ_TRIANGLE)
+			finalize_triangle(&o->u_obj.tr);
+		else if (o->type == OBJ_HPARABOLOID)
+			finalize_hparab(&o->u_obj.hp);
+#else
+		(void)o; // no-op in mandatory build
+#endif
+		o = o->next;
+	}
+}
 
 void	scene_add_object(t_scene *s, t_object *obj)
 {

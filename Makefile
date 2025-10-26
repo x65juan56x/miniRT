@@ -71,6 +71,7 @@ GEOM_B_SRCS = \
 
 CORE_B_SRCS = \
 	$(SRC_DIR)/core/intersect_bonus.c \
+	$(SRC_DIR)/core/finalize_bonus.c \
 	$(SRC_DIR)/shading/bump_bonus.c
 
 MAIN_B      = $(SRC_DIR)/minirt_bonus.c
