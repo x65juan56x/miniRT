@@ -28,6 +28,15 @@ typedef struct s_sp_aux
 	float	disc;
 }   t_sp_aux;
 
+typedef struct s_cy_aux
+{
+	float	radius;
+	float	a;
+	float	b;
+	float	c;
+	int		cap_sign;
+}	t_cy_aux;
+
 int		scene_hit(const t_scene *scene, t_ray r, float max_dist, t_hit *out);
 
 /* HIT OBJECTS */

@@ -10,6 +10,6 @@ hp 0,1.4,0 0,1,0 2 3 0.75 238,202,127 bm examples/bump_maps/stone3.png 0.001
 hp 0,1.5,0 0,1,0 2 3 0.75 238,202,127 bm examples/bump_maps/stone3.png 0.001
 hp 0,1.6,0 0,1,0 2 3 0.75 238,202,127 bm examples/bump_maps/stone3.png 0.001
 hp 0,1.7,0 0,1,0 2 3 0.75 238,202,127 bm examples/bump_maps/stone3.png 0.001
-hp 3.9,1.7,0 0.7071,0.7071,0 2 3 0.75 238,202,127 bm examples/bump_maps/stone3.png 0.001
+hp 3.85,1.7,0 0.7071,0.7071,0 2 3 0.75 238,202,127 bm examples/bump_maps/stone3.png 0.001
 
 pl 0,0,0 0,1,0 240,240,240

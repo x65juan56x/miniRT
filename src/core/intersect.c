@@ -41,9 +41,11 @@ static int	record_plane(const t_plane *pl, t_ray r, float t, t_hit *out)
 
 t_vec3 normal_cyl(const t_cyl *cylinder, t_vec3 p)
 {
-	t_vec3 radial;
+	t_vec3	radial;
+	float	axial;
+
 	radial = v3_sub(p, cylinder->center);
-	float axial = v3_dot(radial, cylinder->axis);
+	axial = v3_dot(radial, cylinder->axis);
 	//vector perpendicular
 	radial = v3_sub(radial, v3_mul(cylinder->axis, axial));
 	return (radial);
@@ -54,16 +56,14 @@ static int record_cylinder(const t_cyl *cy, t_ray r, float t, t_hit *out, int hi
 	t_vec3 p;
 	t_vec3 n;
 	p = ray_at(r, t);
-    if (hit_part == 0)
-        n = v3_norm(normal_cyl(cy, p));
-    else if (hit_part == 1)
-        n = v3_norm(cy->axis);
-    else if (hit_part == 2)
-        n = v3_norm(v3_mul(cy->axis, -1));
-    else
-    {
-		return 0;
-	}
+	if (hit_part == 0)
+		n = v3_norm(normal_cyl(cy, p));
+	else if (hit_part == 1)
+		n = cy->axis;
+	else if (hit_part == 2)
+		n = v3_mul(cy->axis, -1);
+	else
+		return (0);
 	set_common_hit(out, t, p, n, cy->color);
 	orient_normal(out, r);
 	return (1);
