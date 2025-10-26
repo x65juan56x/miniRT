@@ -31,7 +31,6 @@ typedef struct s_ambient
 * fov_deg: vertical field of view in degrees, in (0,180).
 * present: whether it was declared in the scene file.
 */
-
 typedef struct s_camera
 {
 	t_vec3	pos;
@@ -191,8 +190,5 @@ void	scene_init(t_scene *s);
 void	scene_free(t_scene *s);
 /* Push an object into the scene object list (O(1)). */
 void	scene_add_object(t_scene *s, t_object *obj);
-
-/* Compute per-object auxiliary data (bases/inverses) after parsing. */
-void	scene_finalize(t_scene *s);
 
 #endif

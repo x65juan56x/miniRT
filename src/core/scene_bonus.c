@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include "vec3.h"
-#include "scene.h"
+#include "scene_bonus.h"
+#include "bump_bonus.h"
 
 // Inicializa la escena con valores por defecto y flags de presencia en falso.
 // Esto permite validar que A, C, L se declaren exactamente una vez en el parser.
@@ -36,6 +37,16 @@ void	scene_free(t_scene *s)
 	while (it)
 	{
 		n = it->next;
+		if (it->type == OBJ_SPHERE && it->u_obj.sp.bump)
+			bump_free(it->u_obj.sp.bump);
+		else if (it->type == OBJ_PLANE && it->u_obj.pl.bump)
+			bump_free(it->u_obj.pl.bump);
+		else if (it->type == OBJ_CYLINDER && it->u_obj.cy.bump)
+			bump_free(it->u_obj.cy.bump);
+		else if (it->type == OBJ_TRIANGLE && it->u_obj.tr.bump)
+			bump_free(it->u_obj.tr.bump);
+		else if (it->type == OBJ_HPARABOLOID && it->u_obj.hp.bump)
+			bump_free(it->u_obj.hp.bump);
 		free(it);
 		it = n;
 	}

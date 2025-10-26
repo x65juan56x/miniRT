@@ -82,8 +82,6 @@ int	main(int ac, char **av)
 		return (EXIT_FAILURE);
 	}
 	parse_result_free(&pr);
-	/* Compute per-object cached data (bases/inverses) once after parsing */
-	scene_finalize(&app.scene);
 	app.framebuffer = (uint32_t *)malloc(sizeof(uint32_t) * (size_t)WIN_W * (size_t)WIN_H);
 	if (!app.framebuffer)
 	{

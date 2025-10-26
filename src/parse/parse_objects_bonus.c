@@ -56,37 +56,37 @@ static int parse_optional_bump(char **tokens, int idx, int *has_bump,
 
 t_parse_result	parse_sp(char **tokens, int line, t_scene *scene)
 {
-    t_object    *obj;
-    int         done;
+	t_object	*obj;
+	int			done;
 
-    if (!tokens[1] || !tokens[2] || !tokens[3])
-        return (parse_error(line, "sp: invalid format"));
-    obj = (t_object *)malloc(sizeof(t_object));
-    if (!obj)
-        return (parse_error(line, "sp: not enough memory"));
-    obj->type = OBJ_SPHERE;
-    if (!parse_vec3(tokens[1], &obj->u_obj.sp.center))
-        return (object_error(obj, line, "sp: invalid centre"));
-    if (!parse_float(tokens[2], &obj->u_obj.sp.di) || obj->u_obj.sp.di <= 0.0f)
-        return (object_error(obj, line, "sp: invalid diameter"));
-    if (!parse_color_255(tokens[3], &obj->u_obj.sp.color))
-        return (object_error(obj, line, "sp: invalid color"));
-    obj->u_obj.sp.has_checker = 0;
-    obj->u_obj.sp.checker_scale = 1.0f; // also used as UV scale for bump
-    obj->u_obj.sp.has_bump = 0;
-    obj->u_obj.sp.bump_strength = 0.0f;
-    obj->u_obj.sp.bump = NULL;
-    if (tokens[4] && ft_strncmp(tokens[4], "bm", 3) == 0)
-        done = parse_optional_bump(tokens, 4, &obj->u_obj.sp.has_bump,
-                &obj->u_obj.sp.bump_strength, &obj->u_obj.sp.bump);
-    else
-        done = parse_optional_checker(tokens, 4, &obj->u_obj.sp.has_checker,
-                &obj->u_obj.sp.checker_scale);
-    if (!done)
-        return (object_error(obj, line, "sp: invalid checker (cb <scale>)"));
-    obj->next = NULL;
-    scene_add_object(scene, obj);
-    return (parse_ok());
+	if (!tokens[1] || !tokens[2] || !tokens[3])
+		return (parse_error(line, "sp: invalid format"));
+	obj = (t_object *)malloc(sizeof(t_object));
+	if (!obj)
+		return (parse_error(line, "sp: not enough memory"));
+	obj->type = OBJ_SPHERE;
+	if (!parse_vec3(tokens[1], &obj->u_obj.sp.center))
+		return (object_error(obj, line, "sp: invalid centre"));
+	if (!parse_float(tokens[2], &obj->u_obj.sp.di) || obj->u_obj.sp.di <= 0.0f)
+		return (object_error(obj, line, "sp: invalid diameter"));
+	if (!parse_color_255(tokens[3], &obj->u_obj.sp.color))
+		return (object_error(obj, line, "sp: invalid color"));
+	obj->u_obj.sp.has_checker = 0;
+	obj->u_obj.sp.checker_scale = 1.0f; // also used as UV scale for bump
+	obj->u_obj.sp.has_bump = 0;
+	obj->u_obj.sp.bump_strength = 0.0f;
+	obj->u_obj.sp.bump = NULL;
+	if (tokens[4] && ft_strncmp(tokens[4], "bm", 3) == 0)
+		done = parse_optional_bump(tokens, 4, &obj->u_obj.sp.has_bump,
+				&obj->u_obj.sp.bump_strength, &obj->u_obj.sp.bump);
+	else
+		done = parse_optional_checker(tokens, 4, &obj->u_obj.sp.has_checker,
+				&obj->u_obj.sp.checker_scale);
+	if (!done)
+		return (object_error(obj, line, "sp: invalid checker (cb <scale>)"));
+	obj->next = NULL;
+	scene_add_object(scene, obj);
+	return (parse_ok());
 }
 /*
 * Purpose: Parse a sphere entry, validating format, geometry, and color.
@@ -94,7 +94,18 @@ t_parse_result	parse_sp(char **tokens, int line, t_scene *scene)
 * Errors: Frees the object and returns a detailed message on failure.
 */
 
-// Tangent basis for planes will be computed in scene_finalize.
+static void	plane_build_basis(t_plane *pl)
+{
+	t_vec3	up;
+
+	pl->has_checker = 0;
+	pl->checker_scale = 1.0f;
+	up = v3(0.0f, 1.0f, 0.0f);
+	if (fabsf(v3_dot(pl->normal, up)) > 0.999f)
+		up = v3(1.0f, 0.0f, 0.0f);
+	pl->u = v3_norm(v3_cross(up, pl->normal));
+	pl->v = v3_cross(pl->normal, pl->u);
+}
 
 // Nota: usamos la función unificada para todas las figuras
 
@@ -118,8 +129,7 @@ t_parse_result	parse_pl(char **tokens, int line, t_scene *scene)
 		return (object_error(obj, line, "pl: not normalized normal"));
 	if (!parse_color_255(tokens[3], &obj->u_obj.pl.color))
 		return (object_error(obj, line, "pl: invalid color"));
-	obj->u_obj.pl.has_checker = 0;
-	obj->u_obj.pl.checker_scale = 1.0f;
+	plane_build_basis(&obj->u_obj.pl);
 	obj->u_obj.pl.has_bump = 0;
 	obj->u_obj.pl.bump_strength = 0.0f;
 	obj->u_obj.pl.bump = NULL;
@@ -232,7 +242,22 @@ static t_parse_result	hp_parse_attributes(char **tok, int line, t_object *obj)
 	return (parse_ok());
 }
 
-// H-Paraboloid cached data is computed in scene_finalize.
+static void	hp_finalize(t_hparab *hp)
+{
+	t_vec3	up;
+
+	up = v3(0.0f, 1.0f, 0.0f);
+	if (fabsf(v3_dot(hp->axis, up)) > 0.999f)
+		up = v3(1.0f, 0.0f, 0.0f);
+	hp->u = v3_norm(v3_cross(up, hp->axis));
+	hp->v = v3_norm(v3_cross(hp->axis, hp->u));
+	// Use full height as the half-height clamp to avoid overly tight vertical clipping
+	// This better matches the intended "Pringles" shape extent along the axis
+	hp->half_height = hp->height;
+	hp->inv_rx2 = 1.0f / (hp->rx * hp->rx);
+	hp->inv_ry2 = 1.0f / (hp->ry * hp->ry);
+	hp->inv_height = 1.0f / hp->height;
+}
 
 t_parse_result	parse_hp(char **tok, int line, t_scene *scene)
 {
@@ -246,7 +271,8 @@ t_parse_result	parse_hp(char **tok, int line, t_scene *scene)
 	result = hp_parse_attributes(tok, line, obj);
 	if (!result.ok)
 		return (result);
-	obj->u_obj.hp.has_checker = 0;
+	hp_finalize(&obj->u_obj.hp);
+    obj->u_obj.hp.has_checker = 0;
     obj->u_obj.hp.checker_scale = 1.0f; // also used as UV scale for bump
     obj->u_obj.hp.has_bump = 0;
     obj->u_obj.hp.bump_strength = 0.0f;
@@ -273,6 +299,8 @@ t_parse_result	parse_tr(char **tokens, int line, t_scene *scene)
 {
 	t_object	*obj;
 	int			cbcons;
+	t_vec3		e1;
+	t_vec3		e2;
 
 	if (!tokens[1] || !tokens[2] || !tokens[3] || !tokens[4])
 		return (parse_error(line, "tr: invalid format"));
@@ -288,7 +316,12 @@ t_parse_result	parse_tr(char **tokens, int line, t_scene *scene)
 		return (object_error(obj, line, "tr: invalid vertex c"));
 	if (!parse_color_255(tokens[4], &obj->u_obj.tr.color))
 		return (object_error(obj, line, "tr: invalid color"));
-	// Triangle tangent basis will be computed in scene_finalize.
+	{
+		e1 = v3_sub(obj->u_obj.tr.b, obj->u_obj.tr.a);
+		e2 = v3_sub(obj->u_obj.tr.c, obj->u_obj.tr.a);
+		obj->u_obj.tr.u = v3_norm(e1);
+		obj->u_obj.tr.v = v3_norm(v3_sub(e2, v3_mul(obj->u_obj.tr.u, v3_dot(e2, obj->u_obj.tr.u))));
+	}
     obj->u_obj.tr.has_checker = 0;
     obj->u_obj.tr.checker_scale = 1.0f;
     obj->u_obj.tr.has_bump = 0;
