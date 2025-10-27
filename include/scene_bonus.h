@@ -10,6 +10,7 @@
 # include <stdint.h>
 # include "vec3.h"
 # include "bump_bonus.h"
+# include "hit_bonus.h"
 
 /*
 * Ambient light declaration.
@@ -82,6 +83,7 @@ typedef struct s_sphere
 	int			has_bump;
 	float		bump_strength;
 	t_bumpmap	*bump;
+	t_sp_aux	vars;
 }	t_sphere;
 
 typedef struct s_plane
@@ -96,6 +98,7 @@ typedef struct s_plane
 	int			has_bump;
 	float		bump_strength;
 	t_bumpmap	*bump;
+	t_pl_aux	vars;
 }	t_plane;
 
 typedef struct s_cyl
@@ -110,6 +113,7 @@ typedef struct s_cyl
 	int			has_bump;
 	float		bump_strength;
 	t_bumpmap	*bump;
+	t_cy_aux	vars;
 }	t_cyl;
 
 /*
@@ -130,27 +134,23 @@ typedef struct s_triangle
 	int			has_bump;
 	float		bump_strength;
 	t_bumpmap	*bump;
+	t_tr_aux	vars;
 }	t_triangle;
 
 typedef struct s_hparab
 {
 	t_vec3		center;
 	t_vec3		axis;
-	t_vec3		u;
-	t_vec3		v;
 	float		rx;
 	float		ry;
 	float		height;
-	float		half_height;
-	float		inv_rx2;
-	float		inv_ry2;
-	float		inv_height;
 	t_vec3		color;
 	int			has_checker;
 	float		checker_scale;
 	int			has_bump;
 	float		bump_strength;
 	t_bumpmap	*bump;
+	t_hp_aux	vars;
 }	t_hparab;
 
 /*

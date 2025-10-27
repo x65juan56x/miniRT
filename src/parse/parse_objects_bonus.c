@@ -84,6 +84,7 @@ t_parse_result	parse_sp(char **tokens, int line, t_scene *scene)
 				&obj->u_obj.sp.checker_scale);
 	if (!done)
 		return (object_error(obj, line, "sp: invalid checker (cb <scale>)"));
+	aux_sphere(&obj->u_obj.sp);
 	obj->next = NULL;
 	scene_add_object(scene, obj);
 	return (parse_ok());
@@ -142,6 +143,7 @@ t_parse_result	parse_pl(char **tokens, int line, t_scene *scene)
 	else if (!parse_optional_checker(tokens, 4, &obj->u_obj.pl.has_checker,
 			&obj->u_obj.pl.checker_scale))
 		return (object_error(obj, line, "pl: invalid checker (cb <scale>)"));
+	aux_plane(&obj->u_obj.pl);
 	obj->next = NULL;
 	scene_add_object(scene, obj);
 	return (parse_ok());
@@ -195,6 +197,7 @@ t_parse_result	parse_cy(char **tkns, int line, t_scene *scene)
 		if (!ok)
 			return (object_error(obj, line, "cy: invalid checker (cb <scale>)"));
 	}
+	aux_cylinder(&obj->u_obj.cy);
 	obj->next = NULL;
 	scene_add_object(scene, obj);
 	return (parse_ok());

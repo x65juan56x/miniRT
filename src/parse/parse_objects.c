@@ -30,6 +30,7 @@ t_parse_result	parse_sp(char **tokens, int line, t_scene *scene)
 		return (object_error(obj, line, "sp: invalid diameter"));
 	if (!parse_color_255(tokens[3], &obj->u_obj.sp.color))
 		return (object_error(obj, line, "sp: invalid color"));
+	aux_sphere(&obj->u_obj.sp);
 	obj->next = NULL;
 	scene_add_object(scene, obj);
 	return (parse_ok());
@@ -60,6 +61,7 @@ t_parse_result	parse_pl(char **tokens, int line, t_scene *scene)
 		return (object_error(obj, line, "pl: not normalized normal"));
 	if (!parse_color_255(tokens[3], &obj->u_obj.pl.color))
 		return (object_error(obj, line, "pl: invalid color"));
+	aux_plane(&obj->u_obj.pl);
 	obj->next = NULL;
 	scene_add_object(scene, obj);
 	return (parse_ok());
@@ -94,6 +96,7 @@ t_parse_result	parse_cy(char **tkns, int line, t_scene *scene)
 		return (object_error(obj, line, "cy: invalid height"));
 	if (!parse_color_255(tkns[5], &obj->u_obj.cy.color))
 		return (object_error(obj, line, "cy: invalid color"));
+	aux_cylinder(&obj->u_obj.cy);
 	obj->next = NULL;
 	scene_add_object(scene, obj);
 	return (parse_ok());

@@ -9,6 +9,7 @@
 # include <stdbool.h>
 # include <stdint.h>
 # include "vec3.h"
+# include "hit.h"
 
 /*
 * Ambient light declaration.
@@ -71,25 +72,28 @@ typedef enum e_objtype
 */
 typedef struct s_sphere
 {
-	t_vec3	center;
-	float	di;
-	t_vec3	color;
+	t_vec3		center;
+	float		di;
+	t_vec3		color;
+	t_sp_aux	vars;
 }	t_sphere;
 
 typedef struct s_plane
 {
-	t_vec3	point;
-	t_vec3	normal;
-	t_vec3	color;
+	t_vec3		point;
+	t_vec3		normal;
+	t_vec3		color;
+	t_pl_aux	vars;
 }	t_plane;
 
 typedef struct s_cyl
 {
-	t_vec3	center;
-	t_vec3	axis;
-	float	di;
-	float	he;
-	t_vec3	color;
+	t_vec3		center;
+	t_vec3		axis;
+	float		di;
+	float		he;
+	t_vec3		color;
+	t_cy_aux	vars;
 }	t_cyl;
 
 /*

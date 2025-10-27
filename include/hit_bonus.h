@@ -35,6 +35,22 @@ typedef struct s_pl_aux
 	t_vec3	v;      // tangent basis V (orthonormal to normal)
 }	t_pl_aux;
 
+typedef struct s_cy_aux
+{
+	float	radius;
+	float	radius2;        // cached: radius^2
+	float	half_height;    // he * 0.5
+	t_vec3	cap_top;        // center + axis * half_height
+	t_vec3	cap_bottom;     // center - axis * half_height
+	t_vec3	base_u;         // tangent basis around axis (for UV/bump)
+	t_vec3	base_v;         // bitangent basis around axis
+	float	a;
+	float	b;
+	float	c;
+	int		hit_part;
+	int		cap_sign;
+}	t_cy_aux;
+
 typedef struct s_tr_aux
 {
 	t_vec3	e1;
@@ -59,6 +75,8 @@ typedef struct s_hp_aux
 	float	dx;
 	float	dy;
 	float	dz;
+	t_vec3	u;
+	t_vec3	v;
 	float	rx2;        // cached: rx^2
 	float	ry2;        // cached: ry^2
 	float	inv_rx2;    // cached: 1/(rx^2)

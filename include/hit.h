@@ -25,7 +25,7 @@ typedef struct s_sp_aux
 	t_vec3	oc;
 	float	radius;
 	float	radius2;     // cached: radius^2
-	float	inv_radius;  // cached: 1/radius (if needed)
+	float	inv_radius;  // cached: 1/radius
 	float	a;
 	float	half_b;
 	float	c;
