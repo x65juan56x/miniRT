@@ -174,10 +174,10 @@ static int	record_hparaboloid(const t_hparab *hp, t_ray r, float t, t_hit *out)
     float	v;
 
     p = ray_at(r, t);
-    x = v3_dot(v3_sub(p, hp->center), hp->u);
-    y = v3_dot(v3_sub(p, hp->center), hp->v);
-    grad_local = v3(-2.0f * x * hp->inv_rx2, 2.0f * y * hp->inv_ry2, -hp->inv_height);
-    n = v3_add(v3_add(v3_mul(hp->u, grad_local.x), v3_mul(hp->v, grad_local.y)),
+    x = v3_dot(v3_sub(p, hp->center), hp->vars.u);
+    y = v3_dot(v3_sub(p, hp->center), hp->vars.v);
+    grad_local = v3(-2.0f * x * hp->vars.inv_rx2, 2.0f * y * hp->vars.inv_ry2, -hp->vars.inv_height);
+    n = v3_add(v3_add(v3_mul(hp->vars.u, grad_local.x), v3_mul(hp->vars.v, grad_local.y)),
         v3_mul(hp->axis, grad_local.z));
     n = v3_norm(n);
     if (hp->has_checker)
@@ -189,7 +189,7 @@ static int	record_hparaboloid(const t_hparab *hp, t_ray r, float t, t_hit *out)
     {
         u = (x / hp->rx) * 0.5f + 0.5f;
         v = (y / hp->ry) * 0.5f + 0.5f;
-        bump_perturb(hp->bump, u, v, hp->u, hp->v, hp->bump_strength, &out->n);
+        bump_perturb(hp->bump, u, v, hp->vars.u, hp->vars.v, hp->bump_strength, &out->n);
     }
     orient_normal(out, r);
     return (1);
