@@ -11,47 +11,45 @@ static int inside_cyl_height(const t_cyl *cylinder, t_vec3 p, t_vec3 v)
 	return (0);
 }
 
-static float hit_cap(const t_cyl *cylinder, t_ray r, int sign, float radius)
+static float hit_cap(const t_cyl *cyl, t_ray r, int sign)
 {
 	float	t;
 	t_vec3	p;
 	t_vec3	c_cap;
 	t_vec3	radial;
 
-	if (fabsf(v3_dot(r.dir, cylinder->axis)) < 1e-6f)
+	if (fabsf(v3_dot(r.dir, cyl->axis)) < 1e-6f)
     	return (-1.0f); //paralelo no hay interseccion
-	c_cap = v3_add(cylinder->center, v3_mul(cylinder->axis , sign * (cylinder->he * 0.5f)));
-	t = v3_dot(v3_sub(c_cap, r.orig), cylinder->axis) / v3_dot(r.dir, cylinder->axis);
+	if (sign == 1)
+		c_cap = cyl->vars.cap_top;
+	else
+		c_cap = cyl->vars.cap_bottom;
+	t = v3_dot(v3_sub(c_cap, r.orig), cyl->axis) / v3_dot(r.dir, cyl->axis);
 	if(t < 0.0f)
 		return (-1.0f);
 	p = v3_add(r.orig, v3_mul(r.dir, t));
 	radial = v3_sub(p, c_cap);
-	if(v3_dot(radial, radial) <= radius * radius)
+	if(v3_dot(radial, radial) <= cyl->vars.radius2)
 		return (t);
 	return (-1.0f);
 }
 
-typedef struct s_quad {
-    float a;
-    float b;
-    float c;
-}	t_quad;
-
-static t_quad cyl_quadratic(const t_cyl *cylinder, t_ray r, t_vec3 x, t_vec3 v)
+static void cyl_quadratic(t_cyl *cyl, t_ray r, t_vec3 x)
 {
-	t_quad q;
+	float x_dot_ax;
+	float d_dot_ax;
 
-	ft_memset(&q, 0,sizeof(t_quad));
-	float x_dot_v = v3_dot(x, v);
-	float d_dot_v = v3_dot(r.dir, v);
-
-	q.a = v3_dot(v3_sub(r.dir, v3_mul(v, d_dot_v)), v3_sub(r.dir, v3_mul(v, d_dot_v)));
-	q.b = 2.0f * v3_dot(v3_sub(r.dir, v3_mul(v, d_dot_v)), v3_sub(x, v3_mul(v, x_dot_v)));
-	q.c = (v3_dot(v3_sub(x, v3_mul(v, x_dot_v)), v3_sub(x, v3_mul(v, x_dot_v)))) - (cylinder->di*0.5f) * (cylinder->di*0.5f);
-	return q;
+	x_dot_ax = v3_dot(x, cyl->axis);
+	d_dot_ax = v3_dot(r.dir, cyl->axis);
+	cyl->vars.a = v3_dot(v3_sub(r.dir, v3_mul(cyl->axis, d_dot_ax)),
+		v3_sub(r.dir, v3_mul(cyl->axis, d_dot_ax)));
+	cyl->vars.b = 2.0f* v3_dot(v3_sub(r.dir, v3_mul(cyl->axis, d_dot_ax)),
+		v3_sub(x, v3_mul(cyl->axis, x_dot_ax)));
+	cyl->vars.c = (v3_dot(v3_sub(x, v3_mul(cyl->axis, x_dot_ax)),
+		v3_sub(x, v3_mul(cyl->axis, x_dot_ax)))) - cyl->vars.radius2;
 }
 
-static float pick_valid_t(const t_cyl *cylinder, t_ray r, float t1, float t2)
+static float pick_valid_t(const t_cyl *cyl, t_ray r, float t1, float t2)
 {
 	float	tmin;
 	float	tmax;
@@ -66,13 +64,13 @@ static float pick_valid_t(const t_cyl *cylinder, t_ray r, float t1, float t2)
 	if(tmin > 0.0f)
 	{
 		p = v3_add(r.orig, v3_mul(r.dir, tmin));
-		if (inside_cyl_height(cylinder, p, cylinder->axis))
+		if (inside_cyl_height(cyl, p, cyl->axis))
 			return (tmin);
 	}
 	if(tmax > 0.0f && tmax >= tmin)
 	{
 		p = v3_add(r.orig, v3_mul(r.dir, tmax));
-		if (inside_cyl_height(cylinder, p, cylinder->axis))
+		if (inside_cyl_height(cyl, p, cyl->axis))
 			return (tmax);
 	}
 	return (-1.0f);
@@ -80,20 +78,19 @@ static float pick_valid_t(const t_cyl *cylinder, t_ray r, float t1, float t2)
 
 static float hit_side(const t_cyl *cyl, t_ray r)
 {
-	t_quad	q;
 	float	disc;
 	float	t1;
 	float	t2;
 	float	tmp;
 
-	q = cyl_quadratic(cyl, r,v3_sub(r.orig, cyl->center), cyl->axis);
-	if (q.a == 0.0f)
+	cyl_quadratic(cyl, r, v3_sub(r.orig, cyl->center));
+	if (cyl->vars.a == 0.0f)
 		return (-1.0f);
-	disc = (q.b * q.b) - (4 * q.a * q.c);
+	disc = (cyl->vars.b * cyl->vars.b) - (4 * cyl->vars.a * cyl->vars.c);
 	if(disc < 0.0f)
 		return (-1.0f);
-	t1 = (-q.b - sqrt(disc)) / (2.0f*q.a);
-	t2 = (-q.b + sqrt(disc)) / (2.0f*q.a);
+	t1 = (-cyl->vars.b - sqrt(disc)) / (2.0f * cyl->vars.a);
+	t2 = (-cyl->vars.b + sqrt(disc)) / (2.0f * cyl->vars.a);
 	if (t1 > t2)
 	{
 		tmp = t1;
@@ -103,36 +100,34 @@ static float hit_side(const t_cyl *cyl, t_ray r)
 	return (pick_valid_t(cyl, r, t1, t2));
 }
 
-float	hit_cylinder(const t_cyl *cylinder, t_ray r, int *hit_part)
+float	hit_cylinder(t_cyl *cyl, t_ray r)
 {
 	float	best_t;
 	float	t_side;
-	float	radius;
 	float	t_top;
 	float	t_bottom;
 
 	best_t = FLT_MAX;
-	t_side = hit_side(cylinder, r);
-	radius = cylinder->di * 0.5f;
-	*hit_part = -1;
+	t_side = hit_side(cyl, r);
+	cyl->vars.hit_part = -1;
 	if(t_side > 0.0f && t_side < best_t)
 	{
 		best_t = t_side;
-		*hit_part = 0;
+		cyl->vars.hit_part = 0;
 	}
-	t_top = hit_cap(cylinder, r, 1, radius);
+	t_top = hit_cap(cyl, r, 1);
 	if(t_top > 0.0f && t_top < best_t)
 	{
 		best_t = t_top;
-		*hit_part = 1;
+		cyl->vars.hit_part = 1;
 	}
-	t_bottom = hit_cap(cylinder, r, -1, radius);
+	t_bottom = hit_cap(cyl, r, -1);
 	if(t_bottom > 0.0f && t_bottom < best_t)
 	{
 		best_t = t_bottom;
-		*hit_part = 2;
+		cyl->vars.hit_part = 2;
 	}
-	if (best_t >= FLT_MAX || *hit_part == -1)
+	if (best_t >= FLT_MAX || cyl->vars.hit_part == -1)
         return -1.0f;
 	return best_t;
 }

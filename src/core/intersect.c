@@ -51,16 +51,17 @@ t_vec3 normal_cyl(const t_cyl *cylinder, t_vec3 p)
 	return (radial);
 }
 
-static int record_cylinder(const t_cyl *cy, t_ray r, float t, t_hit *out, int hit_part)
+static int record_cylinder(const t_cyl *cy, t_ray r, float t, t_hit *out)
 {
 	t_vec3 p;
 	t_vec3 n;
+
 	p = ray_at(r, t);
-	if (hit_part == 0)
+	if (cy->vars.hit_part == 0)
 		n = v3_norm(normal_cyl(cy, p));
-	else if (hit_part == 1)
+	else if (cy->vars.hit_part == 1)
 		n = cy->axis;
-	else if (hit_part == 2)
+	else if (cy->vars.hit_part == 2)
 		n = v3_mul(cy->axis, -1);
 	else
 		return (0);
@@ -69,26 +70,25 @@ static int record_cylinder(const t_cyl *cy, t_ray r, float t, t_hit *out, int hi
 	return (1);
 }
 
-static int	object_hit(const t_object *obj, t_ray r, t_hit *out)
+static int	object_hit(t_object *obj, t_ray r, t_hit *out)
 {
 	float	t;
-	int		hit_part;
 
 	t = -1.0f;
-	hit_part = -1.0f;
+	obj->u_obj.cy.vars.hit_part = -1.0f;
 	if (obj->type == OBJ_SPHERE)
 		t = hit_sphere(&obj->u_obj.sp, r);
 	else if (obj->type == OBJ_PLANE)
 		t = hit_plane(&obj->u_obj.pl, r);
 	else if (obj->type == OBJ_CYLINDER)
-		t = hit_cylinder(&obj->u_obj.cy, r, &hit_part);
+		t = hit_cylinder(&obj->u_obj.cy, r);
 	if (t <= 0.0f)
 		return (0);
 	if (obj->type == OBJ_SPHERE)
 		return (record_sphere(&obj->u_obj.sp, r, t, out));
 	if (obj->type == OBJ_PLANE)
 		return (record_plane(&obj->u_obj.pl, r, t, out));
-	return (record_cylinder(&obj->u_obj.cy, r, t, out, hit_part));
+	return (record_cylinder(&obj->u_obj.cy, r, t, out));
 }
 
 int	scene_hit(const t_scene *scene, t_ray r, float max_dist, t_hit *out)

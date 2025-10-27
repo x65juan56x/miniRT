@@ -3,11 +3,8 @@
 
 # include "vec3.h"
 # include "ray.h"
+# include "scene.h"
 
-# ifndef SCENE_HEADER
-#  define SCENE_HEADER "scene.h"
-# endif
-# include SCENE_HEADER
 
 // Generic hit record used by the renderer
 typedef struct s_hit
@@ -54,7 +51,6 @@ typedef struct s_cy_aux
 	float	b;
 	float	c;
 	int		hit_part;
-	int		cap_sign;
 }	t_cy_aux;
 
 int     scene_hit(const t_scene *scene, t_ray r, float max_dist, t_hit *out);
@@ -62,6 +58,6 @@ int     scene_hit(const t_scene *scene, t_ray r, float max_dist, t_hit *out);
 /* HIT OBJECTS */
 float	hit_sphere(const t_sphere *sp, t_ray r);
 float	hit_plane(const t_plane *pl, t_ray r);
-float	hit_cylinder(const t_cyl *cy, t_ray r, int *hit_part);
+float	hit_cylinder(t_cyl *cy, t_ray r);
 
 #endif
