@@ -1,6 +1,6 @@
 #include "../../include/minirt.h"
-#include "../../include/hit.h"
 #include "../../include/shading.h"
+#include "../../include/scene.h"
 
 t_vec3	shade_lambert(const t_scene *scene, const t_hit *hit)
 {

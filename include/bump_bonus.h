@@ -9,7 +9,31 @@ typedef struct s_bumpmap
 	int		w;
 	int		h;
 	float	*hmap; // grayscale heights in [0,1], row-major size w*h
+	float	du;
+	float	dv;
 }	t_bumpmap;
+
+typedef struct s_aux_bump
+{
+	float		u;
+	float		v;
+	t_vec3		tangent;
+	t_vec3		bitangent;
+	float		strength;
+}	t_aux_bump;
+
+typedef struct s_tr_bump_aux
+{
+	t_vec3	pa;
+	float	d00;
+	float	d01;
+	float	d11;
+	float	d20;
+	float	d21;
+	float	denom;
+	float	vb;
+	float	wb;
+}	t_tr_bump_aux;
 
 // Load a PNG bump map (grayscale derived from RGBA) into a float height map
 t_bumpmap	*bump_load_png(const char *path);
@@ -20,8 +44,6 @@ float		bump_sample(const t_bumpmap *bm, float u, float v);
 
 // Perturb normal by bump gradient along tangent/bitangent with given strength
 // n will be normalized on output
-void		bump_perturb(const t_bumpmap *bm, float u, float v,
-						t_vec3 tangent, t_vec3 bitangent, float strength,
-						t_vec3 *n);
+void		bump_perturb(t_bumpmap *bm, t_aux_bump *bm_aux, t_vec3 *n);
 
 #endif

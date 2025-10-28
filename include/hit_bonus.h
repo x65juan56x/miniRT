@@ -25,6 +25,10 @@ typedef struct s_sp_aux
 	float	half_b;
 	float	c;
 	float	disc;
+	t_vec3	u;
+	t_vec3	v;
+	int		iu;
+	int		iv;
 }	t_sp_aux;
 
 // Plane cached constants (computed once per object)
@@ -62,8 +66,8 @@ typedef struct s_tr_aux
 	float	det;
 	float	inv_det;
 	t_vec3	tvec;
-	float	u;
-	float	v;
+	t_vec3	u;
+	t_vec3	v;
 	t_vec3	qvec;
 }	t_tr_aux;
 
@@ -91,13 +95,21 @@ typedef struct s_hp_aux
 	float	cands[2];
 }	t_hp_aux;
 
+typedef struct s_common_hit
+{
+	float	t;
+	t_vec3	p;
+	t_vec3	n;
+	t_vec3	albedo;
+}	t_common_hit;
+
 int		scene_hit(const t_scene *scene, t_ray r, float max_dist, t_hit *out);
 
 /* HIT OBJECTS */
 float	hit_sphere(const t_sphere *sp, t_ray r);
 float	hit_plane(const t_plane *pl, t_ray r);
 float	hit_triangle(const t_triangle *tr, t_ray r);
-float	hit_cylinder(const t_cyl *cy, t_ray r, int *hit_part);
+float	hit_cylinder(const t_cyl *cy, t_ray r);
 float	hit_hparaboloid(const t_hparab *hp, t_ray r);
 
 #endif

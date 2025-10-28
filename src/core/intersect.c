@@ -24,7 +24,11 @@ static int	record_sphere(const t_sphere *sp, t_ray r, float t, t_hit *out)
 
 	p = ray_at(r, t);
 	n = v3_norm(v3_sub(p, sp->center));
-	set_common_hit(out, t, p, n, sp->color);
+	out->ok = 1;
+	out->t = t;
+	out->p = p;
+	out->n = n;
+	out->albedo = sp->color;
 	orient_normal(out, r);
 	return (1);
 }
@@ -34,7 +38,11 @@ static int	record_plane(const t_plane *pl, t_ray r, float t, t_hit *out)
 	t_vec3	p;
 
 	p = ray_at(r, t);
-	set_common_hit(out, t, p, pl->normal, pl->color);
+	out->ok = 1;
+	out->t = t;
+	out->p = p;
+	out->n = pl->normal;
+	out->albedo = pl->color;
 	orient_normal(out, r);
 	return (1);
 }
@@ -65,7 +73,11 @@ static int record_cylinder(const t_cyl *cy, t_ray r, float t, t_hit *out)
 		n = v3_mul(cy->axis, -1);
 	else
 		return (0);
-	set_common_hit(out, t, p, n, cy->color);
+	out->ok = 1;
+	out->t = t;
+	out->p = p;
+	out->n = n;
+	out->albedo = cy->color;
 	orient_normal(out, r);
 	return (1);
 }
@@ -93,10 +105,10 @@ static int	object_hit(t_object *obj, t_ray r, t_hit *out)
 
 int	scene_hit(const t_scene *scene, t_ray r, float max_dist, t_hit *out)
 {
-	const t_object	*o;
-	float			best;
-	t_hit			cur;
-	int				found;
+	t_object	*o;
+	float		best;
+	t_hit		cur;
+	int			found;
 
 	out->ok = 0;
 	found = 0;

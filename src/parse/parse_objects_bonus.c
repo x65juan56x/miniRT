@@ -4,7 +4,7 @@
 #include "../../include/parser_internal_bonus.h"
 #include "../../include/bump_bonus.h"
 
-static t_parse_result	object_error(t_object *obj, int line, const char *msg)
+static t_parse_result	obj_error(t_object *obj, int line, const char *msg)
 {
 	if (obj)
 		free(obj);
@@ -19,7 +19,7 @@ static t_parse_result	object_error(t_object *obj, int line, const char *msg)
 // - idx: posición donde podría aparecer "cb"
 // - Devuelve 1 si es válido (presente o ausente), 0 si formato inválido
 // - Si está presente, exige que no haya tokens extra (fin de línea) y marca has_checker=1
-static int	parse_optional_checker(char **tokens, int idx, int *has_checker, float *out_scale)
+static int	parse_opt_checker(char **tokens, int idx, int *has_checker, float *out_scale)
 {
 	*has_checker = 0;
 	if (!tokens[idx])
@@ -34,7 +34,7 @@ static int	parse_optional_checker(char **tokens, int idx, int *has_checker, floa
 	return (1);
 }
 
-static int parse_optional_bump(char **tokens, int idx, int *has_bump,
+static int parse_opt_bump(char **tokens, int idx, int *has_bump,
 		float *out_strength, t_bumpmap **out_bump)
 {
 	*has_bump = 0;
@@ -66,24 +66,24 @@ t_parse_result	parse_sp(char **tokens, int line, t_scene *scene)
 		return (parse_error(line, "sp: not enough memory"));
 	obj->type = OBJ_SPHERE;
 	if (!parse_vec3(tokens[1], &obj->u_obj.sp.center))
-		return (object_error(obj, line, "sp: invalid centre"));
+		return (obj_error(obj, line, "sp: invalid centre"));
 	if (!parse_float(tokens[2], &obj->u_obj.sp.di) || obj->u_obj.sp.di <= 0.0f)
-		return (object_error(obj, line, "sp: invalid diameter"));
+		return (obj_error(obj, line, "sp: invalid diameter"));
 	if (!parse_color_255(tokens[3], &obj->u_obj.sp.color))
-		return (object_error(obj, line, "sp: invalid color"));
+		return (obj_error(obj, line, "sp: invalid color"));
 	obj->u_obj.sp.has_checker = 0;
 	obj->u_obj.sp.checker_scale = 1.0f; // also used as UV scale for bump
 	obj->u_obj.sp.has_bump = 0;
 	obj->u_obj.sp.bump_strength = 0.0f;
 	obj->u_obj.sp.bump = NULL;
 	if (tokens[4] && ft_strncmp(tokens[4], "bm", 3) == 0)
-		done = parse_optional_bump(tokens, 4, &obj->u_obj.sp.has_bump,
+		done = parse_opt_bump(tokens, 4, &obj->u_obj.sp.has_bump,
 				&obj->u_obj.sp.bump_strength, &obj->u_obj.sp.bump);
 	else
-		done = parse_optional_checker(tokens, 4, &obj->u_obj.sp.has_checker,
+		done = parse_opt_checker(tokens, 4, &obj->u_obj.sp.has_checker,
 				&obj->u_obj.sp.checker_scale);
 	if (!done)
-		return (object_error(obj, line, "sp: invalid checker (cb <scale>)"));
+		return (obj_error(obj, line, "sp: invalid checker (cb <scale>)"));
 	aux_sphere(&obj->u_obj.sp);
 	obj->next = NULL;
 	scene_add_object(scene, obj);
@@ -95,56 +95,67 @@ t_parse_result	parse_sp(char **tokens, int line, t_scene *scene)
 * Errors: Frees the object and returns a detailed message on failure.
 */
 
-static void	plane_build_basis(t_plane *pl)
-{
-	t_vec3	up;
-
-	pl->has_checker = 0;
-	pl->checker_scale = 1.0f;
-	up = v3(0.0f, 1.0f, 0.0f);
-	if (fabsf(v3_dot(pl->normal, up)) > 0.999f)
-		up = v3(1.0f, 0.0f, 0.0f);
-	pl->u = v3_norm(v3_cross(up, pl->normal));
-	pl->v = v3_cross(pl->normal, pl->u);
-}
-
-// Nota: usamos la función unificada para todas las figuras
-
-t_parse_result	parse_pl(char **tokens, int line, t_scene *scene)
+static t_parse_result	pl_create_object(char **tok, int line, t_object **out)
 {
 	t_object	*obj;
 
-	if (!tokens[1] || !tokens[2] || !tokens[3])
+	if (!tok[1] || !tok[2] || !tok[3])
 		return (parse_error(line, "pl: invalid format"));
 	obj = (t_object *)malloc(sizeof(t_object));
 	if (!obj)
 		return (parse_error(line, "pl: not enough memory"));
 	obj->type = OBJ_PLANE;
-	if (!parse_vec3(tokens[1], &obj->u_obj.pl.point))
-		return (object_error(obj, line, "pl: invalid point"));
-	if (!parse_vec3(tokens[2], &obj->u_obj.pl.normal))
-		return (object_error(obj, line, "pl: invalid normal"));
-	if (!vec3_components_in_range(obj->u_obj.pl.normal, -1.0f, 1.0f))
-		return (object_error(obj, line, "pl: normal out of range [-1,1]"));
-	if (!vec3_is_normalized(obj->u_obj.pl.normal))
-		return (object_error(obj, line, "pl: not normalized normal"));
-	if (!parse_color_255(tokens[3], &obj->u_obj.pl.color))
-		return (object_error(obj, line, "pl: invalid color"));
-	plane_build_basis(&obj->u_obj.pl);
-	obj->u_obj.pl.has_bump = 0;
-	obj->u_obj.pl.bump_strength = 0.0f;
-	obj->u_obj.pl.bump = NULL;
-	if (tokens[4] && ft_strncmp(tokens[4], "bm", 3) == 0)
-	{
-		if (!parse_optional_bump(tokens, 4, &obj->u_obj.pl.has_bump,
-				&obj->u_obj.pl.bump_strength, &obj->u_obj.pl.bump))
-			return (object_error(obj, line, "pl: invalid bump (bm <png> <strength>)"));
-	}
-	else if (!parse_optional_checker(tokens, 4, &obj->u_obj.pl.has_checker,
-			&obj->u_obj.pl.checker_scale))
-		return (object_error(obj, line, "pl: invalid checker (cb <scale>)"));
-	aux_plane(&obj->u_obj.pl);
 	obj->next = NULL;
+	*out = obj;
+	return (parse_ok());
+}
+
+static t_parse_result	pl_parse_attributes(char **tok, int line, t_object *obj)
+{
+	if (!parse_vec3(tok[1], &obj->u_obj.pl.point))
+		return (obj_error(obj, line, "pl: invalid point"));
+	if (!parse_vec3(tok[2], &obj->u_obj.pl.normal))
+		return (obj_error(obj, line, "pl: invalid normal"));
+	if (!vec3_components_in_range(obj->u_obj.pl.normal, -1.0f, 1.0f))
+		return (obj_error(obj, line, "pl: normal out of range [-1,1]"));
+	if (!vec3_is_normalized(obj->u_obj.pl.normal))
+		return (obj_error(obj, line, "pl: not normalized normal"));
+	if (!parse_color_255(tok[3], &obj->u_obj.pl.color))
+		return (obj_error(obj, line, "pl: invalid color"));
+	return (parse_ok());
+}
+
+static void	plane_build_basis(t_plane *pl)
+{
+	pl->has_checker = 0;
+	pl->checker_scale = 1.0f;
+	pl->has_bump = 0;
+	pl->bump_strength = 0.0f;
+	pl->bump = NULL;
+}
+
+t_parse_result	parse_pl(char **tok, int line, t_scene *scene)
+{
+	t_object		*obj;
+	t_parse_result	result;
+
+	result = pl_create_object(tok, line, &obj);
+	if (!result.ok)
+		return (result);
+	result = pl_parse_attributes(tok, line, obj);
+	if (!result.ok)
+		return (result);
+	plane_build_basis(&obj->u_obj.pl);
+	if (tok[4] && ft_strncmp(tok[4], "bm", 3) == 0)
+	{
+		if (!parse_opt_bump(tok, 4, &obj->u_obj.pl.has_bump,
+				&obj->u_obj.pl.bump_strength, &obj->u_obj.pl.bump))
+			return (obj_error(obj, line, "pl: invalid bump (bm <png> <strength>)"));
+	}
+	else if (!parse_opt_checker(tok, 4, &obj->u_obj.pl.has_checker,
+			&obj->u_obj.pl.checker_scale))
+		return (obj_error(obj, line, "pl: invalid checker (cb <scale>)"));
+	aux_plane(&obj->u_obj.pl);
 	scene_add_object(scene, obj);
 	return (parse_ok());
 }
@@ -165,19 +176,19 @@ t_parse_result	parse_cy(char **tkns, int line, t_scene *scene)
 		return (parse_error(line, "cy: not enough memory"));
 	obj->type = OBJ_CYLINDER;
 	if (!parse_vec3(tkns[1], &obj->u_obj.cy.center))
-		return (object_error(obj, line, "cy: invalid centre"));
+		return (obj_error(obj, line, "cy: invalid centre"));
 	if (!parse_vec3(tkns[2], &obj->u_obj.cy.axis))
-		return (object_error(obj, line, "cy: invalid axis"));
+		return (obj_error(obj, line, "cy: invalid axis"));
 	if (!vec3_components_in_range(obj->u_obj.cy.axis, -1.0f, 1.0f))
-		return (object_error(obj, line, "cy: axis out of range [-1,1]"));
+		return (obj_error(obj, line, "cy: axis out of range [-1,1]"));
 	if (!vec3_is_normalized(obj->u_obj.cy.axis))
-		return (object_error(obj, line, "cy: not normalized axis"));
+		return (obj_error(obj, line, "cy: not normalized axis"));
 	if (!parse_float(tkns[3], &obj->u_obj.cy.di) || obj->u_obj.cy.di <= 0.0f)
-		return (object_error(obj, line, "cy: invalid diameter"));
+		return (obj_error(obj, line, "cy: invalid diameter"));
 	if (!parse_float(tkns[4], &obj->u_obj.cy.he) || obj->u_obj.cy.he <= 0.0f)
-		return (object_error(obj, line, "cy: invalid height"));
+		return (obj_error(obj, line, "cy: invalid height"));
 	if (!parse_color_255(tkns[5], &obj->u_obj.cy.color))
-		return (object_error(obj, line, "cy: invalid color"));
+		return (obj_error(obj, line, "cy: invalid color"));
 		// Bonus options: either bump (bm <png> <strength>) or checker (cb <scale>)
 	obj->u_obj.cy.has_checker = 0;
 	obj->u_obj.cy.checker_scale = 1.0f;
@@ -186,16 +197,16 @@ t_parse_result	parse_cy(char **tkns, int line, t_scene *scene)
 	obj->u_obj.cy.bump = NULL;
 	if (tkns[6] && ft_strncmp(tkns[6], "bm", 3) == 0)
 	{
-		if (!parse_optional_bump(tkns, 6, &obj->u_obj.cy.has_bump,
+		if (!parse_opt_bump(tkns, 6, &obj->u_obj.cy.has_bump,
 				&obj->u_obj.cy.bump_strength, &obj->u_obj.cy.bump))
-			return (object_error(obj, line, "cy: invalid bump (bm <png> <strength>)"));
+			return (obj_error(obj, line, "cy: invalid bump (bm <png> <strength>)"));
 	}
 	else if (tkns[6])
 	{
-		int ok = parse_optional_checker(tkns, 6, &obj->u_obj.cy.has_checker,
+		int ok = parse_opt_checker(tkns, 6, &obj->u_obj.cy.has_checker,
 				&obj->u_obj.cy.checker_scale);
 		if (!ok)
-			return (object_error(obj, line, "cy: invalid checker (cb <scale>)"));
+			return (obj_error(obj, line, "cy: invalid checker (cb <scale>)"));
 	}
 	aux_cylinder(&obj->u_obj.cy);
 	obj->next = NULL;
@@ -226,40 +237,32 @@ static t_parse_result	hp_create_object(char **tok, int line, t_object **out)
 static t_parse_result	hp_parse_attributes(char **tok, int line, t_object *obj)
 {
 	if (!parse_vec3(tok[1], &obj->u_obj.hp.center))
-		return (object_error(obj, line, "hp: invalid centre"));
+		return (obj_error(obj, line, "hp: invalid centre"));
 	if (!parse_vec3(tok[2], &obj->u_obj.hp.axis))
-		return (object_error(obj, line, "hp: invalid axis"));
+		return (obj_error(obj, line, "hp: invalid axis"));
 	if (!vec3_components_in_range(obj->u_obj.hp.axis, -1.0f, 1.0f))
-		return (object_error(obj, line, "hp: axis out of range [-1,1]"));
+		return (obj_error(obj, line, "hp: axis out of range [-1,1]"));
 	if (!vec3_is_normalized(obj->u_obj.hp.axis))
-		return (object_error(obj, line, "hp: not normalized axis"));
+		return (obj_error(obj, line, "hp: not normalized axis"));
 	if (!parse_float(tok[3], &obj->u_obj.hp.rx) || obj->u_obj.hp.rx <= 0.0f)
-		return (object_error(obj, line, "hp: invalid rx"));
+		return (obj_error(obj, line, "hp: invalid rx"));
 	if (!parse_float(tok[4], &obj->u_obj.hp.ry) || obj->u_obj.hp.ry <= 0.0f)
-		return (object_error(obj, line, "hp: invalid ry"));
+		return (obj_error(obj, line, "hp: invalid ry"));
 	if (!parse_float(tok[5], &obj->u_obj.hp.height)
 		|| obj->u_obj.hp.height <= 0.0f)
-		return (object_error(obj, line, "hp: invalid height"));
+		return (obj_error(obj, line, "hp: invalid height"));
 	if (!parse_color_255(tok[6], &obj->u_obj.hp.color))
-		return (object_error(obj, line, "hp: invalid color"));
+		return (obj_error(obj, line, "hp: invalid color"));
 	return (parse_ok());
 }
 
-static void	hp_finalize(t_hparab *hp)
+static void hp_build_basis(t_hparab *hp)
 {
-	t_vec3	up;
-
-	up = v3(0.0f, 1.0f, 0.0f);
-	if (fabsf(v3_dot(hp->axis, up)) > 0.999f)
-		up = v3(1.0f, 0.0f, 0.0f);
-	hp->u = v3_norm(v3_cross(up, hp->axis));
-	hp->v = v3_norm(v3_cross(hp->axis, hp->u));
-	// Use full height as the half-height clamp to avoid overly tight vertical clipping
-	// This better matches the intended "Pringles" shape extent along the axis
-	hp->half_height = hp->height;
-	hp->inv_rx2 = 1.0f / (hp->rx * hp->rx);
-	hp->inv_ry2 = 1.0f / (hp->ry * hp->ry);
-	hp->inv_height = 1.0f / hp->height;
+	hp->has_checker = 0;
+	hp->checker_scale = 1.0f; // also used as UV scale for bump
+	hp->has_bump = 0;
+	hp->bump_strength = 0.0f;
+	hp->bump = NULL;
 }
 
 t_parse_result	parse_hp(char **tok, int line, t_scene *scene)
@@ -274,25 +277,19 @@ t_parse_result	parse_hp(char **tok, int line, t_scene *scene)
 	result = hp_parse_attributes(tok, line, obj);
 	if (!result.ok)
 		return (result);
-	hp_finalize(&obj->u_obj.hp);
-    obj->u_obj.hp.has_checker = 0;
-    obj->u_obj.hp.checker_scale = 1.0f; // also used as UV scale for bump
-    obj->u_obj.hp.has_bump = 0;
-    obj->u_obj.hp.bump_strength = 0.0f;
-    obj->u_obj.hp.bump = NULL;
-    if (tok[7] && ft_strncmp(tok[7], "bm", 3) == 0)
-    {
-	if (!parse_optional_bump(tok, 7, &obj->u_obj.hp.has_bump,
-		&obj->u_obj.hp.bump_strength, &obj->u_obj.hp.bump))
-	    return (object_error(obj, line, "hp: invalid bump (bm <png> <strength>)"));
-    }
-    else
-    {
-	cbcons = parse_optional_checker(tok, 7, &obj->u_obj.hp.has_checker,
-		&obj->u_obj.hp.checker_scale);
-	if (!cbcons)
-	    return (object_error(obj, line, "hp: invalid checker (cb <scale>)"));
-    }
+	hp_build_basis(&obj->u_obj.hp);
+	if ((tok[7] && ft_strncmp(tok[7], "bm", 3) == 0)
+		&& (!parse_opt_bump(tok, 7, &obj->u_obj.hp.has_bump,
+			&obj->u_obj.hp.bump_strength, &obj->u_obj.hp.bump)))
+		return (obj_error(obj, line, "hp: invalid bump (bm <png> <strength>)"));
+	else
+	{
+		cbcons = parse_opt_checker(tok, 7, &obj->u_obj.hp.has_checker,
+			&obj->u_obj.hp.checker_scale);
+		if (!cbcons)
+			return (obj_error(obj, line, "hp: invalid checker (cb <scale>)"));
+	}
+	aux_hparab(&obj->u_obj.hp);
 	scene_add_object(scene, obj);
 	return (parse_ok());
 }
@@ -312,13 +309,13 @@ t_parse_result	parse_tr(char **tokens, int line, t_scene *scene)
 		return (parse_error(line, "tr: not enough memory"));
 	obj->type = OBJ_TRIANGLE;
 	if (!parse_vec3(tokens[1], &obj->u_obj.tr.a))
-		return (object_error(obj, line, "tr: invalid vertex a"));
+		return (obj_error(obj, line, "tr: invalid vertex a"));
 	if (!parse_vec3(tokens[2], &obj->u_obj.tr.b))
-		return (object_error(obj, line, "tr: invalid vertex b"));
+		return (obj_error(obj, line, "tr: invalid vertex b"));
 	if (!parse_vec3(tokens[3], &obj->u_obj.tr.c))
-		return (object_error(obj, line, "tr: invalid vertex c"));
+		return (obj_error(obj, line, "tr: invalid vertex c"));
 	if (!parse_color_255(tokens[4], &obj->u_obj.tr.color))
-		return (object_error(obj, line, "tr: invalid color"));
+		return (obj_error(obj, line, "tr: invalid color"));
 	{
 		e1 = v3_sub(obj->u_obj.tr.b, obj->u_obj.tr.a);
 		e2 = v3_sub(obj->u_obj.tr.c, obj->u_obj.tr.a);
@@ -332,16 +329,16 @@ t_parse_result	parse_tr(char **tokens, int line, t_scene *scene)
     obj->u_obj.tr.bump = NULL;
     if (tokens[5] && ft_strncmp(tokens[5], "bm", 3) == 0)
     {
-	if (!parse_optional_bump(tokens, 5, &obj->u_obj.tr.has_bump,
+	if (!parse_opt_bump(tokens, 5, &obj->u_obj.tr.has_bump,
 		&obj->u_obj.tr.bump_strength, &obj->u_obj.tr.bump))
-	    return (object_error(obj, line, "tr: invalid bump (bm <png> <strength>)"));
+	    return (obj_error(obj, line, "tr: invalid bump (bm <png> <strength>)"));
     }
     else
     {
-	cbcons = parse_optional_checker(tokens, 5, &obj->u_obj.tr.has_checker,
+	cbcons = parse_opt_checker(tokens, 5, &obj->u_obj.tr.has_checker,
 		&obj->u_obj.tr.checker_scale);
 	if (!cbcons)
-	    return (object_error(obj, line, "tr: invalid checker (cb <scale>)"));
+	    return (obj_error(obj, line, "tr: invalid checker (cb <scale>)"));
     }
 	obj->next = NULL;
 	scene_add_object(scene, obj);

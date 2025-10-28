@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "../../include/parser_internal.h"
 
-static t_parse_result	object_error(t_object *obj, int line, const char *msg)
+static t_parse_result	obj_error(t_object *obj, int line, const char *msg)
 {
 	if (obj)
 		free(obj);
@@ -25,11 +25,11 @@ t_parse_result	parse_sp(char **tokens, int line, t_scene *scene)
 		return (parse_error(line, "sp: not enough memory"));
 	obj->type = OBJ_SPHERE;
 	if (!parse_vec3(tokens[1], &obj->u_obj.sp.center))
-		return (object_error(obj, line, "sp: invalid centre"));
+		return (obj_error(obj, line, "sp: invalid centre"));
 	if (!parse_float(tokens[2], &obj->u_obj.sp.di) || obj->u_obj.sp.di <= 0.0f)
-		return (object_error(obj, line, "sp: invalid diameter"));
+		return (obj_error(obj, line, "sp: invalid diameter"));
 	if (!parse_color_255(tokens[3], &obj->u_obj.sp.color))
-		return (object_error(obj, line, "sp: invalid color"));
+		return (obj_error(obj, line, "sp: invalid color"));
 	aux_sphere(&obj->u_obj.sp);
 	obj->next = NULL;
 	scene_add_object(scene, obj);
@@ -52,15 +52,15 @@ t_parse_result	parse_pl(char **tokens, int line, t_scene *scene)
 		return (parse_error(line, "pl: not enough memory"));
 	obj->type = OBJ_PLANE;
 	if (!parse_vec3(tokens[1], &obj->u_obj.pl.point))
-		return (object_error(obj, line, "pl: invalid point"));
+		return (obj_error(obj, line, "pl: invalid point"));
 	if (!parse_vec3(tokens[2], &obj->u_obj.pl.normal))
-		return (object_error(obj, line, "pl: invalid normal"));
+		return (obj_error(obj, line, "pl: invalid normal"));
 	if (!vec3_components_in_range(obj->u_obj.pl.normal, -1.0f, 1.0f))
-		return (object_error(obj, line, "pl: normal out of range [-1,1]"));
+		return (obj_error(obj, line, "pl: normal out of range [-1,1]"));
 	if (!vec3_is_normalized(obj->u_obj.pl.normal))
-		return (object_error(obj, line, "pl: not normalized normal"));
+		return (obj_error(obj, line, "pl: not normalized normal"));
 	if (!parse_color_255(tokens[3], &obj->u_obj.pl.color))
-		return (object_error(obj, line, "pl: invalid color"));
+		return (obj_error(obj, line, "pl: invalid color"));
 	aux_plane(&obj->u_obj.pl);
 	obj->next = NULL;
 	scene_add_object(scene, obj);
@@ -83,19 +83,19 @@ t_parse_result	parse_cy(char **tkns, int line, t_scene *scene)
 		return (parse_error(line, "cy: not enough memory"));
 	obj->type = OBJ_CYLINDER;
 	if (!parse_vec3(tkns[1], &obj->u_obj.cy.center))
-		return (object_error(obj, line, "cy: invalid centre"));
+		return (obj_error(obj, line, "cy: invalid centre"));
 	if (!parse_vec3(tkns[2], &obj->u_obj.cy.axis))
-		return (object_error(obj, line, "cy: invalid axis"));
+		return (obj_error(obj, line, "cy: invalid axis"));
 	if (!vec3_components_in_range(obj->u_obj.cy.axis, -1.0f, 1.0f))
-		return (object_error(obj, line, "cy: axis out of range [-1,1]"));
+		return (obj_error(obj, line, "cy: axis out of range [-1,1]"));
 	if (!vec3_is_normalized(obj->u_obj.cy.axis))
-		return (object_error(obj, line, "cy: not normalized axis"));
+		return (obj_error(obj, line, "cy: not normalized axis"));
 	if (!parse_float(tkns[3], &obj->u_obj.cy.di) || obj->u_obj.cy.di <= 0.0f)
-		return (object_error(obj, line, "cy: invalid diameter"));
+		return (obj_error(obj, line, "cy: invalid diameter"));
 	if (!parse_float(tkns[4], &obj->u_obj.cy.he) || obj->u_obj.cy.he <= 0.0f)
-		return (object_error(obj, line, "cy: invalid height"));
+		return (obj_error(obj, line, "cy: invalid height"));
 	if (!parse_color_255(tkns[5], &obj->u_obj.cy.color))
-		return (object_error(obj, line, "cy: invalid color"));
+		return (obj_error(obj, line, "cy: invalid color"));
 	aux_cylinder(&obj->u_obj.cy);
 	obj->next = NULL;
 	scene_add_object(scene, obj);

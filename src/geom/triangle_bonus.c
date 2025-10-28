@@ -1,27 +1,26 @@
 #include "../../include/minirt.h"
 #include "../../include/hit_bonus.h"
 
-float	hit_triangle(const t_triangle *tr, t_ray r)
+float	hit_triangle(t_triangle *tr, t_ray r)
 {
-	t_tr_aux	vars;
 	float		t;
 
-	vars.e1 = v3_sub(tr->b, tr->a);
-	vars.e2 = v3_sub(tr->c, tr->a);
-	vars.pvec = v3_cross(r.dir, vars.e2);
-	vars.det = v3_dot(vars.e1, vars.pvec);
-	if (fabsf(vars.det) < 1e-8f)
+	tr->vars.e1 = v3_sub(tr->b, tr->a);
+	tr->vars.e2 = v3_sub(tr->c, tr->a);
+	tr->vars.pvec = v3_cross(r.dir, tr->vars.e2);
+	tr->vars.det = v3_dot(tr->vars.e1, tr->vars.pvec);
+	if (fabsf(tr->vars.det) < 1e-8f)
 		return (-1.0f);
-	vars.inv_det = 1.0f / vars.det;
-	vars.tvec = v3_sub(r.orig, tr->a);
-	vars.u = v3_dot(vars.tvec, vars.pvec) * vars.inv_det;
-	if (vars.u < 0.0f || vars.u > 1.0f)
+	tr->vars.inv_det = 1.0f / tr->vars.det;
+	tr->vars.tvec = v3_sub(r.orig, tr->a);
+	tr->vars.u = v3_dot(tr->vars.tvec, tr->vars.pvec) * tr->vars.inv_det;
+	if (tr->vars.u < 0.0f || tr->vars.u > 1.0f)
 		return (-1.0f);
-	vars.qvec = v3_cross(vars.tvec, vars.e1);
-	vars.v = v3_dot(r.dir, vars.qvec) * vars.inv_det;
-	if (vars.v < 0.0f || (vars.u + vars.v) > 1.0f)
+	tr->vars.qvec = v3_cross(tr->vars.tvec, tr->vars.e1);
+	tr->vars.v = v3_dot(r.dir, tr->vars.qvec) * tr->vars.inv_det;
+	if (tr->vars.v < 0.0f || (tr->vars.u + tr->vars.v) > 1.0f)
 		return (-1.0f);
-	t = v3_dot(vars.e2, vars.qvec) * vars.inv_det;
+	t = v3_dot(tr->vars.e2, tr->vars.qvec) * tr->vars.inv_det;
 	if (t > 0.0f)
 		return (t);
 	return (-1.0f);

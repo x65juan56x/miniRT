@@ -34,7 +34,8 @@ PARSE_M_SRCS = \
 	$(SRC_DIR)/parse/parser.c \
 	$(SRC_DIR)/parse/parser_utils.c \
 	$(SRC_DIR)/parse/parse_vectors.c \
-	$(SRC_DIR)/parse/token_split.c
+	$(SRC_DIR)/parse/token_split.c \
+	$(SRC_DIR)/parse/calc_aux_vars.c
 
 GEOM_M_SRCS = \
 	$(SRC_DIR)/geom/sphere.c \

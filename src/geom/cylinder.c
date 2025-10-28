@@ -1,5 +1,6 @@
 #include <float.h>
 #include "../../include/minirt.h"
+#include "../../include/scene.h"
 #include "../../include/hit.h"
 
 
@@ -76,7 +77,7 @@ static float pick_valid_t(const t_cyl *cyl, t_ray r, float t1, float t2)
 	return (-1.0f);
 }
 
-static float hit_side(const t_cyl *cyl, t_ray r)
+static float hit_side(t_cyl *cyl, t_ray r)
 {
 	float	disc;
 	float	t1;

@@ -132,4 +132,9 @@ void	scene_free(t_scene *s);
 /* Push an object into the scene object list (O(1)). */
 void	scene_add_object(t_scene *s, t_object *obj);
 
+/* AUX OBJECT VARS */
+void	aux_sphere(t_sphere *sp);
+void	aux_plane(t_plane *pl);
+void	aux_cylinder(t_cyl *cy);
+
 #endif

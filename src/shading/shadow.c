@@ -1,6 +1,6 @@
 #include "../../include/minirt.h"
-#include "../../include/hit.h"
 #include "../../include/shading.h"
+#include "../../include/scene.h"
 
 int	in_shadow(const t_scene *scene, t_vec3 p, t_vec3 l_pos)
 {

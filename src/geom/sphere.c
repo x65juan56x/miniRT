@@ -1,4 +1,5 @@
 #include "../../include/minirt.h"
+#include "../../include/scene.h"
 #include "../../include/hit.h"
 
 float	hit_sphere(t_sphere *sp, t_ray r)

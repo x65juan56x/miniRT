@@ -2,75 +2,65 @@
 #include "../../include/minirt.h"
 #include "../../include/hit_bonus.h"
 
-static void	hp_project(const t_hparab *hp, t_ray r, t_hp_aux *aux)
+static void	hp_project(t_hparab *hp, t_ray r)
 {
 	t_vec3	rel;
 
 	rel = v3_sub(r.orig, hp->center);
-	aux->ox = v3_dot(rel, hp->u);
-	aux->oy = v3_dot(rel, hp->v);
-	aux->oz = v3_dot(rel, hp->axis);
-	aux->dx = v3_dot(r.dir, hp->u);
-	aux->dy = v3_dot(r.dir, hp->v);
-	aux->dz = v3_dot(r.dir, hp->axis);
+	hp->vars.ox = v3_dot(rel, hp->vars.u);
+	hp->vars.oy = v3_dot(rel, hp->vars.v);
+	hp->vars.oz = v3_dot(rel, hp->axis);
+	hp->vars.dx = v3_dot(r.dir, hp->vars.u);
+	hp->vars.dy = v3_dot(r.dir, hp->vars.v);
+	hp->vars.dz = v3_dot(r.dir, hp->axis);
 }
 
-static void	hp_prepare(const t_hparab *hp, t_ray r, t_hp_aux *aux)
+static void	hp_prepare(t_hparab *hp, t_ray r)
 {
-	hp_project(hp, r, aux);
-	aux->a = aux->dy * aux->dy * hp->inv_ry2
-		- aux->dx * aux->dx * hp->inv_rx2;
-	aux->b = 2.0f * aux->oy * aux->dy * hp->inv_ry2
-		- 2.0f * aux->ox * aux->dx * hp->inv_rx2
-		- aux->dz * hp->inv_height;
-	aux->c = aux->oy * aux->oy * hp->inv_ry2
-		- aux->ox * aux->ox * hp->inv_rx2
-		- aux->oz * hp->inv_height;
-	aux->disc = aux->b * aux->b - 4.0f * aux->a * aux->c;
+	hp_project(hp, r);
+	hp->vars.a = hp->vars.dy * hp->vars.dy * hp->vars.inv_ry2
+		- hp->vars.dx * hp->vars.dx * hp->vars.inv_rx2;
+	hp->vars.b = 2.0f * hp->vars.oy * hp->vars.dy * hp->vars.inv_ry2
+		- 2.0f * hp->vars.ox * hp->vars.dx * hp->vars.inv_rx2
+		- hp->vars.dz * hp->vars.inv_height;
+	hp->vars.c = hp->vars.oy * hp->vars.oy * hp->vars.inv_ry2
+		- hp->vars.ox * hp->vars.ox * hp->vars.inv_rx2
+		- hp->vars.oz * hp->vars.inv_height;
+	hp->vars.disc = hp->vars.b * hp->vars.b - 4.0f * hp->vars.a * hp->vars.c;
 }
 
-static float	check_solution(const t_hparab *hp, const t_hp_aux *aux, float t)
+static float	check_solution(const t_hparab *hp, int idx)
 {
 	float	x;
 	float	y;
 	float	z;
 	float	inside;
 
-	if (t <= EPSILON)
+	if (hp->vars.cands[idx] <= EPSILON)
 		return (-1.0f);
-	x = aux->ox + aux->dx * t;
-	y = aux->oy + aux->dy * t;
-	z = aux->oz + aux->dz * t;
-	inside = x * x * hp->inv_rx2 + y * y * hp->inv_ry2;
+	x = hp->vars.ox + hp->vars.dx * hp->vars.cands[idx];
+	y = hp->vars.oy + hp->vars.dy * hp->vars.cands[idx];
+	z = hp->vars.oz + hp->vars.dz * hp->vars.cands[idx];
+	inside = x * x * hp->vars.inv_rx2 + y * y * hp->vars.inv_ry2;
 	if (inside > 1.0f + 1e-4f)
 		return (-1.0f);
 	// Vertical clamp: allow full height (half_height set to height) with a small tolerance
-	if (fabsf(z) > hp->half_height + 2e-4f)
+	if (fabsf(z) > hp->vars.half_height + 2e-4f)
 		return (-1.0f);
-	return (t);
+	return (hp->vars.cands[idx]);
 }
 
-static float	hp_solve_linear(const t_hparab *hp, const t_hp_aux *aux)
+static float	hp_solve_linear(const t_hparab *hp)
 {
 	float	t;
 
-	if (fabsf(aux->b) < 1e-8f)
+	if (fabsf(hp->vars.b) < 1e-8f)
 		return (-1.0f);
-	t = -aux->c / aux->b;
-	return (check_solution(hp, aux, t));
+	t = -hp->vars.c / hp->vars.b;
+	return (check_solution(hp, t));
 }
 
-static void	hp_store_candidates(t_hp_aux *aux)
-{
-	float	sqrt_disc;
-
-	sqrt_disc = sqrtf(aux->disc);
-	aux->denom = 2.0f * aux->a;
-	aux->cands[0] = (-aux->b - sqrt_disc) / aux->denom;
-	aux->cands[1] = (-aux->b + sqrt_disc) / aux->denom;
-}
-
-static float	hp_best_candidate(const t_hparab *hp, t_hp_aux *aux)
+static float	hp_best_candidate(const t_hparab *hp)
 {
 	float	best;
 	int		idx;
@@ -80,7 +70,7 @@ static float	hp_best_candidate(const t_hparab *hp, t_hp_aux *aux)
 	idx = 0;
 	while (idx < 2)
 	{
-		t = check_solution(hp, aux, aux->cands[idx]);
+		t = check_solution(hp, idx);
 		if (t > 0.0f && (best < 0.0f || t < best))
 			best = t;
 		idx++;
@@ -88,16 +78,15 @@ static float	hp_best_candidate(const t_hparab *hp, t_hp_aux *aux)
 	return (best);
 }
 
-float	hit_hparaboloid(const t_hparab *hp, t_ray r)
+float	hit_hparaboloid(t_hparab *hp, t_ray r)
 {
-	t_hp_aux	aux;
-
-	hp_prepare(hp, r, &aux);
-	if (fabsf(aux.a) < 1e-8f)
-		return (hp_solve_linear(hp, &aux));
-	if (aux.disc < 0.0f)
+	hp_prepare(hp, r);
+	if (fabsf(hp->vars.a) < 1e-8f)
+		return (hp_solve_linear(hp));
+	if (hp->vars.disc < 0.0f)
 		return (-1.0f);
-	hp_store_candidates(&aux);
-	return (hp_best_candidate(hp, &aux));
+	hp->vars.denom = 2.0f * hp->vars.a;
+	hp->vars.cands[0] = (-hp->vars.b - sqrtf(hp->vars.disc)) / hp->vars.denom;
+	hp->vars.cands[1] = (-hp->vars.b + sqrtf(hp->vars.disc)) / hp->vars.denom;
+	return (hp_best_candidate(hp));
 }
-

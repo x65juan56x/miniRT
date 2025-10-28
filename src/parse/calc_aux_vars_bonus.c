@@ -1,3 +1,4 @@
+#include <math.h>
 #include "../../include/scene_bonus.h"
 
 void	aux_sphere(t_sphere *sp)
@@ -5,6 +6,8 @@ void	aux_sphere(t_sphere *sp)
 	sp->vars.radius = sp->di * 0.5f;
 	sp->vars.radius2 = sp->vars.radius * sp->vars.radius;
 	sp->vars.inv_radius = 1.0f / sp->vars.radius;
+	sp->vars.iu = 0;
+	sp->vars.iv = 0;
 }
 
 void	aux_plane(t_plane *pl)
@@ -48,6 +51,7 @@ void	aux_triangle(t_triangle *tr)
 	else
 		tr->vars.tan = v3_norm(v3_cross(v3(1,0,0), tr->vars.n));
 	tr->vars.bit = v3_cross(tr->vars.n, tr->vars.tan);
+	tr->vars.n = v3_norm(tr->vars.n);
 }
 
 void	aux_hparab(t_hparab *hp)

@@ -93,8 +93,6 @@ typedef struct s_plane
 	t_vec3		color;
 	int			has_checker;
 	float		checker_scale;
-	t_vec3		u;
-	t_vec3		v;
 	int			has_bump;
 	float		bump_strength;
 	t_bumpmap	*bump;
@@ -129,8 +127,6 @@ typedef struct s_triangle
 	t_vec3		color;
 	int			has_checker;
 	float		checker_scale;
-	t_vec3		u;
-	t_vec3		v;
 	int			has_bump;
 	float		bump_strength;
 	t_bumpmap	*bump;
@@ -190,5 +186,12 @@ void	scene_init(t_scene *s);
 void	scene_free(t_scene *s);
 /* Push an object into the scene object list (O(1)). */
 void	scene_add_object(t_scene *s, t_object *obj);
+
+/* AUX OBJECT VARS */
+void	aux_sphere(t_sphere *sp);
+void	aux_plane(t_plane *pl);
+void	aux_cylinder(t_cyl *cy);
+void	aux_triangle(t_triangle *tr);
+void	aux_hparab(t_hparab *hp);
 
 #endif
