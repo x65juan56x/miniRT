@@ -57,18 +57,18 @@ static float pick_valid_t(const t_cyl *cyl, t_ray r, float t1, float t2)
 	t_vec3	p;
 	
 	tmin = t2;
-	if (t1 > 0.0f)
+	if (t1 > EPSILON)
 		tmin = t1;
 	tmax = t1;
-	if (t2 > 0.0f)
+	if (t2 > EPSILON)
 		tmax = t2;
-	if(tmin > 0.0f)
+	if(tmin > EPSILON)
 	{
 		p = v3_add(r.orig, v3_mul(r.dir, tmin));
 		if (inside_cyl_height(cyl, p, cyl->axis))
 			return (tmin);
 	}
-	if(tmax > 0.0f && tmax >= tmin)
+	if(tmax > EPSILON && tmax >= tmin)
 	{
 		p = v3_add(r.orig, v3_mul(r.dir, tmax));
 		if (inside_cyl_height(cyl, p, cyl->axis))

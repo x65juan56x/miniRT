@@ -87,13 +87,16 @@ static int	object_hit(t_object *obj, t_ray r, t_hit *out)
 	float	t;
 
 	t = -1.0f;
-	obj->u_obj.cy.vars.hit_part = -1.0f;
+	
 	if (obj->type == OBJ_SPHERE)
 		t = hit_sphere(&obj->u_obj.sp, r);
 	else if (obj->type == OBJ_PLANE)
 		t = hit_plane(&obj->u_obj.pl, r);
 	else if (obj->type == OBJ_CYLINDER)
+	{
+		obj->u_obj.cy.vars.hit_part = -1.0f;
 		t = hit_cylinder(&obj->u_obj.cy, r);
+	}
 	if (t <= 0.0f)
 		return (0);
 	if (obj->type == OBJ_SPHERE)

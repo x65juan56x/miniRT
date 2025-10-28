@@ -4,7 +4,7 @@
 # include "hit_bonus.h"
 
 t_vec3	shade_lambert(const t_scene *scene, const t_hit *hit);
-int		in_shadow(const t_scene *scene, t_vec3 p, t_vec3 l_pos);
+int		in_shadow(const t_scene *scene, const t_hit *hit, t_vec3 l_pos);
 t_vec3	shade_phong(const t_scene *scene, const t_hit *hit);
 
 #endif

@@ -13,7 +13,7 @@ t_vec3	shade_lambert(const t_scene *scene, const t_hit *hit)
 	if (!hit->ok)
 		return v3(0,0,0);
 	ambient = v3_mul(scene->ambient.color, scene->ambient.ratio);
-	if (in_shadow(scene, hit->p, scene->light.pos))
+	if (in_shadow(scene, hit, scene->light.pos))
 		return (v3_ctoc(hit->albedo, ambient));
 	l_dir = v3_norm(v3_sub(scene->light.pos, hit->p));
 	ndotl = v3_dot(hit->n, l_dir);

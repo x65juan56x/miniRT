@@ -16,8 +16,8 @@
 
 
 
-# define WIN_W 1080
-# define WIN_H 720
+# define WIN_W 800
+# define WIN_H 600
 
 // ε para evitar self-intersections (lo vamos a usar más adelante en ray tracing)
 # define EPSILON 1e-4f
