@@ -6,11 +6,7 @@
 # define PARSER_H
 
 # include <stdbool.h>
-#ifndef SCENE_HEADER
-# define SCENE_HEADER "scene.h"
-#endif
-# include SCENE_HEADER
-
+# include "scene.h"
 /*
 * Parsing result descriptor.
 * ok: true on success, false on error.

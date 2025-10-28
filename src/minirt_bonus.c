@@ -1,10 +1,6 @@
-#include "../include/minirt.h"
-#include "../include/scene_bonus.h"
-#include "../include/parser_bonus.h"
-#include "../include/render.h"
-#include "../include/hit_bonus.h"
-#include "../include/shading_bonus.h"
-#include "../include/app.h"
+#include "../include/minirt_bonus.h"
+#include "../include/app_bonus.h"
+#include "../include/render_bonus.h"
 
 static void render_and_present(t_app *app)
 {

@@ -3,12 +3,7 @@
 
 # include <stdint.h>
 # include "minirt.h"
-
-// Allow selecting the scene header used by camera.h from callers (bonus vs mandatory)
-#ifndef SCENE_HEADER
-# define SCENE_HEADER "scene.h"
-#endif
-#include "camera.h"
+# include "camera.h"
 
 // Forward declaration to avoid pulling app/scene into this public header
 struct s_app;

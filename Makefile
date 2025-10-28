@@ -2,26 +2,19 @@ NAME        = miniRT
 NAME_BONUS  = miniRT_bonus
 CC          = cc
 CFLAGS      = -Wall -Wextra -Werror
-CFLAGS_BONUS = $(CFLAGS) -DSCENE_HEADER='"scene_bonus.h"'
+CFLAGS_BONUS = $(CFLAGS) # Note: bonus build is separated by dedicated *_bonus files; no SCENE_HEADER macro needed
 INCLUDES    = -I include -I libraries/MLX42/include -I libraries/MLX42/include/MLX42 -I libraries/libft
 LDFLAGS     = -ldl -lglfw -pthread -lm -lGL -Ofast -march=native -O3 -ffast-math
 
 SRC_DIR     = src
 OBJ_DIR     = obj
 
-# Common (shared by both builds)
-COMMON_SRCS = \
+# Common core (shared by both builds, no duplication conflicts)
+COMMON_CORE_SRCS = \
 	$(SRC_DIR)/color/color.c \
 	$(SRC_DIR)/core/ray.c \
 	$(SRC_DIR)/math/vec3.c \
-	$(SRC_DIR)/math/math_utils.c \
-	$(SRC_DIR)/camera/camera.c \
-	$(SRC_DIR)/render/framebuffer.c \
-	$(SRC_DIR)/render/render.c \
-	$(SRC_DIR)/shading/lambert.c \
-	$(SRC_DIR)/shading/shadow.c \
-	$(SRC_DIR)/app/input.c \
-	$(SRC_DIR)/app/toggle_info.c
+	$(SRC_DIR)/math/math_utils.c
 
 # ---------- Mandatory set ----------
 PARSE_M_SRCS = \
@@ -35,7 +28,7 @@ PARSE_M_SRCS = \
 	$(SRC_DIR)/parse/parser_utils.c \
 	$(SRC_DIR)/parse/parse_vectors.c \
 	$(SRC_DIR)/parse/token_split.c \
-	$(SRC_DIR)/parse/calc_aux_vars.c
+	$(SRC_DIR)/parse/calc_aux_vars.c \
 
 GEOM_M_SRCS = \
 	$(SRC_DIR)/geom/sphere.c \
@@ -44,39 +37,51 @@ GEOM_M_SRCS = \
 
 CORE_M_SRCS = \
 	$(SRC_DIR)/core/intersect.c \
-	$(SRC_DIR)/core/scene.c
+	$(SRC_DIR)/core/scene.c \
+	$(SRC_DIR)/camera/camera.c \
+	$(SRC_DIR)/app/input.c \
+	$(SRC_DIR)/render/framebuffer.c \
+	$(SRC_DIR)/render/render.c
 
 MAIN_M      = $(SRC_DIR)/minirt.c
-SRCS_M      = $(PARSE_M_SRCS) $(COMMON_SRCS) $(GEOM_M_SRCS) $(CORE_M_SRCS) $(MAIN_M)
+SRCS_M      = $(PARSE_M_SRCS) $(COMMON_CORE_SRCS) $(SRC_DIR)/shading/lambert.c $(SRC_DIR)/shading/shadow.c $(SRC_DIR)/app/toggle_info.c $(GEOM_M_SRCS) $(CORE_M_SRCS) $(MAIN_M)
 OBJS_M      = $(SRCS_M:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 
 # ---------- Bonus set ----------
 PARSE_B_SRCS = \
 	$(SRC_DIR)/parse/free_lines.c \
+	$(SRC_DIR)/parse/parser_bonus.c \
 	$(SRC_DIR)/parse/parse_dispatch_bonus.c \
-	$(SRC_DIR)/parse/parse_elements.c \
-	$(SRC_DIR)/parse/parse_numbers.c \
+	$(SRC_DIR)/parse/parse_elements_bonus.c \
+	$(SRC_DIR)/parse/parse_numbers_bonus.c \
 	$(SRC_DIR)/parse/parse_objects_bonus.c \
-	$(SRC_DIR)/parse/parse_result.c \
-	$(SRC_DIR)/parse/parser.c \
-	$(SRC_DIR)/parse/parser_utils.c \
-	$(SRC_DIR)/parse/parse_vectors.c \
-	$(SRC_DIR)/parse/token_split.c
+	$(SRC_DIR)/parse/parse_vectors_bonus.c \
+	$(SRC_DIR)/parse/parser_utils_bonus.c \
+	$(SRC_DIR)/parse/token_split_bonus.c \
+	$(SRC_DIR)/parse/parse_result_bonus.c \
+	$(SRC_DIR)/parse/calc_aux_vars_bonus.c
 
 GEOM_B_SRCS = \
-	$(SRC_DIR)/geom/sphere.c \
-	$(SRC_DIR)/geom/plane.c \
-	$(SRC_DIR)/geom/cylinder.c \
+	$(SRC_DIR)/geom/sphere_bonus.c \
+	$(SRC_DIR)/geom/plane_bonus.c \
+	$(SRC_DIR)/geom/cylinder_bonus.c \
 	$(SRC_DIR)/geom/triangle_bonus.c \
 	$(SRC_DIR)/geom/hparaboloid_bonus.c
 
 CORE_B_SRCS = \
-	$(SRC_DIR)/core/intersect_bonus.c \
 	$(SRC_DIR)/core/scene_bonus.c \
-	$(SRC_DIR)/shading/bump_bonus.c
+	$(SRC_DIR)/core/intersect_bonus.c \
+	$(SRC_DIR)/app/input_bonus.c \
+	$(SRC_DIR)/camera/camera_bonus.c \
+	$(SRC_DIR)/render/framebuffer_bonus.c \
+	$(SRC_DIR)/render/render_bonus.c \
+	$(SRC_DIR)/shading/lambert_bonus.c \
+	$(SRC_DIR)/shading/shadow_bonus.c \
+	$(SRC_DIR)/shading/bump_bonus.c \
+	$(SRC_DIR)/app/toggle_info_bonus.c
 
 MAIN_B      = $(SRC_DIR)/minirt_bonus.c
-SRCS_B      = $(PARSE_B_SRCS) $(COMMON_SRCS) $(GEOM_B_SRCS) $(CORE_B_SRCS) $(MAIN_B)
+SRCS_B      = $(PARSE_B_SRCS) $(COMMON_CORE_SRCS) $(GEOM_B_SRCS) $(CORE_B_SRCS) $(MAIN_B)
 OBJS_B      = $(SRCS_B:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.bo)
 
 DEPS_M      = $(OBJS_M:.o=.d)

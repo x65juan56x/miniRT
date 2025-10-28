@@ -2,11 +2,7 @@
 # define CAMERA_H
 
 # include "minirt.h"
-
-#ifndef SCENE_HEADER
-# define SCENE_HEADER "scene.h"
-#endif
-#include SCENE_HEADER
+# include "scene.h"
 
 typedef struct s_cam_frame
 {

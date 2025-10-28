@@ -2,14 +2,14 @@
 #include "../../include/scene.h"
 #include "../../include/hit.h"
 
-static void	set_common_hit(t_hit *dst, float t, t_vec3 p, t_vec3 n, t_vec3 albedo)
-{
-	dst->ok = 1;
-	dst->t = t;
-	dst->p = p;
-	dst->n = n;
-	dst->albedo = albedo;
-}
+// static void	set_common_hit(t_hit *dst, float t, t_vec3 p, t_vec3 n, t_vec3 albedo)
+// {
+// 	dst->ok = 1;
+// 	dst->t = t;
+// 	dst->p = p;
+// 	dst->n = n;
+// 	dst->albedo = albedo;
+// }
 
 static void	orient_normal(t_hit *hit, t_ray r)
 {

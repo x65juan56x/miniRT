@@ -1,7 +1,5 @@
 #include <stdlib.h>
-#include "vec3.h"
-#include "scene_bonus.h"
-#include "bump_bonus.h"
+#include "../../include/minirt_bonus.h"
 
 // Inicializa la escena con valores por defecto y flags de presencia en falso.
 // Esto permite validar que A, C, L se declaren exactamente una vez en el parser.

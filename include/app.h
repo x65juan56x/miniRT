@@ -1,10 +1,6 @@
 #ifndef APP_H
 # define APP_H
 
-#ifndef SCENE_HEADER
-# define SCENE_HEADER "scene.h"
-#endif
-# include SCENE_HEADER
 # include "ui.h"
 
 typedef struct s_app

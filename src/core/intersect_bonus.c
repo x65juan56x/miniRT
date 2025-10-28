@@ -1,7 +1,4 @@
-#include "../../include/minirt.h"
-#include "../../include/scene_bonus.h"
-#include "../../include/hit_bonus.h"
-#include "../../include/bump_bonus.h"
+#include "../../include/minirt_bonus.h"
 
 static void	set_common_hit(t_hit *dst, t_common_hit *c_hit)
 {
@@ -25,50 +22,54 @@ static void	sp_process_checker(t_sphere *sp, t_common_hit *c_hit, t_hit *out)
 	uang = atan2f(c_hit->n.z, c_hit->n.x); // Baldosas aproximadas por arco en unidades de mundo (R * ángulo)
 	if (uang < 0.0f)
 		uang += 6.283185307179586f; // 2*pi
-	sp->vars.iu = (int)floorf((uang * sp->vars.radius)) / sp->checker_scale;
-	sp->vars.iv = (int)floorf((acosf(c_hit->n.y) * (sp->di * 0.5f)) / sp->checker_scale);
-	c_hit->albedo = v3_sub(v3(1.0f, 1.0f, 1.0f), sp->color);
+	sp->vars.iu = (int)floorf((uang * sp->vars.radius) / sp->checker_scale);
+	sp->vars.iv = (int)floorf((acosf(c_hit->n.y) * sp->vars.radius)
+		/ sp->checker_scale);
 	if ((sp->vars.iu + sp->vars.iv) & 1)
+		c_hit->albedo = v3_sub(v3(1.0f, 1.0f, 1.0f), sp->color);
+	else
 		c_hit->albedo = sp->color;
 	set_common_hit(out, c_hit);
 }
 
 static void	sp_process_bump(const t_sphere *sp, t_common_hit *c_hit, t_hit *out)
 {
-	t_aux_bump	*bm_aux;
+	t_aux_bump	bm_aux;
+
+	
 	// UV from normal
-	bm_aux->u = (atan2f(c_hit->n.z, c_hit->n.x) + (float)M_PI) / (2.0f * (float)M_PI);
-	bm_aux->v = acosf(c_hit->n.y) / (float)M_PI;
+	bm_aux.u = (atan2f(c_hit->n.z, c_hit->n.x) + (float)M_PI) / (2.0f * (float)M_PI);
+	bm_aux.v = acosf(c_hit->n.y) / (float)M_PI;
 	// Tangent basis from normal
-	bm_aux->tangent = v3_cross(v3(0.0f, 1.0f, 0.0f), c_hit->n);
-	if (v3_len2(bm_aux->tangent) < 1e-6f)
-		bm_aux->tangent = v3_cross(v3(1.0f, 0.0f, 0.0f), c_hit->n);
-	bm_aux->tangent = v3_norm(bm_aux->tangent);
-	bm_aux->bitangent = v3_cross(c_hit->n, bm_aux->tangent);
-	bm_aux->strength = sp->bump_strength;
-	bump_perturb(sp->bump, bm_aux, &out->n);
+	bm_aux.tangent = v3_cross(v3(0.0f, 1.0f, 0.0f), c_hit->n);
+	if (v3_len2(bm_aux.tangent) < 1e-6f)
+		bm_aux.tangent = v3_cross(v3(1.0f, 0.0f, 0.0f), c_hit->n);
+	bm_aux.tangent = v3_norm(bm_aux.tangent);
+	bm_aux.bitangent = v3_cross(c_hit->n, bm_aux.tangent);
+	bm_aux.strength = sp->bump_strength;
+	bump_perturb(sp->bump, &bm_aux, &out->n);
 }
 
-static int	record_sphere(const t_sphere *sp, t_ray r, float t, t_hit *out)
+static int	record_sphere(t_sphere *sp, t_ray r, float t, t_hit *out)
 {
-	t_common_hit	*c_hit;
+	t_common_hit	c_hit;
 
-	c_hit->p = ray_at(r, t);
-	c_hit->n = v3_norm(v3_sub(c_hit->p, sp->center));
-	c_hit->t = t;
-	c_hit->albedo = sp->color;
+	c_hit.p = ray_at(r, t);
+	c_hit.n = v3_norm(v3_sub(c_hit.p, sp->center));
+	c_hit.t = t;
+	c_hit.albedo = sp->color;
 	if (sp->has_checker)
-		sp_process_checker(sp, c_hit, out);
+		sp_process_checker(sp, &c_hit, out);
 	else
-		set_common_hit(out, c_hit);
+		set_common_hit(out, &c_hit);
 	if (sp->has_bump && sp->bump)
-		sp_process_bump(sp, c_hit, out);
+		sp_process_bump(sp, &c_hit, out);
 	orient_normal(out, r);
 	return (1);
 }
 // Apply bump after albedo selection
 
-static void	sp_process_checker(t_plane *pl, t_common_hit *c_hit, t_hit *out)
+static void	pl_process_checker(t_plane *pl, t_common_hit *c_hit, t_hit *out)
 {
 	t_vec3	rel;
 	int		ix;
@@ -84,38 +85,34 @@ static void	sp_process_checker(t_plane *pl, t_common_hit *c_hit, t_hit *out)
 
 static void	pl_process_bump(const t_plane *pl, t_common_hit *c_hit, t_hit *out)
 {
-	t_aux_bump	*bm_aux;
+	t_aux_bump	bm_aux;
 	t_vec3		rel;
 
 	rel = v3_sub(c_hit->p, pl->point);
-	if (v3_dot(rel, pl->vars.u) / (pl->checker_scale > 0.0f))
-		bm_aux->u = pl->checker_scale;
-	else
-		bm_aux->u = 1.0f;
-	if (v3_dot(rel, pl->vars.v) / (pl->checker_scale > 0.0f))
-		bm_aux->v = pl->checker_scale;
-	else
-		bm_aux->v = 1.0f;
-	bm_aux->tangent = pl->vars.u;
-	bm_aux->bitangent = pl->vars.u;
-	bm_aux->strength = pl->bump_strength;
-	bump_perturb(pl->bump, bm_aux, &out->n);
+    bm_aux.u = v3_dot(rel, pl->vars.u)
+        / (pl->checker_scale > 0.0f ? pl->checker_scale : 1.0f);
+    bm_aux.v = v3_dot(rel, pl->vars.v)
+        / (pl->checker_scale > 0.0f ? pl->checker_scale : 1.0f);
+    bm_aux.tangent = pl->vars.u;
+    bm_aux.bitangent = pl->vars.v;
+	bm_aux.strength = pl->bump_strength;
+	bump_perturb(pl->bump, &bm_aux, &out->n);
 }
 
-static int	record_plane(const t_plane *pl, t_ray r, float t, t_hit *out)
+static int	record_plane(t_plane *pl, t_ray r, float t, t_hit *out)
 {
-	t_common_hit	*c_hit;
+	t_common_hit	c_hit;
 
-	c_hit->p = ray_at(r, t);
-	c_hit->t = t;
-	c_hit->n = pl->normal;
-	c_hit->albedo = pl->color;
+	c_hit.p = ray_at(r, t);
+	c_hit.t = t;
+	c_hit.n = pl->normal;
+	c_hit.albedo = pl->color;
 	if (pl->has_checker)
-		sp_process_checker(pl, c_hit, out);
+		pl_process_checker(pl, &c_hit, out);
 	else
-		set_common_hit(out, c_hit);
+		set_common_hit(out, &c_hit);
 	if (pl->has_bump && pl->bump)
-		pl_process_bump(pl, c_hit, out);
+		pl_process_bump(pl, &c_hit, out);
 	orient_normal(out, r);
 	return (1);
 }
@@ -124,9 +121,9 @@ static void	tr_process_checker(t_triangle *tr, t_common_hit *c_hit, t_hit *out)
 {
 	int		par;
 
-	par = (int)floorf(v3_dot(v3_sub(c_hit->p, tr->a), tr->vars.u)
+	par = (int)floorf(v3_dot(v3_sub(c_hit->p, tr->a), tr->vars.base_u)
 		/ tr->checker_scale)
-		+ (int)floorf(v3_dot(v3_sub(c_hit->p, tr->a), tr->vars.v)
+		+ (int)floorf(v3_dot(v3_sub(c_hit->p, tr->a), tr->vars.base_v)
 		/ tr->checker_scale);
 	if (par & 1)
 		c_hit->albedo = v3_sub(v3(1.0f, 1.0f, 1.0f), tr->color);
@@ -135,7 +132,7 @@ static void	tr_process_checker(t_triangle *tr, t_common_hit *c_hit, t_hit *out)
 
 static void	tr_process_bump(const t_triangle *tr, t_common_hit *c_hit, t_hit *out)
 {
-	t_aux_bump		*bm_aux;
+	t_aux_bump		bm_aux;
 	t_tr_bump_aux	vars;
 
 	vars.pa = v3_sub(c_hit->p, tr->a);
@@ -149,30 +146,30 @@ static void	tr_process_bump(const t_triangle *tr, t_common_hit *c_hit, t_hit *ou
 	{
 		vars.vb = (vars.d11 * vars.d20 - vars.d01 * vars.d21) / vars.denom;
 		vars.wb = (vars.d00 * vars.d21 - vars.d01 * vars.d20) / vars.denom;
-		bm_aux->u = vars.vb;        // (u,v) de textura = (vb, wb)
-		bm_aux->v = vars.wb;
+		bm_aux.u = vars.vb;        // (u,v) de textura = (vb, wb)
+		bm_aux.v = vars.wb;
 		// Base tangente a partir de e1,e2
-		bm_aux->tangent = v3_norm(tr->vars.e1);
-		bm_aux->bitangent = v3_norm(v3_cross(tr->vars.n, bm_aux->tangent));
-		bump_perturb(tr->bump, bm_aux, &out->n);
+		bm_aux.tangent = v3_norm(tr->vars.e1);
+		bm_aux.bitangent = v3_norm(v3_cross(tr->vars.n, bm_aux.tangent));
+		bump_perturb(tr->bump, &bm_aux, &out->n);
 	}
 }
 
-static int	record_triangle(const t_triangle *tr, t_ray r, float t, t_hit *out)
+static int	record_triangle(t_triangle *tr, t_ray r, float t, t_hit *out)
 {
-	t_common_hit	*c_hit;
+	t_common_hit	c_hit;
 
-	c_hit->p = ray_at(r, t);
-	c_hit->n = tr->vars.n;
-	c_hit->t = t;
-	c_hit->albedo = tr->color;
+	c_hit.p = ray_at(r, t);
+	c_hit.n = tr->vars.n;
+	c_hit.t = t;
+	c_hit.albedo = tr->color;
 	if (tr->has_checker)
-		tr_process_checker(tr, c_hit, out);
+		tr_process_checker(tr, &c_hit, out);
 	else
-		set_common_hit(out, c_hit);
+		set_common_hit(out, &c_hit);
 	// Bump: usar baricéntricas para estirar el mapa a todo el triángulo
 	if (tr->has_bump && tr->bump)
-		tr_process_bump(tr, c_hit, out);
+		tr_process_bump(tr, &c_hit, out);
 	orient_normal(out, r);
 	return (1);
 }
@@ -190,34 +187,34 @@ static t_vec3	hp_checker_color(const t_hparab *hp, float x, float y)
 
 static void	hp_process_bump(const t_hparab *hp, float x, float y, t_hit *out)
 {
-	t_aux_bump	*bm_aux;
+	t_aux_bump	bm_aux;
 
-	bm_aux->u = (x / hp->rx) * 0.5f + 0.5f;
-	bm_aux->v = (y / hp->ry) * 0.5f + 0.5f;
-	bm_aux->tangent = hp->vars.u;
-	bm_aux->bitangent = hp->vars.v;
-	bm_aux->strength = hp->bump_strength;
-	bump_perturb(hp->bump, bm_aux, &out->n);
+	bm_aux.u = (x / hp->rx) * 0.5f + 0.5f;
+	bm_aux.v = (y / hp->ry) * 0.5f + 0.5f;
+	bm_aux.tangent = hp->vars.u;
+	bm_aux.bitangent = hp->vars.v;
+	bm_aux.strength = hp->bump_strength;
+	bump_perturb(hp->bump, &bm_aux, &out->n);
 }
 
 static int	record_hparaboloid(const t_hparab *hp, t_ray r, float t, t_hit *out)
 {
-	t_common_hit	*c_hit;
+	t_common_hit	c_hit;
 	float			x;
 	float			y;
 
-	c_hit->p = ray_at(r, t);
-	c_hit->t = t;
-	x = v3_dot(v3_sub(c_hit->p, hp->center), hp->vars.u);
-	y = v3_dot(v3_sub(c_hit->p, hp->center), hp->vars.v);
-	c_hit->n = v3_add(v3_add(v3_mul(hp->vars.u, -2.0f * x * hp->vars.inv_rx2),
+	c_hit.p = ray_at(r, t);
+	c_hit.t = t;
+	x = v3_dot(v3_sub(c_hit.p, hp->center), hp->vars.u);
+	y = v3_dot(v3_sub(c_hit.p, hp->center), hp->vars.v);
+	c_hit.n = v3_add(v3_add(v3_mul(hp->vars.u, -2.0f * x * hp->vars.inv_rx2),
 		v3_mul(hp->vars.v, 2.0f * y * hp->vars.inv_ry2)),
 		v3_mul(hp->axis, -hp->vars.inv_height));
-	c_hit->n = v3_norm(c_hit->n);
-	c_hit->albedo = hp->color;
+	c_hit.n = v3_norm(c_hit.n);
+	c_hit.albedo = hp->color;
 	if (hp->has_checker)
-		c_hit->albedo = hp_checker_color(hp, x, y);
-	set_common_hit(out, c_hit);
+		c_hit.albedo = hp_checker_color(hp, x, y);
+	set_common_hit(out, &c_hit);
 	if (hp->has_bump && hp->bump)
 		hp_process_bump(hp, x, y, out);
 	orient_normal(out, r);
@@ -235,9 +232,9 @@ static t_vec3    normal_cyl(const t_cyl *cylinder, t_vec3 p)
 	return (radial);
 }
 
-static void	cy_hit_wall(const t_cyl *cy, t_ray r, t_common_hit *c_hit, t_hit *out)
+static void	cy_hit_wall(const t_cyl *cy, t_common_hit *c_hit, t_hit *out)
 {
-	t_aux_bump	*bm_aux;
+	t_aux_bump	bm_aux;
 	t_vec3 rel;
 	float h;
 	t_vec3 radial;
@@ -267,21 +264,21 @@ static void	cy_hit_wall(const t_cyl *cy, t_ray r, t_common_hit *c_hit, t_hit *ou
 	// Bump on side: cylindrical UV in [0,1]x[0,1]
 	if (cy->has_bump && cy->bump)
 	{
-		bm_aux->u = theta / (2.0f * (float)M_PI);
-		bm_aux->v = (h + cy->vars.half_height) / cy->he;
+		bm_aux.u = theta / (2.0f * (float)M_PI);
+		bm_aux.v = (h + cy->vars.half_height) / cy->he;
 		// Tangent basis: around azimuth and along axis
-		bm_aux->tangent = v3_norm(v3_cross(cy->axis, c_hit->n));
-		if (v3_len2(bm_aux->tangent) < 1e-8f)
-			bm_aux->tangent = cy->vars.base_u; // fallback
-		bm_aux->bitangent = cy->axis;
-		bm_aux->strength = cy->bump_strength;
-		bump_perturb(cy->bump, bm_aux, &out->n);
+		bm_aux.tangent = v3_norm(v3_cross(cy->axis, c_hit->n));
+		if (v3_len2(bm_aux.tangent) < 1e-8f)
+			bm_aux.tangent = cy->vars.base_u; // fallback
+		bm_aux.bitangent = cy->axis;
+		bm_aux.strength = cy->bump_strength;
+		bump_perturb(cy->bump, &bm_aux, &out->n);
 	}
 }
 
-static void cy_hit_top(const t_cyl *cy, t_ray r, t_common_hit *c_hit, t_hit *out)
+static void cy_hit_top(const t_cyl *cy, t_common_hit *c_hit, t_hit *out)
 {
-	t_aux_bump	*bm_aux;
+	t_aux_bump	bm_aux;
 	t_vec3	ctop;
 	t_vec3	q;
 	int		iu;
@@ -309,18 +306,18 @@ static void cy_hit_top(const t_cyl *cy, t_ray r, t_common_hit *c_hit, t_hit *out
 		x = v3_dot(q, cy->vars.base_u);
 		y = v3_dot(q, cy->vars.base_v);
 		// Normalize to [0,1] across the disk extent
-		bm_aux->u = (x / cy->vars.radius) * 0.5f + 0.5f;
-		bm_aux->v = (y / cy->vars.radius) * 0.5f + 0.5f;
-		bm_aux->tangent = cy->vars.base_u;
-		bm_aux->bitangent = cy->vars.base_v;
-		bm_aux->strength = cy->bump_strength;
-		bump_perturb(cy->bump, bm_aux, &out->n);
+		bm_aux.u = (x / cy->vars.radius) * 0.5f + 0.5f;
+		bm_aux.v = (y / cy->vars.radius) * 0.5f + 0.5f;
+		bm_aux.tangent = cy->vars.base_u;
+		bm_aux.bitangent = cy->vars.base_v;
+		bm_aux.strength = cy->bump_strength;
+		bump_perturb(cy->bump, &bm_aux, &out->n);
 	}
 }
 
-static void cy_hit_bottom(const t_cyl *cy, t_ray r, t_common_hit *c_hit, t_hit *out)
+static void cy_hit_bottom(const t_cyl *cy, t_common_hit *c_hit, t_hit *out)
 {
-	t_aux_bump	*bm_aux;
+	t_aux_bump	bm_aux;
 	t_vec3	cbot;
 	t_vec3	q;
 	int		iu;
@@ -348,35 +345,35 @@ static void cy_hit_bottom(const t_cyl *cy, t_ray r, t_common_hit *c_hit, t_hit *
 		x = v3_dot(q, cy->vars.base_u);
 		y = v3_dot(q, cy->vars.base_v);
 		// Normalize to [0,1] across the disk extent
-		bm_aux->u = (x / cy->vars.radius) * 0.5f + 0.5f;
-		bm_aux->v = (y / cy->vars.radius) * 0.5f + 0.5f;
-		bm_aux->tangent = cy->vars.base_u;
-		bm_aux->bitangent = cy->vars.base_v;
-		bm_aux->strength = cy->bump_strength;
-		bump_perturb(cy->bump, bm_aux, &out->n);
+		bm_aux.u = (x / cy->vars.radius) * 0.5f + 0.5f;
+		bm_aux.v = (y / cy->vars.radius) * 0.5f + 0.5f;
+		bm_aux.tangent = cy->vars.base_u;
+		bm_aux.bitangent = cy->vars.base_v;
+		bm_aux.strength = cy->bump_strength;
+		bump_perturb(cy->bump, &bm_aux, &out->n);
 	}
 }
 
 static int record_cylinder(const t_cyl *cy, t_ray r, float t, t_hit *out)
 {
-	t_common_hit	*c_hit;
+	t_common_hit	c_hit;
 
-	c_hit->p = ray_at(r, t);
-	c_hit->t = t;
-	c_hit->albedo = cy->color;
+	c_hit.p = ray_at(r, t);
+	c_hit.t = t;
+	c_hit.albedo = cy->color;
 	if (cy->vars.hit_part == 0)
-		cy_hit_wall(cy, r, c_hit, out);
+		cy_hit_wall(cy, &c_hit, out);
 	else if (cy->vars.hit_part == 1)
-		cy_hit_top(cy, r, c_hit, out);
+		cy_hit_top(cy, &c_hit, out);
 	else if (cy->vars.hit_part == 2)
-		cy_hit_bottom(cy, r, c_hit, out);
+		cy_hit_bottom(cy, &c_hit, out);
 	else
 		return (0);
 	orient_normal(out, r);
 	return (1);
 }
 
-static int	object_hit(const t_object *obj, t_ray r, t_hit *out)
+static int	object_hit(t_object *obj, t_ray r, t_hit *out)
 {
 	float	t;
 	int		hit_part;
@@ -408,10 +405,10 @@ static int	object_hit(const t_object *obj, t_ray r, t_hit *out)
 
 int	scene_hit(const t_scene *scene, t_ray r, float max_dist, t_hit *out)
 {
-	const t_object	*o;
-	float			best;
-	t_hit			cur;
-	int				found;
+	t_object	*o;
+	float		best;
+	t_hit		cur;
+	int			found;
 
 	out->ok = 0;
 	found = 0;

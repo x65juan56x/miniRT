@@ -1,6 +1,7 @@
 #include <math.h>
 #include "../../include/camera.h"
 #include "../../include/math_utils.h"
+#include "../../include/scene.h"
 
 void	camera_build_frame(const t_camera *cam, int width, int height,
 			t_cam_frame *out)

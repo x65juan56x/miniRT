@@ -1,5 +1,4 @@
-#include "../../include/minirt.h"
-#include "../../include/hit_bonus.h"
+#include "../../include/minirt_bonus.h"
 
 float	hit_triangle(t_triangle *tr, t_ray r)
 {

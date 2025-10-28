@@ -1,6 +1,5 @@
 #include <math.h>
-#include "../../include/minirt.h"
-#include "../../include/hit_bonus.h"
+#include "../../include/minirt_bonus.h"
 
 static void	hp_project(t_hparab *hp, t_ray r)
 {
@@ -29,25 +28,26 @@ static void	hp_prepare(t_hparab *hp, t_ray r)
 	hp->vars.disc = hp->vars.b * hp->vars.b - 4.0f * hp->vars.a * hp->vars.c;
 }
 
-static float	check_solution(const t_hparab *hp, int idx)
+static float	check_solution(const t_hparab *hp, float t)
 {
 	float	x;
 	float	y;
 	float	z;
-	float	inside;
+	float	mag;
 
-	if (hp->vars.cands[idx] <= EPSILON)
+	if (t <= EPSILON)
 		return (-1.0f);
-	x = hp->vars.ox + hp->vars.dx * hp->vars.cands[idx];
-	y = hp->vars.oy + hp->vars.dy * hp->vars.cands[idx];
-	z = hp->vars.oz + hp->vars.dz * hp->vars.cands[idx];
-	inside = x * x * hp->vars.inv_rx2 + y * y * hp->vars.inv_ry2;
-	if (inside > 1.0f + 1e-4f)
+	x = hp->vars.ox + hp->vars.dx * t;
+	y = hp->vars.oy + hp->vars.dy * t;
+	z = hp->vars.oz + hp->vars.dz * t;
+	if (fabsf(x) > hp->rx + 1e-4f || fabsf(y) > hp->ry + 1e-4f)
 		return (-1.0f);
-	// Vertical clamp: allow full height (half_height set to height) with a small tolerance
+	mag = x * x * hp->vars.inv_rx2 - y * y * hp->vars.inv_ry2;
+	if (fabsf(z - mag / hp->vars.inv_height) > 1e-3f)
+		return (-1.0f);
 	if (fabsf(z) > hp->vars.half_height + 2e-4f)
 		return (-1.0f);
-	return (hp->vars.cands[idx]);
+	return (t);
 }
 
 static float	hp_solve_linear(const t_hparab *hp)
@@ -60,6 +60,16 @@ static float	hp_solve_linear(const t_hparab *hp)
 	return (check_solution(hp, t));
 }
 
+static void	hp_store_candidates(t_hp_aux *aux)
+{
+	float	sqrt_disc;
+
+	sqrt_disc = sqrtf(aux->disc);
+	aux->denom = 2.0f * aux->a;
+	aux->cands[0] = (-aux->b - sqrt_disc) / aux->denom;
+	aux->cands[1] = (-aux->b + sqrt_disc) / aux->denom;
+}
+
 static float	hp_best_candidate(const t_hparab *hp)
 {
 	float	best;
@@ -70,7 +80,7 @@ static float	hp_best_candidate(const t_hparab *hp)
 	idx = 0;
 	while (idx < 2)
 	{
-		t = check_solution(hp, idx);
+		t = check_solution(hp, hp->vars.cands[idx]);
 		if (t > 0.0f && (best < 0.0f || t < best))
 			best = t;
 		idx++;
@@ -85,8 +95,9 @@ float	hit_hparaboloid(t_hparab *hp, t_ray r)
 		return (hp_solve_linear(hp));
 	if (hp->vars.disc < 0.0f)
 		return (-1.0f);
-	hp->vars.denom = 2.0f * hp->vars.a;
-	hp->vars.cands[0] = (-hp->vars.b - sqrtf(hp->vars.disc)) / hp->vars.denom;
-	hp->vars.cands[1] = (-hp->vars.b + sqrtf(hp->vars.disc)) / hp->vars.denom;
+	hp_store_candidates(&hp->vars);
+	// hp->vars.denom = 2.0f * hp->vars.a;
+	// hp->vars.cands[0] = (-hp->vars.b - sqrtf(hp->vars.disc)) / hp->vars.denom;
+	// hp->vars.cands[1] = (-hp->vars.b + sqrtf(hp->vars.disc)) / hp->vars.denom;
 	return (hp_best_candidate(hp));
 }

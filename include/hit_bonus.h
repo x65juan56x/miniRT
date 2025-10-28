@@ -3,8 +3,15 @@
 
 # include "vec3.h"
 # include "ray.h"
-# include "scene_bonus.h"
 # include "material_bonus.h"
+
+// Forward declarations
+struct s_scene;
+struct s_sphere;
+struct s_plane;
+struct s_cyl;
+struct s_triangle;
+struct s_hparab;
 
 typedef struct s_hit
 {
@@ -66,8 +73,10 @@ typedef struct s_tr_aux
 	float	det;
 	float	inv_det;
 	t_vec3	tvec;
-	t_vec3	u;
-	t_vec3	v;
+	float	u;
+	float	v;
+	t_vec3	base_u;
+	t_vec3	base_v;
 	t_vec3	qvec;
 }	t_tr_aux;
 
@@ -103,13 +112,13 @@ typedef struct s_common_hit
 	t_vec3	albedo;
 }	t_common_hit;
 
-int		scene_hit(const t_scene *scene, t_ray r, float max_dist, t_hit *out);
+int		scene_hit(const struct s_scene *scene, t_ray r, float max_dist, t_hit *out);
 
 /* HIT OBJECTS */
-float	hit_sphere(const t_sphere *sp, t_ray r);
-float	hit_plane(const t_plane *pl, t_ray r);
-float	hit_triangle(const t_triangle *tr, t_ray r);
-float	hit_cylinder(const t_cyl *cy, t_ray r);
-float	hit_hparaboloid(const t_hparab *hp, t_ray r);
+float	hit_sphere(struct s_sphere *sp, t_ray r);
+float	hit_plane(struct s_plane *pl, t_ray r);
+float	hit_triangle(struct s_triangle *tr, t_ray r);
+float	hit_cylinder(struct s_cyl *cy, t_ray r);
+float	hit_hparaboloid(struct s_hparab *hp, t_ray r);
 
 #endif

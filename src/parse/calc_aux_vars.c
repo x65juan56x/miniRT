@@ -14,8 +14,6 @@ void	aux_plane(t_plane *pl)
 
 void	aux_cylinder(t_cyl *cy)
 {
-	t_vec3	up;
-
 	cy->vars.radius = cy->di * 0.5f;
 	cy->vars.radius2 = cy->vars.radius * cy->vars.radius;
 	cy->vars.half_height = cy->he * 0.5f;

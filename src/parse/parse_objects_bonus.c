@@ -3,6 +3,7 @@
 #include "../../libraries/libft/libft.h"
 #include "../../include/parser_internal_bonus.h"
 #include "../../include/bump_bonus.h"
+#include "../../include/scene_bonus.h"
 
 static t_parse_result	obj_error(t_object *obj, int line, const char *msg)
 {
@@ -269,7 +270,7 @@ t_parse_result	parse_hp(char **tok, int line, t_scene *scene)
 {
 	t_object		*obj;
 	t_parse_result	result;
-	int				cbcons;
+//	int				cbcons;
 
 	result = hp_create_object(tok, line, &obj);
 	if (!result.ok)
@@ -278,17 +279,16 @@ t_parse_result	parse_hp(char **tok, int line, t_scene *scene)
 	if (!result.ok)
 		return (result);
 	hp_build_basis(&obj->u_obj.hp);
-	if ((tok[7] && ft_strncmp(tok[7], "bm", 3) == 0)
-		&& (!parse_opt_bump(tok, 7, &obj->u_obj.hp.has_bump,
-			&obj->u_obj.hp.bump_strength, &obj->u_obj.hp.bump)))
-		return (obj_error(obj, line, "hp: invalid bump (bm <png> <strength>)"));
-	else
+	if (tok[7] && ft_strncmp(tok[7], "bm", 3) == 0)
 	{
-		cbcons = parse_opt_checker(tok, 7, &obj->u_obj.hp.has_checker,
-			&obj->u_obj.hp.checker_scale);
-		if (!cbcons)
-			return (obj_error(obj, line, "hp: invalid checker (cb <scale>)"));
+		if (!parse_opt_bump(tok, 7, &obj->u_obj.hp.has_bump,
+				&obj->u_obj.hp.bump_strength, &obj->u_obj.hp.bump))
+			return (obj_error(obj, line,
+				"hp: invalid bump (bm <png> <strength>)"));
 	}
+	else if (!parse_opt_checker(tok, 7, &obj->u_obj.hp.has_checker,
+			&obj->u_obj.hp.checker_scale))
+		return (obj_error(obj, line, "hp: invalid checker (cb <scale>)"));
 	aux_hparab(&obj->u_obj.hp);
 	scene_add_object(scene, obj);
 	return (parse_ok());
@@ -299,8 +299,6 @@ t_parse_result	parse_tr(char **tokens, int line, t_scene *scene)
 {
 	t_object	*obj;
 	int			cbcons;
-	t_vec3		e1;
-	t_vec3		e2;
 
 	if (!tokens[1] || !tokens[2] || !tokens[3] || !tokens[4])
 		return (parse_error(line, "tr: invalid format"));
@@ -316,12 +314,6 @@ t_parse_result	parse_tr(char **tokens, int line, t_scene *scene)
 		return (obj_error(obj, line, "tr: invalid vertex c"));
 	if (!parse_color_255(tokens[4], &obj->u_obj.tr.color))
 		return (obj_error(obj, line, "tr: invalid color"));
-	{
-		e1 = v3_sub(obj->u_obj.tr.b, obj->u_obj.tr.a);
-		e2 = v3_sub(obj->u_obj.tr.c, obj->u_obj.tr.a);
-		obj->u_obj.tr.u = v3_norm(e1);
-		obj->u_obj.tr.v = v3_norm(v3_sub(e2, v3_mul(obj->u_obj.tr.u, v3_dot(e2, obj->u_obj.tr.u))));
-	}
     obj->u_obj.tr.has_checker = 0;
     obj->u_obj.tr.checker_scale = 1.0f;
     obj->u_obj.tr.has_bump = 0;
