@@ -53,7 +53,7 @@ void	aux_triangle(t_triangle *tr)
 	tr->vars.bit = v3_cross(tr->vars.n, tr->vars.tan);
 	tr->vars.n = v3_norm(tr->vars.n);
 	tr->vars.base_u = v3_norm(tr->vars.e1);
-    tr->vars.base_v = v3_norm(v3_sub(tr->vars.e2,
+	tr->vars.base_v = v3_norm(v3_sub(tr->vars.e2,
 		v3_mul(tr->vars.base_u, v3_dot(tr->vars.e2, tr->vars.base_u))));
 }
 
@@ -71,8 +71,5 @@ void	aux_hparab(t_hparab *hp)
 	hp->vars.inv_rx2 = 1.0f / hp->vars.rx2;
 	hp->vars.inv_ry2 = 1.0f / hp->vars.ry2;
 	hp->vars.half_height = hp->height * 0.5f;
-	if (hp->vars.half_height <= 0.0f)
-        hp->vars.inv_height = 0.0f;
-	else
-		hp->vars.inv_height = 1.0f / hp->height;
+	hp->vars.inv_height = 1.0f / hp->height; // used in normal z-component as a scale factor
 }

@@ -332,6 +332,7 @@ t_parse_result	parse_tr(char **tokens, int line, t_scene *scene)
 	if (!cbcons)
 	    return (obj_error(obj, line, "tr: invalid checker (cb <scale>)"));
     }
+	aux_triangle(&obj->u_obj.tr);
 	obj->next = NULL;
 	scene_add_object(scene, obj);
 	return (parse_ok());
