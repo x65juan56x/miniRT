@@ -3,6 +3,7 @@
 
 # include <stddef.h>
 # include <stdbool.h>
+# include <stdlib.h>
 # include "parser.h"
 
 char			**read_file_lines(const char *path, size_t *out_count);

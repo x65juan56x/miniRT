@@ -104,7 +104,8 @@ t_parse_result	parse_scene(const char *path, t_scene *scene)
 			result = parse_error(0, "Missing Ambient (A)");
 		else if (!scene->camera.present)
 			result = parse_error(0, "Missing Camera (C)");
-		else if (!scene->light.present)
+		else if (!scene->light)
+			/* light list head is NULL -> no lights parsed */
 			result = parse_error(0, "Missing Light (L)");
 	}
 	if (!result.ok)

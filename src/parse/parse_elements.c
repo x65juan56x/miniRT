@@ -71,22 +71,46 @@ t_parse_result	parse_c(char **tokens, int line, t_scene *scene)
 
 t_parse_result	parse_l(char **tokens, int line, t_scene *scene)
 {
+	t_light *new_light;
+	t_light *last_light;
+	t_vec3	pos;
+	float	bright;
+	t_vec3	color;
+
 	if (!tokens[1] || !tokens[2])
 		return (parse_error(line, "L: invalid format"));
 	if (tokens[4])
 		return (parse_error(line, "L: invalid format"));
-	if (scene->light.present)
-		return (parse_error(line, "Duplicated L"));
-	scene->light.present = true;
-	scene->light.color = v3(1.0f, 1.0f, 1.0f);
-	if (!parse_vec3(tokens[1], &scene->light.pos))
+	//parseo de valores pero en temporales para no romper la memoria
+	if (!parse_vec3(tokens[1], &pos))
 		return (parse_error(line, "L: invalid position"));
-	if (!parse_float(tokens[2], &scene->light.bright))
+	if (!parse_float(tokens[2],  &bright))
 		return (parse_error(line, "L: invalid bright"));
-	if (scene->light.bright < 0.0f || scene->light.bright > 1.0f)
+	if (bright < 0.0f ||  bright > 1.0f)
 		return (parse_error(line, "L: bright out of range [0,1]"));
-	if (tokens[3] && !parse_color_255(tokens[3], &scene->light.color))
+	color = v3(1.0f, 1.0f, 1.0f);
+	if (tokens[3] && !parse_color_255(tokens[3],  &color))
 		return (parse_error(line, "L: invalid color"));
+	//CUIDADO CON LA RESERVA DE MEMORIA
+	new_light = malloc(sizeof(t_light));
+	if (!new_light)
+		return (parse_error(line, "L: malloc failed"));
+	new_light->present = true;
+	new_light->next = NULL;
+	new_light->color = color;
+	new_light->bright = bright;
+	new_light->pos = pos;
+	//añadir a la lista
+	if (!scene->light)
+		scene->light = new_light;
+	else
+	{	
+		last_light = scene->light;
+		while(last_light->next)
+			last_light = last_light->next;
+		last_light->next = new_light;
+	}
+	//scene->light = scene->light->next;
 	return (parse_ok());
 }
 /*
