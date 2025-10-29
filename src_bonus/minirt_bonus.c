@@ -2,6 +2,26 @@
 #include "../include_bonus/app_bonus.h"
 #include "../include_bonus/render_bonus.h"
 
+static int detect_thread_count(void)
+{
+	const char	*override;
+	long		count;
+
+	override = getenv("MINIRT_THREADS");
+	if (override && *override)
+	{
+		count = (long)ft_atoi(override);
+		if (count > 0)
+			return ((int)count);
+	}
+	count = sysconf(_SC_NPROCESSORS_ONLN);
+	if (count < 1)
+		return (4);
+	if (count > 16)
+		count = 16;
+	return ((int)count);
+}
+
 static void render_and_present(t_app *app)
 {
 	render_scene(app);
@@ -92,6 +112,7 @@ int	main(int ac, char **av)
 	}
 	ti_init(&app.overlay, app.mlx, app.image);
 	app.show_normals = 0;
+	app.thread_count = detect_thread_count();
 	render_and_present(&app);
 	mlx_key_hook(app.mlx, &app_on_key, &app);
 	mlx_loop(app.mlx);
