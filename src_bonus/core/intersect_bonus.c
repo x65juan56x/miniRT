@@ -18,8 +18,7 @@ static void	orient_normal(t_hit *hit, t_ray r)
 		hit->n = v3_mul(hit->n, -1.0f);
 }
 
-static void	apply_specular(const t_scene *scene, t_hit *out,
-		const t_material *material)
+static void	apply_specular(t_hit *out, const t_material *material)
 {
 	out->specular = v3(0.0f, 0.0f, 0.0f);
 	out->ks = 0.0f;
@@ -29,8 +28,10 @@ static void	apply_specular(const t_scene *scene, t_hit *out,
 	out->ks = material->ks;
 	out->shininess = material->shininess;
 	if (material->ks <= 0.0f || material->shininess <= 0.0f)
-		return ;
-	out->specular = specular_blinn_phong(scene, out, material);
+	{
+		out->ks = 0.0f;
+		out->shininess = 0.0f;
+	}
 }
 
 static void	sp_process_checker(t_sphere *sp, t_common_hit *c_hit, t_hit *out)
@@ -73,6 +74,7 @@ static int	record_sphere(const t_scene *scene, t_sphere *sp, t_ray r,
 {
 	t_common_hit	c_hit;
 
+	(void)scene;
 	c_hit.p = ray_at(r, t);
 	c_hit.n = v3_norm(v3_sub(c_hit.p, sp->center));
 	c_hit.t = t;
@@ -84,7 +86,7 @@ static int	record_sphere(const t_scene *scene, t_sphere *sp, t_ray r,
 	if (sp->has_bump && sp->bump)
 		sp_process_bump(sp, &c_hit, out);
 	orient_normal(out, r);
-		apply_specular(scene, out, sp->material);
+	apply_specular(out, sp->material);
 	return (1);
 }
 // Apply bump after albedo selection
@@ -124,6 +126,7 @@ static int	record_plane(const t_scene *scene, t_plane *pl, t_ray r, float t,
 {
 	t_common_hit	c_hit;
 
+	(void)scene;
 	c_hit.p = ray_at(r, t);
 	c_hit.t = t;
 	c_hit.n = pl->normal;
@@ -135,7 +138,7 @@ static int	record_plane(const t_scene *scene, t_plane *pl, t_ray r, float t,
 	if (pl->has_bump && pl->bump)
 		pl_process_bump(pl, &c_hit, out);
 	orient_normal(out, r);
-	apply_specular(scene, out, pl->material);
+	apply_specular(out, pl->material);
 	return (1);
 }
 
@@ -182,6 +185,7 @@ static int	record_triangle(const t_scene *scene, t_triangle *tr, t_ray r,
 {
 	t_common_hit	c_hit;
 
+	(void)scene;
 	c_hit.p = ray_at(r, t);
 	c_hit.n = tr->vars.n;
 	c_hit.t = t;
@@ -194,7 +198,7 @@ static int	record_triangle(const t_scene *scene, t_triangle *tr, t_ray r,
 	if (tr->has_bump && tr->bump)
 		tr_process_bump(tr, &c_hit, out);
 	orient_normal(out, r);
-	apply_specular(scene, out, tr->material);
+	apply_specular(out, tr->material);
 	return (1);
 }
 
@@ -228,6 +232,7 @@ static int	record_hparaboloid(const t_scene *scene, const t_hparab *hp,
 	float			x;
 	float			y;
 
+	(void)scene;
 	c_hit.p = ray_at(r, t);
 	c_hit.t = t;
 	x = v3_dot(v3_sub(c_hit.p, hp->center), hp->vars.u);
@@ -243,7 +248,7 @@ static int	record_hparaboloid(const t_scene *scene, const t_hparab *hp,
 	if (hp->has_bump && hp->bump)
 		hp_process_bump(hp, x, y, out);
 	orient_normal(out, r);
-	apply_specular(scene, out, hp->material);
+	apply_specular(out, hp->material);
 	return (1);
 }
 
@@ -385,6 +390,7 @@ static int record_cylinder(const t_scene *scene, const t_cyl *cy, t_ray r,
 {
 	t_common_hit	c_hit;
 
+	(void)scene;
 	c_hit.p = ray_at(r, t);
 	c_hit.t = t;
 	c_hit.albedo = cy->color;
@@ -397,7 +403,7 @@ static int record_cylinder(const t_scene *scene, const t_cyl *cy, t_ray r,
 	else
 		return (0);
 	orient_normal(out, r);
-	apply_specular(scene, out, cy->material);
+	apply_specular(out, cy->material);
 	return (1);
 }
 

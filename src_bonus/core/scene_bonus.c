@@ -71,6 +71,14 @@ void	scene_free(t_scene *s)
 		it = n;
 	}
 	s->objects = NULL;
+		while (s->light)
+		{
+			t_light	*next_light;
+
+			next_light = s->light->next;
+			free(s->light);
+			s->light = next_light;
+		}
 }
 /*
 * Purpose: Free all scene objects and leave the scene in a clean state.

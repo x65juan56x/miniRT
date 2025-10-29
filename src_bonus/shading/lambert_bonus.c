@@ -1,45 +1,57 @@
 #include "../../include_bonus/minirt_bonus.h"
 
-int v3_is_zero(t_vec3 a)
-{
-	float eps = 1e-6;
-	if(fabs(a.x) < eps && fabs(a.y) < eps && fabs(a.z) < eps)
-		return 1;
-	return 0;
-}
-
 t_vec3	shade_lambert(const t_scene *scene, const t_hit *hit)
 {
-	t_vec3	ambient;
-	t_vec3	l_dir;
-	float	ndotl;
-	t_vec3	diff;
-	t_vec3	c;
-	t_light	*current_l = scene->light;
-	t_vec3 color_total = v3(0,0,0);
+	t_vec3	ambient_term;
+	t_vec3	diffuse_total;
+	t_vec3	specular_total;
+//	t_vec3	normal;
+	t_light	*light;
 
 	if (!hit->ok)
-		return v3(0,0,0);
-	ambient = v3_mul(scene->ambient.color, scene->ambient.ratio);
-	while (current_l != NULL)
+		return (v3(0.0f, 0.0f, 0.0f));
+	ambient_term = v3_ctoc(hit->albedo,
+		v3_mul(scene->ambient.color, scene->ambient.ratio));
+	diffuse_total = v3(0.0f, 0.0f, 0.0f);
+	specular_total = v3(0.0f, 0.0f, 0.0f);
+//	normal = v3_norm(hit->n);
+	light = scene->light;
+	while (light)
 	{
-		l_dir = v3_norm(v3_sub(current_l->pos, hit->p));
-		ndotl = v3_dot(hit->n, l_dir);
-		if (ndotl < 0.0f)
-			ndotl = 0.0f;
-		if (in_shadow(scene, hit, current_l->pos))
+		t_vec3	to_light;
+		t_vec3	light_dir;
+		float	ndotl;
+
+		if (light->bright <= 0.0f)
 		{
-			current_l= current_l->next;
+			light = light->next;
 			continue;
 		}
-		//return (v3_ctoc(hit->albedo, ambient));
-		diff = v3_mul(v3_mul(current_l->color, current_l->bright), ndotl);
-		color_total = v3_add(color_total, diff);
-		current_l= current_l->next;
+		to_light = v3_sub(light->pos, hit->p);
+		if (v3_len2(to_light) < 1e-10f)
+		{
+			light = light->next;
+			continue;
+		}
+		light_dir = v3_norm(to_light);
+		ndotl = v3_dot(hit->n, light_dir);
+		if (ndotl <= 0.0f)
+		{
+			light = light->next;
+			continue;
+		}
+		if (in_shadow(scene, hit, light->pos))
+		{
+			light = light->next;
+			continue;
+		}
+		diffuse_total = v3_add(diffuse_total,
+			v3_mul(v3_mul(light->color, light->bright), ndotl));
+		if (hit->ks > 0.0f && hit->shininess > 0.0f)
+			specular_total = v3_add(specular_total,
+				specular_blinn_phong(scene, light, hit, light_dir));
+		light = light->next;
 	}
-	if (v3_is_zero(color_total)) // función que verifica si el vector es (0,0,0)
-    	return v3_ctoc(hit->albedo, ambient);
-	c = v3_add(ambient, v3_ctoc(hit->albedo, color_total));
-	c = v3_add(c, hit->specular);
-	return (c);
+	return (v3_add(v3_add(ambient_term, v3_ctoc(hit->albedo, diffuse_total)),
+		specular_total));
 }
