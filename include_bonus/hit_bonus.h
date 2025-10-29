@@ -20,6 +20,9 @@ typedef struct s_hit
 	t_vec3	p; // Punto de impacto
 	t_vec3	n; // Normal en el punto
 	t_vec3	albedo; // Color del objeto intersectado
+	float	ks;
+	float	shininess;
+	t_vec3	specular;
 }	t_hit;
 
 typedef struct s_sp_aux

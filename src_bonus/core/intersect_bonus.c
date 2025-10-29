@@ -64,6 +64,11 @@ static int	record_sphere(t_sphere *sp, t_ray r, float t, t_hit *out)
 		set_common_hit(out, &c_hit);
 	if (sp->has_bump && sp->bump)
 		sp_process_bump(sp, &c_hit, out);
+	/*-SPECULAR-*/
+	if(sp->material)
+		out->specular = specular_blinn_phong(scene, out, sp->material);
+	else
+		out->specular = v3(0.0f, 0.0f, 0.0f);
 	orient_normal(out, r);
 	return (1);
 }
@@ -113,6 +118,8 @@ static int	record_plane(t_plane *pl, t_ray r, float t, t_hit *out)
 		set_common_hit(out, &c_hit);
 	if (pl->has_bump && pl->bump)
 		pl_process_bump(pl, &c_hit, out);
+	/*-SPECULAR-*/
+
 	orient_normal(out, r);
 	return (1);
 }
@@ -170,6 +177,8 @@ static int	record_triangle(t_triangle *tr, t_ray r, float t, t_hit *out)
 	// Bump: usar baricéntricas para estirar el mapa a todo el triángulo
 	if (tr->has_bump && tr->bump)
 		tr_process_bump(tr, &c_hit, out);
+	/*-SPECULAR-*/
+
 	orient_normal(out, r);
 	return (1);
 }
@@ -217,6 +226,8 @@ static int	record_hparaboloid(const t_hparab *hp, t_ray r, float t, t_hit *out)
 	set_common_hit(out, &c_hit);
 	if (hp->has_bump && hp->bump)
 		hp_process_bump(hp, x, y, out);
+	/*-SPECULAR-*/
+
 	orient_normal(out, r);
 	return (1);
 }
@@ -369,6 +380,8 @@ static int record_cylinder(const t_cyl *cy, t_ray r, float t, t_hit *out)
 		cy_hit_bottom(cy, &c_hit, out);
 	else
 		return (0);
+	/*-SPECULAR-*/
+
 	orient_normal(out, r);
 	return (1);
 }

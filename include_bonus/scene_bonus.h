@@ -83,6 +83,7 @@ typedef struct s_sphere
 	int			has_bump;
 	float		bump_strength;
 	t_bumpmap	*bump;
+	t_material	*material;
 	t_sp_aux	vars;
 }	t_sphere;
 
@@ -96,6 +97,7 @@ typedef struct s_plane
 	int			has_bump;
 	float		bump_strength;
 	t_bumpmap	*bump;
+	t_material	*material;
 	t_pl_aux	vars;
 }	t_plane;
 
@@ -111,6 +113,7 @@ typedef struct s_cyl
 	int			has_bump;
 	float		bump_strength;
 	t_bumpmap	*bump;
+	t_material	*material;
 	t_cy_aux	vars;
 }	t_cyl;
 
@@ -130,6 +133,7 @@ typedef struct s_triangle
 	int			has_bump;
 	float		bump_strength;
 	t_bumpmap	*bump;
+	t_material	*material;
 	t_tr_aux	vars;
 }	t_triangle;
 
@@ -146,6 +150,7 @@ typedef struct s_hparab
 	int			has_bump;
 	float		bump_strength;
 	t_bumpmap	*bump;
+	t_material	*material;
 	t_hp_aux	vars;
 }	t_hparab;
 
