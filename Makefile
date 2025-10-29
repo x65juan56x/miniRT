@@ -85,15 +85,15 @@ CORE_B_SRCS = \
 
 MAIN_B      = $(SRC_DIR_B)/minirt_bonus.c
 SRCS_B      = $(PARSE_B_SRCS) $(COMMON_CORE_SRCS) $(GEOM_B_SRCS) $(CORE_B_SRCS) $(MAIN_B)
-PARSE_B_OBJS = $(PARSE_B_SRCS:$(SRC_DIR_B)/%.c=$(OBJ_DIR_B)/%.bo)
-GEOM_B_OBJS  = $(GEOM_B_SRCS:$(SRC_DIR_B)/%.c=$(OBJ_DIR_B)/%.bo)
-CORE_B_OBJS  = $(CORE_B_SRCS:$(SRC_DIR_B)/%.c=$(OBJ_DIR_B)/%.bo)
-MAIN_B_OBJ   = $(MAIN_B:$(SRC_DIR_B)/%.c=$(OBJ_DIR_B)/%.bo)
-COMMON_B_OBJS = $(COMMON_CORE_SRCS:$(SRC_DIR_M)/%.c=$(OBJ_DIR_B)/%.bo)
+PARSE_B_OBJS = $(PARSE_B_SRCS:$(SRC_DIR_B)/%.c=$(OBJ_DIR_B)/%.o)
+GEOM_B_OBJS  = $(GEOM_B_SRCS:$(SRC_DIR_B)/%.c=$(OBJ_DIR_B)/%.o)
+CORE_B_OBJS  = $(CORE_B_SRCS:$(SRC_DIR_B)/%.c=$(OBJ_DIR_B)/%.o)
+MAIN_B_OBJ   = $(MAIN_B:$(SRC_DIR_B)/%.c=$(OBJ_DIR_B)/%.o)
+COMMON_B_OBJS = $(COMMON_CORE_SRCS:$(SRC_DIR_M)/%.c=$(OBJ_DIR_B)/%.o)
 OBJS_B      = $(PARSE_B_OBJS) $(GEOM_B_OBJS) $(CORE_B_OBJS) $(COMMON_B_OBJS) $(MAIN_B_OBJ)
 
 DEPS_M      = $(OBJS_M:.o=.d)
-DEPS_B      = $(OBJS_B:.bo=.d)
+DEPS_B      = $(OBJS_B:.o=.d)
 
 # Libraries
 LIBFT_DIR   = libraries/libft
@@ -112,7 +112,7 @@ $(NAME): $(MLX_LIB) $(LIBFT_LIB) $(GNL_LIB) $(OBJS_M)
 bonus: $(NAME_BONUS)
 
 $(NAME_BONUS): $(MLX_LIB) $(LIBFT_LIB) $(GNL_LIB) $(OBJS_B)
-	$(CC) $(CFLAGS) $(filter %.bo,$(OBJS_B)) $(MLX_LIB) $(LIBFT_LIB) $(GNL_LIB) $(LDFLAGS) -o $@
+	$(CC) $(CFLAGS) $(OBJS_B) $(MLX_LIB) $(LIBFT_LIB) $(GNL_LIB) $(LDFLAGS) -o $@
 
 $(MLX_LIB):
 	cmake -S $(MLX_DIR) -B $(MLX_BUILD_DIR) -DMLX_BUILD_EXAMPLES=OFF
@@ -134,11 +134,11 @@ $(OBJ_DIR_M)/%.o: $(SRC_DIR_M)/%.c | $(OBJ_DIR_M)
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(INCLUDES) -MMD -MP -c $< -o $@
 
-$(OBJ_DIR_B)/%.bo: $(SRC_DIR_B)/%.c | $(OBJ_DIR_B)
+$(OBJ_DIR_B)/%.o: $(SRC_DIR_B)/%.c | $(OBJ_DIR_B)
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(INCLUDES_BONUS) -MMD -MP -c $< -o $@
 
-$(OBJ_DIR_B)/%.bo: $(SRC_DIR_M)/%.c | $(OBJ_DIR_B)
+$(OBJ_DIR_B)/%.o: $(SRC_DIR_M)/%.c | $(OBJ_DIR_B)
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(INCLUDES_BONUS) -MMD -MP -c $< -o $@
 
