@@ -22,7 +22,7 @@ typedef struct s_render_task
 
 static t_scene	*scene_clone(const t_scene *src)
 {
-	t_scene	*clone;
+	t_scene		*clone;
 	t_object	*it;
 	t_object	*tail;
 
