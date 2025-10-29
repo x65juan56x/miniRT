@@ -7,12 +7,30 @@ static void	set_common_hit(t_hit *dst, t_common_hit *c_hit)
 	dst->p = c_hit->p;
 	dst->n = c_hit->n;
 	dst->albedo = c_hit->albedo;
+	dst->ks = 0.0f;
+	dst->shininess = 0.0f;
+	dst->specular = v3(0.0f, 0.0f, 0.0f);
 }
 
 static void	orient_normal(t_hit *hit, t_ray r)
 {
 	if (v3_dot(hit->n, r.dir) > 0.0f)
 		hit->n = v3_mul(hit->n, -1.0f);
+}
+
+static void	apply_specular(const t_scene *scene, t_hit *out,
+		const t_material *material)
+{
+	out->specular = v3(0.0f, 0.0f, 0.0f);
+	out->ks = 0.0f;
+	out->shininess = 0.0f;
+	if (!material)
+		return ;
+	out->ks = material->ks;
+	out->shininess = material->shininess;
+	if (material->ks <= 0.0f || material->shininess <= 0.0f)
+		return ;
+	out->specular = specular_blinn_phong(scene, out, material);
 }
 
 static void	sp_process_checker(t_sphere *sp, t_common_hit *c_hit, t_hit *out)
@@ -50,7 +68,8 @@ static void	sp_process_bump(const t_sphere *sp, t_common_hit *c_hit, t_hit *out)
 	bump_perturb(sp->bump, &bm_aux, &out->n);
 }
 
-static int	record_sphere(t_sphere *sp, t_ray r, float t, t_hit *out)
+static int	record_sphere(const t_scene *scene, t_sphere *sp, t_ray r,
+		float t, t_hit *out)
 {
 	t_common_hit	c_hit;
 
@@ -64,12 +83,8 @@ static int	record_sphere(t_sphere *sp, t_ray r, float t, t_hit *out)
 		set_common_hit(out, &c_hit);
 	if (sp->has_bump && sp->bump)
 		sp_process_bump(sp, &c_hit, out);
-	/*-SPECULAR-*/
-	if(sp->material)
-		out->specular = specular_blinn_phong(scene, out, sp->material);
-	else
-		out->specular = v3(0.0f, 0.0f, 0.0f);
 	orient_normal(out, r);
+		apply_specular(scene, out, sp->material);
 	return (1);
 }
 // Apply bump after albedo selection
@@ -104,7 +119,8 @@ static void	pl_process_bump(const t_plane *pl, t_common_hit *c_hit, t_hit *out)
 	bump_perturb(pl->bump, &bm_aux, &out->n);
 }
 
-static int	record_plane(t_plane *pl, t_ray r, float t, t_hit *out)
+static int	record_plane(const t_scene *scene, t_plane *pl, t_ray r, float t,
+			 t_hit *out)
 {
 	t_common_hit	c_hit;
 
@@ -118,9 +134,8 @@ static int	record_plane(t_plane *pl, t_ray r, float t, t_hit *out)
 		set_common_hit(out, &c_hit);
 	if (pl->has_bump && pl->bump)
 		pl_process_bump(pl, &c_hit, out);
-	/*-SPECULAR-*/
-
 	orient_normal(out, r);
+	apply_specular(scene, out, pl->material);
 	return (1);
 }
 
@@ -162,7 +177,8 @@ static void	tr_process_bump(const t_triangle *tr, t_common_hit *c_hit, t_hit *ou
 	}
 }
 
-static int	record_triangle(t_triangle *tr, t_ray r, float t, t_hit *out)
+static int	record_triangle(const t_scene *scene, t_triangle *tr, t_ray r,
+		float t, t_hit *out)
 {
 	t_common_hit	c_hit;
 
@@ -177,9 +193,8 @@ static int	record_triangle(t_triangle *tr, t_ray r, float t, t_hit *out)
 	// Bump: usar baricéntricas para estirar el mapa a todo el triángulo
 	if (tr->has_bump && tr->bump)
 		tr_process_bump(tr, &c_hit, out);
-	/*-SPECULAR-*/
-
 	orient_normal(out, r);
+	apply_specular(scene, out, tr->material);
 	return (1);
 }
 
@@ -206,7 +221,8 @@ static void	hp_process_bump(const t_hparab *hp, float x, float y, t_hit *out)
 	bump_perturb(hp->bump, &bm_aux, &out->n);
 }
 
-static int	record_hparaboloid(const t_hparab *hp, t_ray r, float t, t_hit *out)
+static int	record_hparaboloid(const t_scene *scene, const t_hparab *hp,
+		 t_ray r, float t, t_hit *out)
 {
 	t_common_hit	c_hit;
 	float			x;
@@ -226,9 +242,8 @@ static int	record_hparaboloid(const t_hparab *hp, t_ray r, float t, t_hit *out)
 	set_common_hit(out, &c_hit);
 	if (hp->has_bump && hp->bump)
 		hp_process_bump(hp, x, y, out);
-	/*-SPECULAR-*/
-
 	orient_normal(out, r);
+	apply_specular(scene, out, hp->material);
 	return (1);
 }
 
@@ -365,7 +380,8 @@ static void cy_hit_bottom(const t_cyl *cy, t_common_hit *c_hit, t_hit *out)
 	}
 }
 
-static int record_cylinder(const t_cyl *cy, t_ray r, float t, t_hit *out)
+static int record_cylinder(const t_scene *scene, const t_cyl *cy, t_ray r,
+		float t, t_hit *out)
 {
 	t_common_hit	c_hit;
 
@@ -380,13 +396,12 @@ static int record_cylinder(const t_cyl *cy, t_ray r, float t, t_hit *out)
 		cy_hit_bottom(cy, &c_hit, out);
 	else
 		return (0);
-	/*-SPECULAR-*/
-
 	orient_normal(out, r);
+	apply_specular(scene, out, cy->material);
 	return (1);
 }
 
-static int	object_hit(t_object *obj, t_ray r, t_hit *out)
+static int	object_hit(const t_scene *scene, t_object *obj, t_ray r, t_hit *out)
 {
 	float	t;
 //	int		hit_part;
@@ -406,14 +421,14 @@ static int	object_hit(t_object *obj, t_ray r, t_hit *out)
 	if (t <= 0.0f)
 		return (0);
 	if (obj->type == OBJ_SPHERE)
-		return (record_sphere(&obj->u_obj.sp, r, t, out));
+		return (record_sphere(scene, &obj->u_obj.sp, r, t, out));
 	if (obj->type == OBJ_PLANE)
-		return (record_plane(&obj->u_obj.pl, r, t, out));
+		return (record_plane(scene, &obj->u_obj.pl, r, t, out));
 	if (obj->type == OBJ_CYLINDER)
-		return (record_cylinder(&obj->u_obj.cy, r, t, out));
+		return (record_cylinder(scene, &obj->u_obj.cy, r, t, out));
 	if (obj->type == OBJ_HPARABOLOID)
-		return (record_hparaboloid(&obj->u_obj.hp, r, t, out));
-	return (record_triangle(&obj->u_obj.tr, r, t, out));
+		return (record_hparaboloid(scene, &obj->u_obj.hp, r, t, out));
+	return (record_triangle(scene, &obj->u_obj.tr, r, t, out));
 }
 
 int	scene_hit(const t_scene *scene, t_ray r, float max_dist, t_hit *out)
@@ -429,7 +444,7 @@ int	scene_hit(const t_scene *scene, t_ray r, float max_dist, t_hit *out)
 	o = scene->objects;
 	while (o)
 	{
-		if (object_hit(o, r, &cur) && cur.t > EPSILON && cur.t < best)
+		if (object_hit(scene, o, r, &cur) && cur.t > EPSILON && cur.t < best)
 		{
 			best = cur.t;
 			*out = cur;

@@ -81,6 +81,7 @@ CORE_B_SRCS = \
 	$(SRC_DIR_B)/shading/lambert_bonus.c \
 	$(SRC_DIR_B)/shading/shadow_bonus.c \
 	$(SRC_DIR_B)/shading/bump_bonus.c \
+	$(SRC_DIR_B)/shading/specular_bonus.c \
 	$(SRC_DIR_B)/app/toggle_info_bonus.c
 
 MAIN_B      = $(SRC_DIR_B)/minirt_bonus.c

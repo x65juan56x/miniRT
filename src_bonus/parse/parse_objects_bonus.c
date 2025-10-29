@@ -17,9 +17,78 @@ static t_parse_result	obj_error(t_object *obj, int line, const char *msg)
 * Notes: Ensures no allocation leaks when validation fails mid-parsing.
 */
 
+static void	free_sp_pl_cy_with_addons(t_object *obj)
+{
+	if (!obj)
+		return ;
+	if (obj->type == OBJ_SPHERE)
+	{
+		if (obj->u_obj.sp.bump)
+			bump_free(obj->u_obj.sp.bump);
+		if (obj->u_obj.sp.material)
+			free(obj->u_obj.sp.material);
+	}
+	else if (obj->type == OBJ_PLANE)
+	{
+		if (obj->u_obj.pl.bump)
+			bump_free(obj->u_obj.pl.bump);
+		if (obj->u_obj.pl.material)
+			free(obj->u_obj.pl.material);
+	}
+	else if (obj->type == OBJ_CYLINDER)
+	{
+		if (obj->u_obj.cy.bump)
+			bump_free(obj->u_obj.cy.bump);
+		if (obj->u_obj.cy.material)
+			free(obj->u_obj.cy.material);
+	}
+	free(obj);
+}
+
+static void	free_tr_hp_with_addons(t_object *obj)
+{
+	if (!obj)
+		return ;
+	if (obj->type == OBJ_TRIANGLE)
+	{
+		if (obj->u_obj.tr.bump)
+			bump_free(obj->u_obj.tr.bump);
+		if (obj->u_obj.tr.material)
+			free(obj->u_obj.tr.material);
+	}
+	else if (obj->type == OBJ_HPARABOLOID)
+	{
+		if (obj->u_obj.hp.bump)
+			bump_free(obj->u_obj.hp.bump);
+		if (obj->u_obj.hp.material)
+			free(obj->u_obj.hp.material);
+	}
+	free(obj);
+}
+
+static t_parse_result	spec_error(int line, const char *tag, const char *msg)
+{
+	char	*prefix;
+	char	*full;
+	t_parse_result	res;
+
+	if (!tag || !*tag)
+		return (parse_error(line, msg));
+	prefix = ft_strjoin(tag, ": ");
+	if (!prefix)
+		return (parse_error(line, msg));
+	full = ft_strjoin(prefix, msg);
+	free(prefix);
+	if (!full)
+		return (parse_error(line, msg));
+	res = parse_error(line, full);
+	free(full);
+	return (res);
+}
+
 // - idx: posición donde podría aparecer "cb"
 // - Devuelve 1 si es válido (presente o ausente), 0 si formato inválido
-// - Si está presente, exige que no haya tokens extra (fin de línea) y marca has_checker=1
+// - Si está presente valida "cb <scale>" y deja que el llamador avance el índice
 static int	parse_opt_checker(char **tokens, int idx, int *has_checker, float *out_scale)
 {
 	*has_checker = 0;
@@ -27,7 +96,7 @@ static int	parse_opt_checker(char **tokens, int idx, int *has_checker, float *ou
 		return (1);
 	if (ft_strncmp(tokens[idx], "cb", 3) != 0)
 		return (0);
-	if (!tokens[idx + 1] || tokens[idx + 2]) // solo "cb <scale>" y fin
+	if (!tokens[idx + 1])
 		return (0);
 	if (!parse_float(tokens[idx + 1], out_scale) || *out_scale <= 0.0f)
 		return (0);
@@ -44,7 +113,7 @@ static int parse_opt_bump(char **tokens, int idx, int *has_bump,
 		return (1);
 	if (ft_strncmp(tokens[idx], "bm", 3) != 0)
 		return (1);
-	if (!tokens[idx + 1] || !tokens[idx + 2] || tokens[idx + 3])
+	if (!tokens[idx + 1] || !tokens[idx + 2])
 		return (0);
 	if (!parse_float(tokens[idx + 2], out_strength) || *out_strength < 0.0f)
 		return (0);
@@ -55,10 +124,44 @@ static int parse_opt_bump(char **tokens, int idx, int *has_bump,
 	return (1);
 }
 
+static t_parse_result	parse_specular_info(char **tokens, int line,
+		const char *tag, t_material **out_mat)
+{
+	t_material	*mat;
+	float		ks;
+	float		shininess;
+
+	*out_mat = NULL;
+	if (!tokens || !tokens[0])
+		return (parse_ok());
+	if (ft_strncmp(tokens[0], "ks", 3) != 0)
+		return (spec_error(line, tag,
+			"material prefix expected 'ks <ratio> <shininess>'"));
+	if (!tokens[1] || !tokens[2])
+		return (spec_error(line, tag,
+			"material expects 'ks <ratio> <shininess>'"));
+	if (!parse_float(tokens[1], &ks) || ks < 0.0f || ks > 1.0f)
+		return (spec_error(line, tag, "invalid ks (use 0 <= ks <= 1)"));
+	if (!parse_float(tokens[2], &shininess) || shininess <= 0.0f)
+		return (spec_error(line, tag, "invalid shininess (> 0 required)"));
+	if (tokens[3])
+		return (spec_error(line, tag, "unexpected tokens after shininess"));
+	mat = (t_material *)malloc(sizeof(*mat));
+	if (!mat)
+		return (spec_error(line, tag, "not enough memory for material"));
+	mat->albedo = v3(0.0f, 0.0f, 0.0f);
+	mat->ks = ks;
+	mat->shininess = shininess;
+	*out_mat = mat;
+	return (parse_ok());
+}
+
+
 t_parse_result	parse_sp(char **tokens, int line, t_scene *scene)
 {
 	t_object	*obj;
-	int			done;
+	int		opt_idx;
+	t_parse_result	mat_res;
 
 	if (!tokens[1] || !tokens[2] || !tokens[3])
 		return (parse_error(line, "sp: invalid format"));
@@ -77,14 +180,31 @@ t_parse_result	parse_sp(char **tokens, int line, t_scene *scene)
 	obj->u_obj.sp.has_bump = 0;
 	obj->u_obj.sp.bump_strength = 0.0f;
 	obj->u_obj.sp.bump = NULL;
-	if (tokens[4] && ft_strncmp(tokens[4], "bm", 3) == 0)
-		done = parse_opt_bump(tokens, 4, &obj->u_obj.sp.has_bump,
-				&obj->u_obj.sp.bump_strength, &obj->u_obj.sp.bump);
-	else
-		done = parse_opt_checker(tokens, 4, &obj->u_obj.sp.has_checker,
-				&obj->u_obj.sp.checker_scale);
-	if (!done)
-		return (obj_error(obj, line, "sp: invalid checker (cb <scale>)"));
+	obj->u_obj.sp.material = NULL;
+	opt_idx = 4;
+	if (tokens[opt_idx] && ft_strncmp(tokens[opt_idx], "bm", 3) == 0)
+	{
+		if (!parse_opt_bump(tokens, opt_idx, &obj->u_obj.sp.has_bump,
+				&obj->u_obj.sp.bump_strength, &obj->u_obj.sp.bump))
+			return (obj_error(obj, line,
+				"sp: invalid bump (bm <png> <strength>)"));
+		opt_idx += 3;
+	}
+	else if (tokens[opt_idx] && ft_strncmp(tokens[opt_idx], "cb", 3) == 0)
+	{
+		if (!parse_opt_checker(tokens, opt_idx, &obj->u_obj.sp.has_checker,
+				&obj->u_obj.sp.checker_scale))
+			return (obj_error(obj, line,
+				"sp: invalid checker (cb <scale>)"));
+		opt_idx += 2;
+	}
+	mat_res = parse_specular_info(tokens + opt_idx, line, "sp",
+			&obj->u_obj.sp.material);
+	if (!mat_res.ok)
+	{
+		free_sp_pl_cy_with_addons(obj);
+		return (mat_res);
+	}
 	aux_sphere(&obj->u_obj.sp);
 	obj->next = NULL;
 	scene_add_object(scene, obj);
@@ -133,12 +253,15 @@ static void	plane_build_basis(t_plane *pl)
 	pl->has_bump = 0;
 	pl->bump_strength = 0.0f;
 	pl->bump = NULL;
+	pl->material = NULL;
 }
 
 t_parse_result	parse_pl(char **tok, int line, t_scene *scene)
 {
 	t_object		*obj;
 	t_parse_result	result;
+	int				opt_idx;
+	t_parse_result	mat_res;
 
 	result = pl_create_object(tok, line, &obj);
 	if (!result.ok)
@@ -147,15 +270,27 @@ t_parse_result	parse_pl(char **tok, int line, t_scene *scene)
 	if (!result.ok)
 		return (result);
 	plane_build_basis(&obj->u_obj.pl);
-	if (tok[4] && ft_strncmp(tok[4], "bm", 3) == 0)
+	opt_idx = 4;
+	if (tok[opt_idx] && ft_strncmp(tok[opt_idx], "bm", 3) == 0)
 	{
-		if (!parse_opt_bump(tok, 4, &obj->u_obj.pl.has_bump,
+		if (!parse_opt_bump(tok, opt_idx, &obj->u_obj.pl.has_bump,
 				&obj->u_obj.pl.bump_strength, &obj->u_obj.pl.bump))
-			return (obj_error(obj, line, "pl: invalid bump (bm <png> <strength>)"));
+			return (obj_error(obj, line,
+				"pl: invalid bump (bm <png> <strength>)"));
+		opt_idx += 3;
 	}
-	else if (!parse_opt_checker(tok, 4, &obj->u_obj.pl.has_checker,
-			&obj->u_obj.pl.checker_scale))
-		return (obj_error(obj, line, "pl: invalid checker (cb <scale>)"));
+	else if (tok[opt_idx] && ft_strncmp(tok[opt_idx], "cb", 3) == 0)
+	{
+		if (!parse_opt_checker(tok, opt_idx, &obj->u_obj.pl.has_checker,
+				&obj->u_obj.pl.checker_scale))
+			return (obj_error(obj, line,
+				"pl: invalid checker (cb <scale>)"));
+		opt_idx += 2;
+	}
+	mat_res = parse_specular_info(tok + opt_idx, line, "pl",
+			&obj->u_obj.pl.material);
+	if (!mat_res.ok)
+		return (free_sp_pl_cy_with_addons(obj), mat_res);
 	aux_plane(&obj->u_obj.pl);
 	scene_add_object(scene, obj);
 	return (parse_ok());
@@ -169,6 +304,8 @@ t_parse_result	parse_pl(char **tok, int line, t_scene *scene)
 t_parse_result	parse_cy(char **tkns, int line, t_scene *scene)
 {
 	t_object	*obj;
+	int		opt_idx;
+	t_parse_result	mat_res;
 
 	if (!tkns[1] || !tkns[2] || !tkns[3] || !tkns[4] || !tkns[5])
 		return (parse_error(line, "cy: invalid format"));
@@ -196,19 +333,26 @@ t_parse_result	parse_cy(char **tkns, int line, t_scene *scene)
 	obj->u_obj.cy.has_bump = 0;
 	obj->u_obj.cy.bump_strength = 0.0f;
 	obj->u_obj.cy.bump = NULL;
-	if (tkns[6] && ft_strncmp(tkns[6], "bm", 3) == 0)
+	obj->u_obj.cy.material = NULL;
+	opt_idx = 6;
+	if (tkns[opt_idx] && ft_strncmp(tkns[opt_idx], "bm", 3) == 0)
 	{
-		if (!parse_opt_bump(tkns, 6, &obj->u_obj.cy.has_bump,
+		if (!parse_opt_bump(tkns, opt_idx, &obj->u_obj.cy.has_bump,
 				&obj->u_obj.cy.bump_strength, &obj->u_obj.cy.bump))
 			return (obj_error(obj, line, "cy: invalid bump (bm <png> <strength>)"));
+		opt_idx += 3;
 	}
-	else if (tkns[6])
+	else if (tkns[opt_idx] && ft_strncmp(tkns[opt_idx], "cb", 3) == 0)
 	{
-		int ok = parse_opt_checker(tkns, 6, &obj->u_obj.cy.has_checker,
-				&obj->u_obj.cy.checker_scale);
-		if (!ok)
+		if (!parse_opt_checker(tkns, opt_idx, &obj->u_obj.cy.has_checker,
+				&obj->u_obj.cy.checker_scale))
 			return (obj_error(obj, line, "cy: invalid checker (cb <scale>)"));
+		opt_idx += 2;
 	}
+	mat_res = parse_specular_info(tkns + opt_idx, line, "cy",
+			&obj->u_obj.cy.material);
+	if (!mat_res.ok)
+		return (free_sp_pl_cy_with_addons(obj), mat_res);
 	aux_cylinder(&obj->u_obj.cy);
 	obj->next = NULL;
 	scene_add_object(scene, obj);
@@ -264,13 +408,15 @@ static void hp_build_basis(t_hparab *hp)
 	hp->has_bump = 0;
 	hp->bump_strength = 0.0f;
 	hp->bump = NULL;
+	hp->material = NULL;
 }
 
 t_parse_result	parse_hp(char **tok, int line, t_scene *scene)
 {
 	t_object		*obj;
 	t_parse_result	result;
-//	int				cbcons;
+	int				opt_idx;
+	t_parse_result	mat_res;
 
 	result = hp_create_object(tok, line, &obj);
 	if (!result.ok)
@@ -279,16 +425,26 @@ t_parse_result	parse_hp(char **tok, int line, t_scene *scene)
 	if (!result.ok)
 		return (result);
 	hp_build_basis(&obj->u_obj.hp);
-	if (tok[7] && ft_strncmp(tok[7], "bm", 3) == 0)
+	opt_idx = 7;
+	if (tok[opt_idx] && ft_strncmp(tok[opt_idx], "bm", 3) == 0)
 	{
-		if (!parse_opt_bump(tok, 7, &obj->u_obj.hp.has_bump,
+		if (!parse_opt_bump(tok, opt_idx, &obj->u_obj.hp.has_bump,
 				&obj->u_obj.hp.bump_strength, &obj->u_obj.hp.bump))
 			return (obj_error(obj, line,
 				"hp: invalid bump (bm <png> <strength>)"));
+		opt_idx += 3;
 	}
-	else if (!parse_opt_checker(tok, 7, &obj->u_obj.hp.has_checker,
-			&obj->u_obj.hp.checker_scale))
-		return (obj_error(obj, line, "hp: invalid checker (cb <scale>)"));
+	else if (tok[opt_idx] && ft_strncmp(tok[opt_idx], "cb", 3) == 0)
+	{
+		if (!parse_opt_checker(tok, opt_idx, &obj->u_obj.hp.has_checker,
+				&obj->u_obj.hp.checker_scale))
+			return (obj_error(obj, line, "hp: invalid checker (cb <scale>)"));
+		opt_idx += 2;
+	}
+	mat_res = parse_specular_info(tok + opt_idx, line, "hp",
+			&obj->u_obj.hp.material);
+	if (!mat_res.ok)
+		return (free_tr_hp_with_addons(obj), mat_res);
 	aux_hparab(&obj->u_obj.hp);
 	scene_add_object(scene, obj);
 	return (parse_ok());
@@ -298,7 +454,8 @@ t_parse_result	parse_hp(char **tok, int line, t_scene *scene)
 t_parse_result	parse_tr(char **tokens, int line, t_scene *scene)
 {
 	t_object	*obj;
-	int			cbcons;
+	int		opt_idx;
+	t_parse_result	mat_res;
 
 	if (!tokens[1] || !tokens[2] || !tokens[3] || !tokens[4])
 		return (parse_error(line, "tr: invalid format"));
@@ -319,19 +476,31 @@ t_parse_result	parse_tr(char **tokens, int line, t_scene *scene)
     obj->u_obj.tr.has_bump = 0;
     obj->u_obj.tr.bump_strength = 0.0f;
     obj->u_obj.tr.bump = NULL;
-    if (tokens[5] && ft_strncmp(tokens[5], "bm", 3) == 0)
-    {
-	if (!parse_opt_bump(tokens, 5, &obj->u_obj.tr.has_bump,
-		&obj->u_obj.tr.bump_strength, &obj->u_obj.tr.bump))
-	    return (obj_error(obj, line, "tr: invalid bump (bm <png> <strength>)"));
-    }
-    else
-    {
-	cbcons = parse_opt_checker(tokens, 5, &obj->u_obj.tr.has_checker,
-		&obj->u_obj.tr.checker_scale);
-	if (!cbcons)
-	    return (obj_error(obj, line, "tr: invalid checker (cb <scale>)"));
-    }
+	obj->u_obj.tr.material = NULL;
+	opt_idx = 5;
+	if (tokens[opt_idx] && ft_strncmp(tokens[opt_idx], "bm", 3) == 0)
+	{
+		if (!parse_opt_bump(tokens, opt_idx, &obj->u_obj.tr.has_bump,
+				&obj->u_obj.tr.bump_strength, &obj->u_obj.tr.bump))
+			return (obj_error(obj, line,
+				"tr: invalid bump (bm <png> <strength>)"));
+		opt_idx += 3;
+	}
+	else if (tokens[opt_idx] && ft_strncmp(tokens[opt_idx], "cb", 3) == 0)
+	{
+		if (!parse_opt_checker(tokens, opt_idx, &obj->u_obj.tr.has_checker,
+				&obj->u_obj.tr.checker_scale))
+			return (obj_error(obj, line,
+				"tr: invalid checker (cb <scale>)"));
+		opt_idx += 2;
+	}
+	mat_res = parse_specular_info(tokens + opt_idx, line, "tr",
+			&obj->u_obj.tr.material);
+	if (!mat_res.ok)
+	{
+		free_tr_hp_with_addons(obj);
+		return (mat_res);
+	}
 	aux_triangle(&obj->u_obj.tr);
 	obj->next = NULL;
 	scene_add_object(scene, obj);

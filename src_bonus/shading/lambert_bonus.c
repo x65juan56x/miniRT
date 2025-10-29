@@ -19,5 +19,6 @@ t_vec3	shade_lambert(const t_scene *scene, const t_hit *hit)
 		ndotl = 0.0f;
 	diff = v3_mul(v3_mul(scene->light.color, scene->light.bright), ndotl);
 	c = v3_add(ambient, v3_ctoc(hit->albedo, diff));
+	c = v3_add(c, hit->specular);
 	return (c);
 }

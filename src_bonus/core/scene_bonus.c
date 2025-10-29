@@ -35,16 +35,41 @@ void	scene_free(t_scene *s)
 	while (it)
 	{
 		n = it->next;
-		if (it->type == OBJ_SPHERE && it->u_obj.sp.bump)
-			bump_free(it->u_obj.sp.bump);
-		else if (it->type == OBJ_PLANE && it->u_obj.pl.bump)
-			bump_free(it->u_obj.pl.bump);
-		else if (it->type == OBJ_CYLINDER && it->u_obj.cy.bump)
-			bump_free(it->u_obj.cy.bump);
-		else if (it->type == OBJ_TRIANGLE && it->u_obj.tr.bump)
-			bump_free(it->u_obj.tr.bump);
-		else if (it->type == OBJ_HPARABOLOID && it->u_obj.hp.bump)
-			bump_free(it->u_obj.hp.bump);
+		if (it->type == OBJ_SPHERE)
+		{
+			if (it->u_obj.sp.bump)
+				bump_free(it->u_obj.sp.bump);
+			if (it->u_obj.sp.material)
+				free(it->u_obj.sp.material);
+		}
+		else if (it->type == OBJ_PLANE)
+		{
+			if (it->u_obj.pl.bump)
+				bump_free(it->u_obj.pl.bump);
+			if (it->u_obj.pl.material)
+				free(it->u_obj.pl.material);
+		}
+		else if (it->type == OBJ_CYLINDER)
+		{
+			if (it->u_obj.cy.bump)
+				bump_free(it->u_obj.cy.bump);
+			if (it->u_obj.cy.material)
+				free(it->u_obj.cy.material);
+		}
+		else if (it->type == OBJ_TRIANGLE)
+		{
+			if (it->u_obj.tr.bump)
+				bump_free(it->u_obj.tr.bump);
+			if (it->u_obj.tr.material)
+				free(it->u_obj.tr.material);
+		}
+		else if (it->type == OBJ_HPARABOLOID)
+		{
+			if (it->u_obj.hp.bump)
+				bump_free(it->u_obj.hp.bump);
+			if (it->u_obj.hp.material)
+				free(it->u_obj.hp.material);
+		}
 		free(it);
 		it = n;
 	}
