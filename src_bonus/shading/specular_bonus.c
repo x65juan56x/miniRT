@@ -22,7 +22,7 @@ specular_blinn_phong(const t_scene *scene, const t_hit *hit,
 		return (zero);
 	if (material->ks <= 0.0f || material->shininess <= 0.0f)
 		return (zero);
-	light_dir = v3_sub(scene->light.pos, hit->p);
+	light_dir = v3_sub(scene->light->pos, hit->p);
 	view_dir = v3_sub(scene->camera.pos, hit->p);
 	if (v3_len2(light_dir) < 1e-10f || v3_len2(view_dir) < 1e-10f)
 		return (zero);
@@ -40,6 +40,6 @@ specular_blinn_phong(const t_scene *scene, const t_hit *hit,
 	spec_intensity = powf(spec_angle, material->shininess);
 	if (spec_intensity <= 0.0f)
 		return (zero);
-	light_intensity = v3_mul(scene->light.color, scene->light.bright);
+	light_intensity = v3_mul(scene->light->color, scene->light->bright);
 	return (v3_mul(v3_mul(light_intensity, spec_intensity), material->ks));
 }

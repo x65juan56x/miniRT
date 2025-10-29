@@ -1,4 +1,17 @@
-A 0.1 255,255,255
+# Luz ambiental
+A 0.2 255,255,255
+
+# Cámara: posición, dirección, FOV
 C 0,0,0 0,0,-1 90
-L 5,5,5 0.7 255,255,255
-sp 0,0,-3 1.0 255,0,0
+
+# Luz verde a la izquierda
+L -10,0,10 0.7 255,0,0
+
+# Luz amarilla a la derecha
+L 10,0,10 0.7 0,0,255
+
+# Esfera roja en el centro
+sp 0,0,-5 1.0 255,255,255 ks 1.0 500.0
+
+# Plano de fondo gris
+pl 0,0,-10 0,0,1 200,200,200

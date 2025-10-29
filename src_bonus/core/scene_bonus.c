@@ -13,10 +13,7 @@ void	scene_init(t_scene *s)
 	s->camera.fov_deg = 70.0f;
 	s->camera.focal = 1.0f;
 	s->camera.present = false;
-	s->light.pos = v3(0, 0, 0);
-	s->light.bright = 0.0f;
-	s->light.color = v3(1, 1, 1);
-	s->light.present = false;
+	s->light = NULL;
 	s->objects = NULL;
 }
 /*

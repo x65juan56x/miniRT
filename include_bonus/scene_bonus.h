@@ -55,6 +55,7 @@ typedef struct s_light
 	float	bright; // [0,1]
 	t_vec3	color; // [0,1]
 	bool	present;
+	struct s_light *next;
 }	t_light;
 
 /* Object kinds supported in the mandatory part. */
@@ -181,7 +182,7 @@ typedef struct s_scene
 {
 	t_ambient	ambient;
 	t_camera	camera;
-	t_light		light;
+	t_light		*light;
 	t_object	*objects;
 }	t_scene;
 
