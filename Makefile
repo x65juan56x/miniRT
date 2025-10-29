@@ -43,6 +43,7 @@ CORE_M_SRCS = \
 	$(SRC_DIR_M)/core/scene.c \
 	$(SRC_DIR_M)/camera/camera.c \
 	$(SRC_DIR_M)/app/input.c \
+	$(SRC_DIR_M)/app/render_frame.c \
 	$(SRC_DIR_M)/render/framebuffer.c \
 	$(SRC_DIR_M)/render/render.c
 
@@ -75,6 +76,7 @@ CORE_B_SRCS = \
 	$(SRC_DIR_B)/core/scene_bonus.c \
 	$(SRC_DIR_B)/core/intersect_bonus.c \
 	$(SRC_DIR_B)/app/input_bonus.c \
+	$(SRC_DIR_B)/app/render_frame_bonus.c \
 	$(SRC_DIR_B)/camera/camera_bonus.c \
 	$(SRC_DIR_B)/render/framebuffer_bonus.c \
 	$(SRC_DIR_B)/render/render_bonus.c \

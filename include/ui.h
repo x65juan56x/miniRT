@@ -22,10 +22,14 @@ typedef struct s_toggle_info
 	int			w;
 	int			h;
 	int			visible;
+	mlx_image_t	**labels;
+	size_t		label_count;
 }t_toggle_info;
 
 void	ti_init(t_toggle_info *ti, mlx_t *mlx, mlx_image_t *base_img);
 void	ti_hide(t_toggle_info *ti);
 void	ti_show_axes(t_toggle_info *ti, const t_cam_frame *fr);
+struct s_app;
+void	ti_update_info(struct s_app *app);
 
 #endif

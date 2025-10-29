@@ -6,12 +6,6 @@
 #include "../include/shading.h"
 #include "../include/app.h"
 
-static void render_and_present(t_app *app)
-{
-	render_scene(app);
-	upload_framebuffer(app->image, app->framebuffer);
-}
-
 static int init_window(t_app *app)
 {
 	app->mlx = mlx_init(WIN_W, WIN_H, "miniRT", false);
@@ -96,7 +90,7 @@ int	main(int ac, char **av)
 	}
 	ti_init(&app.overlay, app.mlx, app.image);
 	app.show_normals = 0;
-	render_and_present(&app);
+	app_render_frame(&app);
 	mlx_key_hook(app.mlx, &app_on_key, &app);
 	mlx_loop(app.mlx);
 	cleanup(&app);

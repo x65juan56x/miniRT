@@ -14,24 +14,18 @@ void	app_on_key(mlx_key_data_t keydata, void *param)
 	if (keydata.key == MLX_KEY_N && keydata.action == MLX_PRESS)
 	{
 		app->show_normals = !app->show_normals;
-		render_scene(app);
-		upload_framebuffer(app->image, app->framebuffer);
-		if (app->overlay.visible)
-		{
-			camera_build_frame(&app->scene.camera, app->image->width,
-				app->image->height, &fr);
-			ti_show_axes(&app->overlay, &fr);
-		}
+		app_render_frame(app);
 	}
 	if (keydata.key == MLX_KEY_I && keydata.action == MLX_PRESS)
 	{
 		if (app->overlay.visible)
 			ti_hide(&app->overlay);
 		else
-		{	
+		{
 			camera_build_frame(&app->scene.camera, app->image->width,
 				app->image->height, &fr);
 			ti_show_axes(&app->overlay, &fr);
+			ti_update_info(app);
 		}
 	}
 }
