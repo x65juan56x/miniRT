@@ -1,10 +1,12 @@
 A 0.12 255,240,225
-L 4,5,4 0.8 255,255,255
+L 7,5,4 0.8 255,255,170
+L 0,2,2 0.7 170,255,255
 C 0,2,3 0,0,-1 90
+R 4
 
-sp -1.5,2,0 2 255,255,255 bm examples/bump_maps/12135954763939.png 0.001 ks 0.620 700
-sp 1.5,2,0 2 200,200,200 bm examples/bump_maps/12135954763939.png 0.001
+sp -1.5,2,0 2 255,255,255 bm examples/bump_maps/12135954763939.png 0.001 ks 0.620 700 kr 0.9
+sp 1.5,2,0 2 200,200,200 bm examples/bump_maps/12135954763939.png 0.001 ks 0.8 500 phong kr 0.5
 
 pl 0,0,0 0,1,0 240,240,240 bm examples/bump_maps/earthNormalMap_8k-tig.png 0.0001
 
-hp 0,1,0 0,1,0 0.5 0.75 0.3 17,221,240 bm examples/bump_maps/eye2.png 0.001
+hp 0,1,0 0,1,0 0.5 0.75 0.3 17,221,240 bm examples/bump_maps/eye2.png 0.001 ks 0.8 500 phong

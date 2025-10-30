@@ -22,6 +22,8 @@ typedef struct s_hit
 	t_vec3	albedo; // Color del objeto intersectado
 	float	ks;
 	float	shininess;
+	t_spec_model	spec_model;
+	float	reflectivity;
 	t_vec3	specular;
 }	t_hit;
 

@@ -1,5 +1,13 @@
 #include "../../include_bonus/minirt_bonus.h"
 
+static t_vec3	compute_specular(const t_scene *scene, const t_light *light,
+	const t_hit *hit, t_vec3 light_dir)
+{
+	if (hit->spec_model == SPEC_MODEL_PHONG)
+		return (specular_phong(scene, light, hit, light_dir));
+	return (specular_blinn_phong(scene, light, hit, light_dir));
+}
+
 t_vec3	shade_lambert(const t_scene *scene, const t_hit *hit)
 {
 	t_vec3	ambient_term;
@@ -49,7 +57,7 @@ t_vec3	shade_lambert(const t_scene *scene, const t_hit *hit)
 			v3_mul(v3_mul(light->color, light->bright), ndotl));
 		if (hit->ks > 0.0f && hit->shininess > 0.0f)
 			specular_total = v3_add(specular_total,
-				specular_blinn_phong(scene, light, hit, light_dir));
+				compute_specular(scene, light, hit, light_dir));
 		light = light->next;
 	}
 	return (v3_add(v3_add(ambient_term, v3_ctoc(hit->albedo, diffuse_total)),

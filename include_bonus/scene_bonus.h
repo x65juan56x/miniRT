@@ -184,6 +184,8 @@ typedef struct s_scene
 	t_camera	camera;
 	t_light		*light;
 	t_object	*objects;
+	int		reflection_depth;
+	bool		reflection_limit_set;
 }	t_scene;
 
 /* Initialize a scene with defaults and no objects. */

@@ -9,6 +9,8 @@ t_parse_result	dispatch_tokens(char **tokens, int line, t_scene *scene)
 		return (parse_c(tokens, line, scene));
 	if (ft_strncmp(tokens[0], "L", 2) == 0)
 		return (parse_l(tokens, line, scene));
+	if (ft_strncmp(tokens[0], "R", 2) == 0)
+		return (parse_r(tokens, line, scene));
 	if (ft_strncmp(tokens[0], "sp", 3) == 0)
 		return (parse_sp(tokens, line, scene));
 	if (ft_strncmp(tokens[0], "pl", 3) == 0)

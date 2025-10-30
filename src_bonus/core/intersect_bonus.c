@@ -9,6 +9,8 @@ static void	set_common_hit(t_hit *dst, t_common_hit *c_hit)
 	dst->albedo = c_hit->albedo;
 	dst->ks = 0.0f;
 	dst->shininess = 0.0f;
+	dst->spec_model = SPEC_MODEL_BLINN;
+	dst->reflectivity = 0.0f;
 	dst->specular = v3(0.0f, 0.0f, 0.0f);
 }
 
@@ -23,14 +25,19 @@ static void	apply_specular(t_hit *out, const t_material *material)
 	out->specular = v3(0.0f, 0.0f, 0.0f);
 	out->ks = 0.0f;
 	out->shininess = 0.0f;
+	out->spec_model = SPEC_MODEL_BLINN;
+	out->reflectivity = 0.0f;
 	if (!material)
 		return ;
 	out->ks = material->ks;
 	out->shininess = material->shininess;
+	out->spec_model = material->model;
+	out->reflectivity = material->reflectivity;
 	if (material->ks <= 0.0f || material->shininess <= 0.0f)
 	{
 		out->ks = 0.0f;
 		out->shininess = 0.0f;
+		out->spec_model = SPEC_MODEL_BLINN;
 	}
 }
 

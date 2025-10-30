@@ -114,6 +114,21 @@ t_parse_result	parse_l(char **tokens, int line, t_scene *scene)
 	return (parse_ok());
 }
 
+t_parse_result	parse_r(char **tokens, int line, t_scene *scene)
+{
+	int	depth;
+
+	if (!tokens[1] || tokens[2])
+		return (parse_error(line, "R: invalid format"));
+	if (scene->reflection_limit_set)
+		return (parse_error(line, "Duplicated R"));
+	if (!parse_int_in_range(tokens[1], 0, 10, &depth))
+		return (parse_error(line, "R: depth must be an integer in [0,10]"));
+	scene->reflection_depth = depth;
+	scene->reflection_limit_set = true;
+	return (parse_ok());
+}
+
 /* t_parse_result	parse_l(char **tokens, int line, t_scene *scene)
 {
 	if (!tokens[1] || !tokens[2])

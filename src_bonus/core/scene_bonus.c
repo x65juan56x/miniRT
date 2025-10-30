@@ -15,6 +15,8 @@ void	scene_init(t_scene *s)
 	s->camera.present = false;
 	s->light = NULL;
 	s->objects = NULL;
+	s->reflection_depth = 2;
+	s->reflection_limit_set = false;
 }
 /*
 * Purpose: Initialize the scene with defaults and presence flags set to false.
@@ -71,14 +73,16 @@ void	scene_free(t_scene *s)
 		it = n;
 	}
 	s->objects = NULL;
-		while (s->light)
-		{
-			t_light	*next_light;
+	while (s->light)
+	{
+		t_light	*next_light;
 
-			next_light = s->light->next;
-			free(s->light);
-			s->light = next_light;
-		}
+		next_light = s->light->next;
+		free(s->light);
+		s->light = next_light;
+	}
+	s->reflection_depth = 2;
+	s->reflection_limit_set = false;
 }
 /*
 * Purpose: Free all scene objects and leave the scene in a clean state.
