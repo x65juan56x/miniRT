@@ -64,7 +64,7 @@ static char	**list_to_array(t_list *lst, size_t count)
 	char	**lines;
 	size_t	index;
 
-	lines = (char **)malloc(sizeof(char *) * count);
+	lines = (char **)malloc(sizeof(char *) * (count + 1));
 	if (!lines)
 		return (NULL);
 	index = 0;
