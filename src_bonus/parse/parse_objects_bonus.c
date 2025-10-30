@@ -314,6 +314,7 @@ t_parse_result	parse_pl(char **tok, int line, t_scene *scene)
 	int				opt_idx;
 	t_parse_result	mat_res;
 
+	obj = NULL;
 	result = pl_create_object(tok, line, &obj);
 	if (!result.ok)
 		return (result);
@@ -469,6 +470,7 @@ t_parse_result	parse_hp(char **tok, int line, t_scene *scene)
 	int				opt_idx;
 	t_parse_result	mat_res;
 
+	obj = NULL;
 	result = hp_create_object(tok, line, &obj);
 	if (!result.ok)
 		return (result);
