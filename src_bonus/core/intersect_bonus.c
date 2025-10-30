@@ -280,7 +280,7 @@ static void	cy_hit_wall(const t_cyl *cy, t_common_hit *c_hit, t_hit *out)
 	int iu;
 	int iv;
 	t_vec3 comp;
-			// Side
+
 	c_hit->n = v3_norm(normal_cyl(cy, c_hit->p));
 	rel = v3_sub(c_hit->p, cy->center);
 	h = v3_dot(rel, cy->axis);

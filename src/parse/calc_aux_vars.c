@@ -9,11 +9,13 @@ void	aux_sphere(t_sphere *sp)
 
 void	aux_plane(t_plane *pl)
 {
+	pl->normal = v3_norm(pl->normal);
 	pl->vars.d = v3_dot(pl->normal, pl->point);
 }
 
 void	aux_cylinder(t_cyl *cy)
 {
+	cy->axis = v3_norm(cy->axis);
 	cy->vars.radius = cy->di * 0.5f;
 	cy->vars.radius2 = cy->vars.radius * cy->vars.radius;
 	cy->vars.half_height = cy->he * 0.5f;

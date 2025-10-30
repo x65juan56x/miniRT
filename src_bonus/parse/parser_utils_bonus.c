@@ -84,6 +84,7 @@ static char	**list_to_array(t_list *lst, size_t count)
 		lst = lst->next;
 		index++;
 	}
+	lines[count] = NULL;
 	return (lines);
 }
 /*

@@ -3,20 +3,18 @@
 
 void	upload_framebuffer(mlx_image_t *image, const uint32_t *fb)
 {
-	int y;
-	int x;
+	uint32_t	*dst;
+	size_t		count;
+	size_t		i;
 
-	if (!image || !fb)
+	if (!image || !fb || !image->pixels)
 		return;
-	y = 0;
-	while ((uint32_t)y < image->height)
+	dst = (uint32_t *)image->pixels;
+	count = (size_t)image->width * (size_t)image->height;
+	i = 0;
+	while (i < count)
 	{
-		x = 0;
-		while ((uint32_t)x < image->width)
-		{
-			mlx_put_pixel(image, x, y, fb[(size_t)y * image->width + (size_t)x]);
-			x++;
-		}
-		y++;
+		dst[i] = ft_swap_u32(fb[i]);
+		i++;
 	}
 }

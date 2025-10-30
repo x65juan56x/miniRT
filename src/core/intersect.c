@@ -94,7 +94,7 @@ static int	object_hit(t_object *obj, t_ray r, t_hit *out)
 		t = hit_plane(&obj->u_obj.pl, r);
 	else if (obj->type == OBJ_CYLINDER)
 	{
-		obj->u_obj.cy.vars.hit_part = -1.0f;
+		obj->u_obj.cy.vars.hit_part = -1;
 		t = hit_cylinder(&obj->u_obj.cy, r);
 	}
 	if (t <= 0.0f)
