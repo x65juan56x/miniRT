@@ -1,0 +1,17 @@
+#Place two spheres in the 3D scene:
+#Coordinates of the first sphere: {0, 0, 0}.
+#Coordinates of the second sphere: {0, 0, 0} (same starting position as the first sphere).
+#Position the camera so it is facing both spheres.
+#Apply a translation to one of the spheres:
+#Move it parallel to the camera’s viewing direction.
+#The translation distance should be greater than the sphere’s diameter.
+
+A 0.2 255,255,255
+
+# Cámara: posición, dirección, FOV
+C 0,0,7 0,0,-1 90
+
+L -10,0,10 0.7 255,255,255
+
+sp 0,0,0 2.0 255,255,255
+sp -2,0,0 2.0 200,200,255

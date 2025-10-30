@@ -1,0 +1,13 @@
+#The sphere is in the translated position (2.0, 0.0, 5.0).
+#The highlight (specular spot) and shadows are computed based on this translated position, not the original one.
+#There are no missing pixels or visual artifacts along the edges (no glitches).
+#The side of the sphere closest to the light source is illuminated, while the opposite side remains in shadow.
+
+A 0.2 255,255,255
+
+# Cámara: posición, dirección, FOV
+C 0,0,5 0,0,-1 90
+
+L -10,0,10 0.7 255,255,255
+
+sp 0,0,0 2.0 255,255,255

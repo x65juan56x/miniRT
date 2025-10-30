@@ -1,0 +1,27 @@
+A 0.3 255,255,255
+
+# Cámara: posición, dirección, FOV
+#vista general
+C 0,1,-7 0,0,1 90
+#x
+#C 0,0,0 1,0,0 90
+#y
+#C 0,0,0 0,1,0 90
+#z
+#C 0,0,0 0,0,1 90
+
+L -0,0,0 0.4 255,255,255
+
+# Cámara en origen y 3 esferas alrededor sobre un plano y=-1
+
+# Plano suelo en y = -1
+pl 0,-1,0 0,1,0 180,180,180
+
+# Esferas (centro, diámetro, color)
+# Grande (descansando en el plano: y = -1 + radio = -1 + 1.5 = 0.5)
+sp 0.0,0.5,7.5 3.0 80,80,200
+# Mediana (y = -1 + 1.2/2 = 0.2)
+sp 4.5,0.2,1.5 2.4 200,80,80
+sp 1,4,0 2.4 200,200,200
+# Pequeña (y = -1 + 1.2/2 = -0.4 + 0.6 = -0.4)
+sp -2.5,-0.4,3.0 1.2 80,200,180
