@@ -4,52 +4,41 @@
 #include "../../include_bonus/bump_bonus.h"
 #include "../../include/vec3.h"
 
-static float luminance_u8(uint8_t r, uint8_t g, uint8_t b)
+// Simple average to keep it cheap
+static float	luminance_u8(uint8_t r, uint8_t g, uint8_t b)
 {
-	// Simple average to keep it cheap
 	return (float)(r + g + b) / (255.0f * 3.0f);
 }
 
-t_bumpmap *bump_load_png(const char *path)
+t_bumpmap	*bump_load_png(const char *path)
 {
-	mlx_texture_t   *tex;
-	t_bumpmap       *bm;
-	size_t          i;
-	const uint8_t   *px;
+	mlx_texture_t	*tex;
+	t_bumpmap		*bm;
+	size_t			i;
 
 	tex = mlx_load_png(path);
 	if (!tex)
 		return (NULL);
 	bm = (t_bumpmap *)malloc(sizeof(t_bumpmap));
 	if (!bm)
-	{
-		mlx_delete_texture(tex);
-		return (NULL);
-	}
+		return (mlx_delete_texture(tex), NULL);
 	bm->w = (int)tex->width;
 	bm->h = (int)tex->height;
 	bm->hmap = (float *)malloc(sizeof(float) * (size_t)bm->w * (size_t)bm->h);
 	if (!bm->hmap)
+		return (mlx_delete_texture(tex), free(bm), NULL);
+	i = -1;
+	while (++i < (size_t)bm->w * (size_t)bm->h)
 	{
-		mlx_delete_texture(tex);
-		free(bm);
-		return (NULL);
-	}
-	px = tex->pixels;
-	i = 0;
-	while (i < (size_t)bm->w * (size_t)bm->h)
-	{
-		uint8_t r = px[i * 4 + 0];
-		uint8_t g = px[i * 4 + 1];
-		uint8_t b = px[i * 4 + 2];
+		uint8_t r = tex->pixels[i * 4 + 0];
+		uint8_t g = tex->pixels[i * 4 + 1];
+		uint8_t b = tex->pixels[i * 4 + 2];
 		bm->hmap[i] = luminance_u8(r, g, b);
-		i++;
 	}
-	mlx_delete_texture(tex);
-	return (bm);
+	return (mlx_delete_texture(tex), bm);
 }
 
-void    bump_free(t_bumpmap *bm)
+void	bump_free(t_bumpmap *bm)
 {
 	if (!bm)
 		return ;
@@ -63,10 +52,10 @@ static float fractf(float x)
 	return x - floorf(x);
 }
 
-float   bump_sample(const t_bumpmap *bm, float u, float v)
+float	bump_sample(const t_bumpmap *bm, float u, float v)
 {
-	int iu;
-	int iv;
+	int	iu;
+	int	iv;
 
 	if (!bm || !bm->hmap || bm->w <= 0 || bm->h <= 0)
 		return 0.5f;
@@ -88,7 +77,7 @@ float   bump_sample(const t_bumpmap *bm, float u, float v)
 	return (bm->hmap[(size_t)iv * (size_t)bm->w + (size_t)iu]);
 }
 
-void    bump_perturb(t_bumpmap *bm, t_aux_bump *bm_aux,
+void	bump_perturb(t_bumpmap *bm, t_aux_bump *bm_aux,
 					t_vec3 *n)
 {
 	float	h_c;
