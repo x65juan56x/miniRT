@@ -20,3 +20,9 @@ Usar `1.0f` asegura que todas las operaciones se hagan en simple precisión, que
 **Resumen:**  
 Siempre que trabajes con variables `float`, usa literales con sufijo `f` (como `1.0f`) para evitar conversiones y dejar claro el tipo de dato.
 
+---
+---
+
+alias valdy="valgrind --leak-check=full --show-leak-kinds=all -s --track-origins=yes" #--suppressions=mlx.supp"
+
+valdy ./miniRT_bonus examples/scenes/PRUEBAS.rt &> valgrind.log
