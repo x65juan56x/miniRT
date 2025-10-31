@@ -1,0 +1,35 @@
+# Sistema Solar (colores aproximados) con reflejos
+
+A 0.1 255,255,255
+C 8,0,8 0,0,-1 80
+L -10,5,0 0.9 255,255,50
+L -15,0,-10 0.6 255,220,180
+L 15,7,0 0.9 255,240,200
+L -18,13,-20 0.9 255,240,200
+R 3
+
+# Fondo (espacio)
+pl 0,0,-80 0,0,1 5,5,15
+
+# Sol (enorme, mitad visible a la izquierda, muy brillante y reflectivo)
+sp -18.0,0.0,-20.0 24.0 255,190,50 ks 0.2 200
+
+# Planetas (a la derecha, más proporcionales)
+# Mercurio (gris oscuro, pequeño)
+sp 1.0,0,-18.0 0.3 169,169,169 ks 0.3 150 phong kr 0.05
+# Venus (crema/beige)
+sp 3.5,0,-19.0 0.6 238,232,170 ks 0.5 300 blinn kr 0.08
+# Tierra (azul océano con nubes)
+sp 6.0,0.0,-20.0 1 30,144,255 ks 0.7 600 blinn kr 0.25
+# Marte (rojo óxido)
+sp 9,0,-21.0 0.4 193,68,14 ks 0.4 250 phong kr 0.10
+# Júpiter (bandas naranjas/beige)
+sp 14.0,0,-24.0 5.0 201,157,102 ks 0.6 500 blinn kr 0.30
+# Saturno (amarillo crema con anillos)
+cy 21.0,0.0,-24.0 0.174,0.985,0 8.0 0.02 210,180,140
+sp 21.0,0.0,-24.0 3.2 238,232,170 bm examples/bump_maps/waves.png 0.001 ks 0.5 400 blinn kr 0.20
+# Urano (cian pálido)
+sp 28.0,0.2,-24.0 1 79,208,231 ks 0.6 500 blinn kr 0.35
+# Neptuno (azul intenso)
+sp 31.0,0.0,-24.0 0.7 70,130,180 ks 0.7 600 blinn kr 0.40
+

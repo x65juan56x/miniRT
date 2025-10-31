@@ -1,0 +1,13 @@
+#Place a sphere at the coordinates {0, 0, 0}. With the
+#camera facing the sphere, display the rendered image. The
+#sphere should be visible and displayed without glitching.
+
+A 0.1 255,255,255
+
+# Cámara: posición, dirección, FOV
+C 0,0,5 0,0,-1 90
+
+L -10,0,10 0.8 255,255,255
+L -5,0,10 0.3 60,100,180
+L 10,0,10 0.2 0,0,200
+sp 0,0,0 3.0 255,255,255 bm examples/bump_maps/12135954763939.png 0.01 ks 0.2 10 phong kr 0.8

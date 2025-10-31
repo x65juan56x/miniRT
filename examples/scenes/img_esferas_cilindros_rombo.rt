@@ -1,0 +1,54 @@
+# Nube de esferas con diferentes tamaños y reflectividades
+
+A 0.12 255,255,255
+C 0,1,5 0,0,-1 60
+#C 0,-2,1 0,0.242535,-0.970143 80
+#C 0,3,-5 0,-0.219512,-0.975610 60
+#C 0,-2,-3 0,0.300000,-0.953939 48
+L -5,7,5 0.7 255,255,255
+L 6,4,3 0.45 80,160,255
+L 0,8,-2 0.35 255,200,140
+R 3
+
+# Plano suelo
+pl 0.0,-2.0,0.0 0,1,0 90,90,90
+
+# Esferas (sp: centro | diametro | color | ks | shininess | modelo | kr)
+sp -3.5,1.2,-12.0 0.9 0,128,255 ks 0.6 300 blinn kr 0.20
+sp -2.0,0.6,-11.0 0.8 0,224,150 ks 0.8 600 phong kr 0.40
+sp -1.0,1.5,-13.0 1.6 180,220,255 ks 0.7 400 blinn kr 0.30
+# sp  0.0,0.8,-12.5 1.0 200,255,220 ks 0.9 800 phong kr 0.60      # eliminada para dejar espacio al cilindro vertical
+sp  1.2,1.8,-14.5 2.2 0,192,165 ks 1.0 1200 blinn kr 0.90
+# sp  2.8,1.1,-13.2 1.2 180,200,255 ks 0.5 200 phong kr 0.10       # eliminada para dejar espacio al cilindro inclinado
+#sp  3.6,0.4,-12.0 0.7 0,128,195 ks 0.7 500 blinn kr 0.50
+sp -0.8,0.2,-10.5 0.6 200,200,200 ks 0.4 100 phong kr 0.00
+sp  0.9,0.3,-10.8 0.8 180,255,200 ks 0.6 300 blinn kr 0.20
+# sp -2.8,0.3,-10.8 0.7 180,220,255 ks 0.6 300 blinn kr 0.40       # eliminada para dejar espacio si se rota la cámara
+sp -3.2,-0.2,-12.5 1.0 255,240,180 ks 0.7 400 phong kr 0.20
+sp  2.0,0.0,-11.8 1.0 0,64,180 ks 0.8 700 blinn kr 0.60
+sp  3.5,1.8,-15.8 2.0 200,210,255 ks 0.6 300 phong kr 0.30
+sp -1.8,1.9,-15.2 1.8 0,224,150 ks 0.7 500 blinn kr 0.50
+
+sp  0.0,2.4,-16.0 1.6 0,192,165 ks 0.9 900 phong kr 0.70
+sp  1.8,2.2,-16.5 1.4 0,110,24 ks 0.8 600 blinn kr 0.40
+sp -0.6,1.1,-11.5 1.0 64,0,150 ks 0.5 250 blinn kr 0.20
+sp  0.6,1.0,-13.8 1.2 0,160,180 ks 0.7 450 phong kr 0.50
+
+
+tr 3.0,2.1,-14.0 3.0,1.0,-13.1 3.9,1.0,-14.0 230,230,230 ks 1.0 1200 blinn kr 1.0
+tr 3.0,2.1,-14.0 3.9,1.0,-14.0 3.0,1.0,-14.9 230,230,230 ks 1.0 1200 blinn kr 1.0
+tr 3.0,2.1,-14.0 3.0,1.0,-14.9 2.1,1.0,-14.0 230,230,230 ks 1.0 1200 blinn kr 1.0
+tr 3.0,2.1,-14.0 2.1,1.0,-14.0 3.0,1.0,-13.1 230,230,230 ks 1.0 1200 blinn kr 1.0
+tr 3.0,-0.1,-14.0 3.9,1.0,-14.0 3.0,1.0,-13.1 230,230,230 ks 1.0 1200 blinn kr 1.0
+tr 3.0,-0.1,-14.0 3.0,1.0,-13.1 2.1,1.0,-14.0 230,230,230 ks 1.0 1200 blinn kr 1.0
+tr 3.0,-0.1,-14.0 2.1,1.0,-14.0 3.0,1.0,-14.9 230,230,230 ks 1.0 1200 blinn kr 1.0
+tr 3.0,-0.1,-14.0 3.0,1.0,-14.9 3.9,1.0,-14.0 230,230,230 ks 1.0 1200 blinn kr 1.0
+
+
+# Cilindros (cy: centro | eje(normalizado) | diametro | altura | color | ks | shininess | modelo | kr)
+# Vertical, esbelto
+cy -0.2,0.0,-12.2 0,1,0 0.7 2.4 200,200,255 ks 0.6 300 blinn kr 0.20
+# Inclinado (eje ~ (1,2,1) normalizado)
+cy 1.8,0.2,-13.8 0.408248,0.816497,0.408248 0.5 2.0 180,255,200 ks 0.7 600 phong kr 0.40
+# Más ancho que alto, horizontal (eje X)
+cy -1.5,0.5,-13.0 1,0,0 1.6 0.8 200,200,200 ks 0.4 100 phong kr 0.50
