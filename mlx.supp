@@ -1,0 +1,72 @@
+# Valgrind suppressions for MLX42/GLFW external allocations
+# Updated on 2025-10-31 to silence known noise from video drivers and GUI toolkits.
+
+{
+	MLX42_nvidia_realloc_size0
+	Memcheck:Param
+	realloc(size)
+	fun:realloc
+	obj:/usr/lib/x86_64-linux-gnu/libnvidia-glcore.so.*
+	obj:/usr/lib/x86_64-linux-gnu/libGLX_nvidia.so.*
+	...
+}
+
+{
+	MLX42_nvidia_posix_memalign_size0
+	Memcheck:Param
+	posix_memalign(size)
+	fun:posix_memalign
+	obj:/usr/lib/x86_64-linux-gnu/libnvidia-glcore.so.*
+	obj:/usr/lib/x86_64-linux-gnu/libGLX_nvidia.so.*
+	...
+}
+
+{
+	MLX42_glfw_x11_locale_reachable
+	Memcheck:Leak
+	match-leak-kinds: reachable
+	obj:/usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so
+	...
+	obj:/usr/lib/x86_64-linux-gnu/libX11.so.*
+	...
+	fun:glfwInit
+	fun:mlx_init
+	...
+}
+
+{
+	MLX42_glfw_loader_reachable
+	Memcheck:Leak
+	match-leak-kinds: reachable
+	obj:/usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so
+	...
+	obj:/usr/lib/x86_64-linux-gnu/libglfw.so.*
+	...
+	fun:mlx_init
+	...
+}
+
+{
+	MLX42_dbus_startup_reachable
+	Memcheck:Leak
+	match-leak-kinds: reachable
+	obj:/usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so
+	...
+	obj:/usr/lib/x86_64-linux-gnu/libdbus-1.so.*
+	...
+	fun:mlx_init
+	...
+}
+
+{
+	MLX42_loader_dlopen_reachable
+	Memcheck:Leak
+	match-leak-kinds: reachable
+	obj:/usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so
+	...
+	obj:/lib/x86_64-linux-gnu/ld-linux-x86-64.so.*
+	...
+	fun:glfwInit
+	fun:mlx_init
+	...
+}
