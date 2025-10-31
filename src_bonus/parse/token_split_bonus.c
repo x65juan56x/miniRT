@@ -43,7 +43,7 @@ char	**split_ws(const char *s)
 }
 /*
 * Purpose: Produce a NULL-terminated token array split on spaces.
-* Handling: Converts tabs to spaces first to align with subject formatting.
+* Handling: Converts tabs to spaces first.
 */
 
 void	free_tokens(char **toks)

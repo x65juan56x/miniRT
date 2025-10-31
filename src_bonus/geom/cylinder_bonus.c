@@ -7,7 +7,7 @@
 static int inside_cyl_height(const t_cyl *cylinder, t_vec3 p, t_vec3 v)
 {
 	float height_pos = v3_dot(v3_sub(p, cylinder->center), v);
-	if ((fabsf(height_pos) <= cylinder->he * 0.5f))
+	if ((fabsf(height_pos) <= cylinder->vars.half_height))
 		return (1);
 	return (0);
 }
@@ -18,14 +18,16 @@ static float hit_cap(const t_cyl *cyl, t_ray r, int sign)
 	t_vec3	p;
 	t_vec3	c_cap;
 	t_vec3	radial;
+	float	denom;
 
-	if (fabsf(v3_dot(r.dir, cyl->axis)) < 1e-6f)
+	denom = v3_dot(r.dir, cyl->axis);
+	if (fabsf(denom) < 1e-6f)
     	return (-1.0f); //paralelo no hay interseccion
 	if (sign == 1)
 		c_cap = cyl->vars.cap_top;
 	else
 		c_cap = cyl->vars.cap_bottom;
-	t = v3_dot(v3_sub(c_cap, r.orig), cyl->axis) / v3_dot(r.dir, cyl->axis);
+	t = v3_dot(v3_sub(c_cap, r.orig), cyl->axis) / denom;
 	if(t < 0.0f)
 		return (-1.0f);
 	p = v3_add(r.orig, v3_mul(r.dir, t));
@@ -90,8 +92,8 @@ static float hit_side(t_cyl *cyl, t_ray r)
 	disc = (cyl->vars.b * cyl->vars.b) - (4 * cyl->vars.a * cyl->vars.c);
 	if(disc < 0.0f)
 		return (-1.0f);
-	t1 = (-cyl->vars.b - sqrt(disc)) / (2.0f * cyl->vars.a);
-	t2 = (-cyl->vars.b + sqrt(disc)) / (2.0f * cyl->vars.a);
+	t1 = (-cyl->vars.b - sqrtf(disc)) / (2.0f * cyl->vars.a);
+	t2 = (-cyl->vars.b + sqrtf(disc)) / (2.0f * cyl->vars.a);
 	if (t1 > t2)
 	{
 		tmp = t1;

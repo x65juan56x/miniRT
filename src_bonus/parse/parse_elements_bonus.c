@@ -61,6 +61,7 @@ t_parse_result	parse_c(char **tokens, int line, t_scene *scene)
 		return (parse_error(line, "C: invalid FOV"));
 	if (scene->camera.fov_deg <= 0.0f || scene->camera.fov_deg >= 180.0f)
 		return (parse_error(line, "C: FOV out of range (0,180)"));
+	scene->camera.dir = v3_norm(scene->camera.dir);
 	return (parse_ok());
 }
 /*

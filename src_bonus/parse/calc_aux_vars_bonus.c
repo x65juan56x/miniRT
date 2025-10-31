@@ -14,6 +14,7 @@ void	aux_plane(t_plane *pl)
 {
 	t_vec3	up;
 
+	pl->normal = v3_norm(pl->normal);
 	pl->vars.d = v3_dot(pl->normal, pl->point);
 	up = v3(0.0f, 1.0f, 0.0f);
 	if (fabs(v3_dot(pl->normal, up)) > 0.999f)
@@ -26,6 +27,7 @@ void	aux_cylinder(t_cyl *cy)
 {
 	t_vec3	up;
 
+	cy->axis = v3_norm(cy->axis);
 	cy->vars.radius = cy->di * 0.5f;
 	cy->vars.radius2 = cy->vars.radius * cy->vars.radius;
 	cy->vars.half_height = cy->he * 0.5f;
@@ -61,6 +63,7 @@ void	aux_hparab(t_hparab *hp)
 {
 	t_vec3	up;
 
+	hp->axis = v3_norm(hp->axis);
 	up = v3(0.0f, 1.0f, 0.0f);
 	if (fabsf(v3_dot(hp->axis, up)) > 0.999f)
 		up = v3(1.0f, 0.0f, 0.0f);

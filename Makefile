@@ -1,10 +1,10 @@
 NAME            = miniRT
 NAME_BONUS      = miniRT_bonus
 CC              = cc
-CFLAGS          = -Wall -Wextra -Werror
+CFLAGS          = -Wall -Wextra -Werror -Ofast -O3 -ffast-math -march=native
 INCLUDES        = -I include -I libraries/MLX42/include -I libraries/MLX42/include/MLX42 -I libraries/libft
 INCLUDES_BONUS  = $(INCLUDES) -I include_bonus
-LDFLAGS         = -ldl -lglfw -pthread -lm -lGL -Ofast -march=native -O3 -ffast-math
+LDFLAGS         = -ldl -lglfw -pthread -lm -lGL
 
 SRC_DIR_M       = src
 SRC_DIR_B       = src_bonus
