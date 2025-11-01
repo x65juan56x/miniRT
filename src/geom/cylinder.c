@@ -103,7 +103,40 @@ static float hit_side(t_cyl *cyl, t_ray r)
 	return (pick_valid_t(cyl, r, t1, t2));
 }
 
+static float check_best_t(float cyl_part, float best_t, t_cyl *cyl, int index)
+{
+	if(cyl_part > 0.0f && cyl_part < best_t)
+	{
+		cyl->vars.hit_part = index;
+		return (cyl_part);
+	}
+	return (best_t);
+}
+
 float	hit_cylinder(t_cyl *cyl, t_ray r)
+{
+	float	best_t;
+	float	t_side;
+	float	t_top;
+	float	t_bottom;
+
+	best_t = FLT_MAX;
+	t_side = hit_side(cyl, r);
+	cyl->vars.hit_part = -1;
+	best_t = check_best_t(t_side, best_t, cyl, 0);
+
+	t_top = hit_cap(cyl, r, 1);
+	best_t = check_best_t(t_top, best_t, cyl, 1);
+
+	t_bottom = hit_cap(cyl, r, -1);
+	best_t = check_best_t(t_bottom, best_t, cyl, 2);
+
+	if (best_t >= FLT_MAX || cyl->vars.hit_part == -1)
+        return -1.0f;
+	return best_t;
+}
+
+/* float	hit_cylinder(t_cyl *cyl, t_ray r)
 {
 	float	best_t;
 	float	t_side;
@@ -133,4 +166,4 @@ float	hit_cylinder(t_cyl *cyl, t_ray r)
 	if (best_t >= FLT_MAX || cyl->vars.hit_part == -1)
         return -1.0f;
 	return best_t;
-}
+} */
