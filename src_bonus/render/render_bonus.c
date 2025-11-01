@@ -19,14 +19,11 @@ static t_vec3	trace_recursive(const t_scene *scene, t_ray r, int depth);
 static t_vec3	shade_surface(const t_scene *scene, const t_hit *hit,
 		t_ray incoming, int depth)
 {
-	float		kr;
-	t_vec3		local;
-	t_vec3		ref_dir;
-	float		dir_len2;
-	float		bias;
-	t_vec3		reflect_col;
-	float		mix_local;
-	float		mix_reflect;
+	float	kr;
+	t_vec3	local;
+	t_vec3	ref_dir;
+	float	dir_len2;
+	t_vec3	reflect_col;
 
 	local = shade_lambert(scene, hit);
 	kr = clamp01(hit->reflectivity);
@@ -38,13 +35,11 @@ static t_vec3	shade_surface(const t_scene *scene, const t_hit *hit,
 	if (dir_len2 < 1e-10f)
 		return (local);
 	ref_dir = v3_mul(ref_dir, 1.0f / sqrtf(dir_len2));
-	bias = fmaxf(1e-4f, 1e-3f * hit->t);
 	reflect_col = trace_recursive(scene,
-		ray(v3_add(hit->p, v3_mul(hit->n, bias)), ref_dir), depth - 1);
-	mix_local = 1.0f - kr;
-	mix_reflect = kr;
-	return (v3_add(v3_mul(local, mix_local),
-		v3_mul(reflect_col, mix_reflect)));
+		ray(v3_add(hit->p, v3_mul(hit->n, fmaxf(1e-4f, 1e-3f * hit->t))),
+			ref_dir), depth - 1);
+	return (v3_add(v3_mul(local, 1.0f - kr),
+		v3_mul(reflect_col, kr)));
 }
 
 static t_vec3	trace_recursive(const t_scene *scene, t_ray r, int depth)
@@ -93,3 +88,36 @@ void	render_scene(t_app *app)
 		}
 	}
 }
+
+/*
+static t_vec3	shade_surface(const t_scene *scene, const t_hit *hit,
+		t_ray incoming, int depth)
+{
+	float	kr;
+	t_vec3	local;
+	t_vec3	ref_dir;
+	float	dir_len2;
+	float	bias;
+	t_vec3	reflect_col;
+	float	mix_local;
+	float	mix_reflect;
+
+	local = shade_lambert(scene, hit);
+	kr = clamp01(hit->reflectivity);
+	if (depth <= 0 || kr <= 0.0f)
+		return (local);
+	ref_dir = v3_sub(incoming.dir,
+		v3_mul(hit->n, 2.0f * v3_dot(incoming.dir, hit->n)));
+	dir_len2 = v3_len2(ref_dir);
+	if (dir_len2 < 1e-10f)
+		return (local);
+	ref_dir = v3_mul(ref_dir, 1.0f / sqrtf(dir_len2));
+	bias = fmaxf(1e-4f, 1e-3f * hit->t);
+	reflect_col = trace_recursive(scene,
+		ray(v3_add(hit->p, v3_mul(hit->n, bias)), ref_dir), depth - 1);
+	mix_local = 1.0f - kr;
+	mix_reflect = kr;
+	return (v3_add(v3_mul(local, mix_local),
+		v3_mul(reflect_col, mix_reflect)));
+}
+*/
