@@ -7,7 +7,7 @@
 // Simple average to keep it cheap
 static float	luminance_u8(uint8_t r, uint8_t g, uint8_t b)
 {
-	return (float)(r + g + b) / (255.0f * 3.0f);
+	return ((float)(r + g + b) / (255.0f * 3.0f));
 }
 
 t_bumpmap	*bump_load_png(const char *path)
@@ -29,12 +29,8 @@ t_bumpmap	*bump_load_png(const char *path)
 		return (mlx_delete_texture(tex), free(bm), NULL);
 	i = -1;
 	while (++i < (size_t)bm->w * (size_t)bm->h)
-	{
-		uint8_t r = tex->pixels[i * 4 + 0];
-		uint8_t g = tex->pixels[i * 4 + 1];
-		uint8_t b = tex->pixels[i * 4 + 2];
-		bm->hmap[i] = luminance_u8(r, g, b);
-	}
+		bm->hmap[i] = luminance_u8(tex->pixels[i * 4 + 0],
+				tex->pixels[i * 4 + 1], tex->pixels[i * 4 + 2]);
 	return (mlx_delete_texture(tex), bm);
 }
 
@@ -47,23 +43,19 @@ void	bump_free(t_bumpmap *bm)
 	free(bm);
 }
 
-static float fractf(float x)
-{
-	return x - floorf(x);
-}
-
 float	bump_sample(const t_bumpmap *bm, float u, float v)
 {
 	int	iu;
 	int	iv;
 
 	if (!bm || !bm->hmap || bm->w <= 0 || bm->h <= 0)
-		return 0.5f;
-	// Wrap repeat
-	u = fractf(u);
-	v = fractf(v);
-	if (u < 0.0f) u += 1.0f;
-	if (v < 0.0f) v += 1.0f;
+		return (0.5f);
+	u = u - floorf(u);
+	v = v - floorf(v);
+	if (u < 0.0f)
+		u += 1.0f;
+	if (v < 0.0f)
+		v += 1.0f;
 	iu = (int)floorf(u * (float)bm->w);
 	iv = (int)floorf(v * (float)bm->h);
 	if (iu < 0)
@@ -93,7 +85,7 @@ void	bump_perturb(t_bumpmap *bm, t_aux_bump *bm_aux,
 	h_u1 = bump_sample(bm, bm_aux->u + bm->du, bm_aux->v);
 	h_v1 = bump_sample(bm, bm_aux->u, bm_aux->v + bm->dv);
 	dn = v3_add(v3_mul(bm_aux->tangent, -(h_u1 - h_c) / (bm->du + 1e-6f)),
-			   v3_mul(bm_aux->bitangent, -(h_v1 - h_c) / (bm->dv + 1e-6f)));
+			v3_mul(bm_aux->bitangent, -(h_v1 - h_c) / (bm->dv + 1e-6f)));
 	dn = v3_mul(dn, bm_aux->strength);
 	*n = v3_norm(v3_add(*n, dn));
 }
