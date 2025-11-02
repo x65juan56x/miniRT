@@ -69,7 +69,7 @@ float	bump_sample(const t_bumpmap *bm, float u, float v)
 	return (bm->hmap[(size_t)iv * (size_t)bm->w + (size_t)iu]);
 }
 
-void	bump_perturb(t_bumpmap *bm, t_aux_bump *bm_aux,
+void	bump_perturb(t_bumpmap *bm, t_bump_aux *bm_aux,
 					t_vec3 *n)
 {
 	float	h_c;

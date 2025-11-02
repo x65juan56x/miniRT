@@ -13,14 +13,14 @@ typedef struct s_bumpmap
 	float	dv;
 }	t_bumpmap;
 
-typedef struct s_aux_bump
+typedef struct s_bump_aux
 {
 	float		u;
 	float		v;
 	t_vec3		tangent;
 	t_vec3		bitangent;
 	float		strength;
-}	t_aux_bump;
+}	t_bump_aux;
 
 typedef struct s_tr_bump_aux
 {
@@ -44,6 +44,6 @@ float		bump_sample(const t_bumpmap *bm, float u, float v);
 
 // Perturb normal by bump gradient along tangent/bitangent with given strength
 // n will be normalized on output
-void		bump_perturb(t_bumpmap *bm, t_aux_bump *bm_aux, t_vec3 *n);
+void		bump_perturb(t_bumpmap *bm, t_bump_aux *bm_aux, t_vec3 *n);
 
 #endif

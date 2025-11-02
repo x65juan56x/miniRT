@@ -6,8 +6,8 @@ void	aux_sphere(t_sphere *sp)
 	sp->vars.radius = sp->di * 0.5f;
 	sp->vars.radius2 = sp->vars.radius * sp->vars.radius;
 	sp->vars.inv_radius = 1.0f / sp->vars.radius;
-	sp->vars.iu = 0;
-	sp->vars.iv = 0;
+	// sp->vars.iu = 0;
+	// sp->vars.iv = 0;
 }
 
 void	aux_plane(t_plane *pl)

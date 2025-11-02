@@ -43,16 +43,18 @@ static void	apply_specular(t_hit *out, const t_material *material)
 
 static void	sp_process_checker(t_sphere *sp, t_common_hit *c_hit, t_hit *out)
 {
-	float			uang;
+	float		uang;
+	t_cb_aux	vars;
 
 	uang = atan2f(c_hit->n.z, c_hit->n.x); // Baldosas aproximadas por arco en unidades de mundo (R * ángulo)
 	if (uang < 0.0f)
 		uang += 6.283185307179586f; // 2*pi
-	sp->vars.iu = (int)floorf((uang * sp->vars.radius) / sp->checker_scale);
-	sp->vars.iv = (int)floorf((acosf(c_hit->n.y) * sp->vars.radius)
+	vars.iu = (int)floorf((uang * sp->vars.radius) / sp->checker_scale);
+	vars.iv = (int)floorf((acosf(c_hit->n.y) * sp->vars.radius)
 		/ sp->checker_scale);
-	if ((sp->vars.iu + sp->vars.iv) & 1)
-		c_hit->albedo = v3_sub(v3(1.0f, 1.0f, 1.0f), sp->color);
+	vars.comp = v3_sub(v3(1.0f, 1.0f, 1.0f), sp->color);
+	if ((vars.iu + vars.iv) & 1)
+		c_hit->albedo = vars.comp;
 	else
 		c_hit->albedo = sp->color;
 	set_common_hit(out, c_hit);
@@ -60,11 +62,11 @@ static void	sp_process_checker(t_sphere *sp, t_common_hit *c_hit, t_hit *out)
 
 static void	sp_process_bump(const t_sphere *sp, t_common_hit *c_hit, t_hit *out)
 {
-	t_aux_bump	bm_aux;
+	t_bump_aux	bm_aux;
 
-	
 	// UV from normal
-	bm_aux.u = (atan2f(c_hit->n.z, c_hit->n.x) + (float)M_PI) / (2.0f * (float)M_PI);
+	bm_aux.u = (atan2f(c_hit->n.z, c_hit->n.x)
+		+ (float)M_PI) / (2.0f * (float)M_PI);
 	bm_aux.v = acosf(c_hit->n.y) / (float)M_PI;
 	// Tangent basis from normal
 	bm_aux.tangent = v3_cross(v3(0.0f, 1.0f, 0.0f), c_hit->n);
@@ -100,21 +102,21 @@ static int	record_sphere(const t_scene *scene, t_sphere *sp, t_ray r,
 
 static void	pl_process_checker(t_plane *pl, t_common_hit *c_hit, t_hit *out)
 {
-	t_vec3	rel;
-	int		ix;
-	int		iy;
+	t_vec3		rel;
+	t_cb_aux	vars;
 
 	rel = v3_sub(c_hit->p, pl->point);
-	ix = (int)floorf(v3_dot(rel, pl->vars.u) / pl->checker_scale);
-	iy = (int)floorf(v3_dot(rel, pl->vars.v) / pl->checker_scale);
-	if ((ix + iy) & 1)
-		c_hit->albedo = v3_sub(v3(1.0f, 1.0f, 1.0f), pl->color); // color complementario
+	vars.iu = (int)floorf(v3_dot(rel, pl->vars.u) / pl->checker_scale);
+	vars.iv = (int)floorf(v3_dot(rel, pl->vars.v) / pl->checker_scale);
+	vars.comp = v3_sub(v3(1.0f, 1.0f, 1.0f), pl->color);
+	if ((vars.iu + vars.iv) & 1)
+		c_hit->albedo = vars.comp; // color complementario
 	set_common_hit(out, c_hit);
 }
 
 static void	pl_process_bump(const t_plane *pl, t_common_hit *c_hit, t_hit *out)
 {
-	t_aux_bump	bm_aux;
+	t_bump_aux	bm_aux;
 	t_vec3		rel;
 
 	rel = v3_sub(c_hit->p, pl->point);
@@ -151,20 +153,21 @@ static int	record_plane(const t_scene *scene, t_plane *pl, t_ray r, float t,
 
 static void	tr_process_checker(t_triangle *tr, t_common_hit *c_hit, t_hit *out)
 {
-	int		par;
+	t_cb_aux	vars;
 
-	par = (int)floorf(v3_dot(v3_sub(c_hit->p, tr->a), tr->vars.base_u)
-		/ tr->checker_scale)
-		+ (int)floorf(v3_dot(v3_sub(c_hit->p, tr->a), tr->vars.base_v)
+	vars.iu = (int)floorf(v3_dot(v3_sub(c_hit->p, tr->a), tr->vars.base_u)
 		/ tr->checker_scale);
-	if (par & 1)
-		c_hit->albedo = v3_sub(v3(1.0f, 1.0f, 1.0f), tr->color);
+	vars.iv = (int)floorf(v3_dot(v3_sub(c_hit->p, tr->a), tr->vars.base_v)
+		/ tr->checker_scale);
+	vars.comp = v3_sub(v3(1.0f, 1.0f, 1.0f), tr->color);
+	if ((vars.iu + vars.iv) & 1)
+		c_hit->albedo = vars.comp;
 	set_common_hit(out, c_hit);
 }
 
 static void	tr_process_bump(const t_triangle *tr, t_common_hit *c_hit, t_hit *out)
 {
-	t_aux_bump		bm_aux;
+	t_bump_aux		bm_aux;
 	t_tr_bump_aux	vars;
 
 	vars.pa = v3_sub(c_hit->p, tr->a);
@@ -211,18 +214,19 @@ static int	record_triangle(const t_scene *scene, t_triangle *tr, t_ray r,
 
 static t_vec3	hp_checker_color(const t_hparab *hp, float x, float y)
 {
-	int	par;
+	t_cb_aux	vars;
 
-	par = (int)floorf(x / hp->checker_scale)
-		+ (int)floorf(y / hp->checker_scale);
-	if (par & 1)
-		return (v3_sub(v3(1.0f, 1.0f, 1.0f), hp->color));
+	vars.iu = (int)floorf(x / hp->checker_scale);
+	vars.iv = (int)floorf(y / hp->checker_scale);
+	vars.comp = v3_sub(v3(1.0f, 1.0f, 1.0f), hp->color);
+	if ((vars.iu + vars.iv) & 1)
+		return (vars.comp);
 	return (hp->color);
 }
 
 static void	hp_process_bump(const t_hparab *hp, float x, float y, t_hit *out)
 {
-	t_aux_bump	bm_aux;
+	t_bump_aux	bm_aux;
 
 	bm_aux.u = (x / hp->rx) * 0.5f + 0.5f;
 	bm_aux.v = (y / hp->ry) * 0.5f + 0.5f;
@@ -259,10 +263,10 @@ static int	record_hparaboloid(const t_scene *scene, const t_hparab *hp,
 	return (1);
 }
 
-static t_vec3    normal_cyl(const t_cyl *cylinder, t_vec3 p)
+static t_vec3	normal_cyl(const t_cyl *cylinder, t_vec3 p)
 {
-	t_vec3  radial;
-	float   axial;
+	t_vec3	radial;
+	float	axial;
 
 	radial = v3_sub(p, cylinder->center);
 	axial = v3_dot(radial, cylinder->axis);
@@ -270,60 +274,81 @@ static t_vec3    normal_cyl(const t_cyl *cylinder, t_vec3 p)
 	return (radial);
 }
 
-static void	cy_hit_wall(const t_cyl *cy, t_common_hit *c_hit, t_hit *out)
+static void	cywall_process_checker(t_cyl *cy, t_common_hit *c_hit, t_hit *out)
 {
-	t_aux_bump	bm_aux;
-	t_vec3 rel;
-	float h;
-	t_vec3 radial;
-	float theta;
-	int iu;
-	int iv;
-	t_vec3 comp;
+	t_cb_aux	vars;
+	t_vec3		rel;
+	float		h;
+	t_vec3		radial;
+	float		theta;
 
-	c_hit->n = v3_norm(normal_cyl(cy, c_hit->p));
 	rel = v3_sub(c_hit->p, cy->center);
 	h = v3_dot(rel, cy->axis);
 	radial = v3_norm(v3_sub(rel, v3_mul(cy->axis, h)));
 	theta = atan2f(v3_dot(radial, cy->vars.base_v), v3_dot(radial, cy->vars.base_u));
 	if (theta < 0.0f)
 		theta += 6.283185307179586f; // 2*pi
+	vars.iu = (int)floorf((cy->vars.radius * theta) / cy->checker_scale);
+	vars.iv = (int)floorf(((h + cy->vars.half_height)) / cy->checker_scale);
+	vars.comp = v3_sub(v3(1.0f, 1.0f, 1.0f), cy->color);
+	if ((vars.iu + vars.iv) & 1)
+		c_hit->albedo = vars.comp;
+	set_common_hit(out, c_hit);
+}
+
+static void	cywall_process_bump(t_cyl *cy, t_common_hit *c_hit, t_hit *out)
+{
+	t_bump_aux	bm_aux;
+	t_vec3	rel;
+	float	h;
+	t_vec3	radial;
+	float	theta;
+
+	rel = v3_sub(c_hit->p, cy->center);
+	h = v3_dot(rel, cy->axis);
+	radial = v3_norm(v3_sub(rel, v3_mul(cy->axis, h)));
+	theta = atan2f(v3_dot(radial, cy->vars.base_v), v3_dot(radial, cy->vars.base_u));
+	if (theta < 0.0f)
+		theta += 6.283185307179586f; // 2*pi
+	bm_aux.u = theta / (2.0f * (float)M_PI);
+	bm_aux.v = (h + cy->vars.half_height) / cy->he;
+	// Tangent basis: around azimuth and along axis
+	bm_aux.tangent = v3_norm(v3_cross(cy->axis, c_hit->n));
+	if (v3_len2(bm_aux.tangent) < 1e-8f)
+		bm_aux.tangent = cy->vars.base_u; // fallback
+	bm_aux.bitangent = cy->axis;
+	bm_aux.strength = cy->bump_strength;
+	bump_perturb(cy->bump, &bm_aux, &out->n);
+}
+
+static void	cy_hit_wall(t_cyl *cy, t_common_hit *c_hit, t_hit *out)
+{
+	c_hit->n = v3_norm(normal_cyl(cy, c_hit->p));
 	if (cy->has_checker)
-	{
-		iu = (int)floorf((cy->vars.radius * theta) / cy->checker_scale);
-		iv = (int)floorf(((h + cy->vars.half_height)) / cy->checker_scale);
-		comp = v3_sub(v3(1.0f, 1.0f, 1.0f), cy->color);
-		if ((iu + iv) & 1)
-			c_hit->albedo = comp;
-		set_common_hit(out, c_hit);
-	}
+		cywall_process_checker(cy, c_hit, out);
 	else
 		set_common_hit(out, c_hit);
 	// Bump on side: cylindrical UV in [0,1]x[0,1]
 	if (cy->has_bump && cy->bump)
-	{
-		bm_aux.u = theta / (2.0f * (float)M_PI);
-		bm_aux.v = (h + cy->vars.half_height) / cy->he;
-		// Tangent basis: around azimuth and along axis
-		bm_aux.tangent = v3_norm(v3_cross(cy->axis, c_hit->n));
-		if (v3_len2(bm_aux.tangent) < 1e-8f)
-			bm_aux.tangent = cy->vars.base_u; // fallback
-		bm_aux.bitangent = cy->axis;
-		bm_aux.strength = cy->bump_strength;
-		bump_perturb(cy->bump, &bm_aux, &out->n);
-	}
+		cywall_process_bump(cy, c_hit, out);
 }
+
+// static void	cytop_process_checker(t_cyl *cy, t_common_hit *c_hit, t_hit *out)
+// {}
+
+// static void	cytop_process_bump(t_cyl *cy, t_common_hit *c_hit, t_hit *out)
+// {}
 
 static void cy_hit_top(const t_cyl *cy, t_common_hit *c_hit, t_hit *out)
 {
-	t_aux_bump	bm_aux;
-	t_vec3	ctop;
-	t_vec3	q;
-	int		iu;
-	int		iv;
-	t_vec3	comp;
-	float	x;
-	float	y;
+	t_bump_aux	bm_aux;
+	t_vec3		ctop;
+	t_vec3		q;
+	int			iu;
+	int			iv;
+	t_vec3		comp;
+	float		x;
+	float		y;
 
 	c_hit->n = cy->axis;
 	ctop = v3_add(cy->center, v3_mul(cy->axis, cy->vars.half_height));
@@ -353,16 +378,22 @@ static void cy_hit_top(const t_cyl *cy, t_common_hit *c_hit, t_hit *out)
 	}
 }
 
+// static void	cybot_process_checker(t_cyl *cy, t_common_hit *c_hit, t_hit *out)
+// {}
+
+// static void	cybot_process_bump(t_cyl *cy, t_common_hit *c_hit, t_hit *out)
+// {}
+
 static void cy_hit_bottom(const t_cyl *cy, t_common_hit *c_hit, t_hit *out)
 {
-	t_aux_bump	bm_aux;
-	t_vec3	cbot;
-	t_vec3	q;
-	int		iu;
-	int		iv;
-	t_vec3	comp;
-	float	x;
-	float	y;
+	t_bump_aux	bm_aux;
+	t_vec3		cbot;
+	t_vec3		q;
+	int			iu;
+	int			iv;
+	t_vec3		comp;
+	float		x;
+	float		y;
 
 	c_hit->n = v3_mul(cy->axis, -1.0f);
 	cbot = v3_sub(cy->center, v3_mul(cy->axis, cy->vars.half_height));
@@ -392,7 +423,7 @@ static void cy_hit_bottom(const t_cyl *cy, t_common_hit *c_hit, t_hit *out)
 	}
 }
 
-static int record_cylinder(const t_scene *scene, const t_cyl *cy, t_ray r,
+static int record_cylinder(const t_scene *scene, t_cyl *cy, t_ray r,
 		float t, t_hit *out)
 {
 	t_common_hit	c_hit;
@@ -417,10 +448,8 @@ static int record_cylinder(const t_scene *scene, const t_cyl *cy, t_ray r,
 static int	object_hit(const t_scene *scene, t_object *obj, t_ray r, t_hit *out)
 {
 	float	t;
-//	int		hit_part;
 
 	t = -1.0f;
-//	hit_part = -1;
 	if (obj->type == OBJ_SPHERE)
 		t = hit_sphere(&obj->u_obj.sp, r);
 	else if (obj->type == OBJ_PLANE)

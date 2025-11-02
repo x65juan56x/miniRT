@@ -39,8 +39,8 @@ typedef struct s_sp_aux
 	float	disc;
 	t_vec3	u;
 	t_vec3	v;
-	int		iu;
-	int		iv;
+	// int		iu;
+	// int		iv;
 }	t_sp_aux;
 
 // Plane cached constants (computed once per object)
@@ -108,6 +108,13 @@ typedef struct s_hp_aux
 	float	denom;
 	float	cands[2];
 }	t_hp_aux;
+
+typedef struct s_cb_aux
+{
+	int		iu;
+	int		iv;
+	t_vec3	comp;
+}	t_cb_aux;
 
 typedef struct s_common_hit
 {
