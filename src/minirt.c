@@ -51,7 +51,7 @@ static void	cleanup(t_app *app)
 	free(app->framebuffer);
 }
 
-static int print_usage(int ac, char **av)
+static int	print_usage(int ac, char **av)
 {
 	if (ac != 2)
 	{
@@ -64,7 +64,7 @@ static int print_usage(int ac, char **av)
 	return (0);
 }
 
-static int init_framebuffer(t_app *app)
+static int	init_framebuffer(t_app *app)
 {
 	app->framebuffer = (uint32_t *)malloc(sizeof(uint32_t)
 			*(size_t)WIN_W * (size_t)WIN_H);
@@ -77,7 +77,7 @@ static int init_framebuffer(t_app *app)
 	return (1);
 }
 
-t_parse_result init_and_parse(t_app *app, char **av)
+t_parse_result	init_and_parse(t_app *app, char **av)
 {
 	t_parse_result	pr;
 	ft_bzero(app, sizeof(app));
@@ -112,14 +112,6 @@ int	main(int ac, char **av)
 	parse_result_free(&pr);
 	if (!init_framebuffer(&app))
 		return(EXIT_FAILURE);
-/* 	app.framebuffer = (uint32_t *)malloc(sizeof(uint32_t)
-			*(size_t)WIN_W * (size_t)WIN_H);
-	if (!app.framebuffer)
-	{
-		ft_putstr_fd((char *)"Error\nfailed to allocate framebuffer\n", 2);
-		scene_free(&app.scene);
-		return (1);
-	} */
 	if (init_window(&app) < 0)
 	{
 		cleanup(&app);
