@@ -131,9 +131,9 @@ static t_parse_result	parse_specular_info(char **tokens, int line,
 	float		ks;
 	float		shininess;
 	float		reflectivity;
-	int		idx;
-	int		has_any;
-	int		has_ks;
+	int			idx;
+	int			has_any;
+	int			has_ks;
 	t_spec_model	model;
 
 	*out_mat = NULL;
@@ -208,58 +208,90 @@ static t_parse_result	parse_specular_info(char **tokens, int line,
 	return (parse_ok());
 }
 
-t_parse_result	parse_sp(char **tokens, int line, t_scene *scene)
+static t_parse_result	sp_create_object(char **tok, int line, t_object **out)
 {
 	t_object	*obj;
-	int		opt_idx;
-	t_parse_result	mat_res;
 
-	if (!tokens[1] || !tokens[2] || !tokens[3])
+	if (!tok[1] || !tok[2] || !tok[3])
 		return (parse_error(line, "sp: invalid format"));
 	obj = (t_object *)malloc(sizeof(t_object));
 	if (!obj)
 		return (parse_error(line, "sp: not enough memory"));
 	obj->type = OBJ_SPHERE;
-	if (!parse_vec3(tokens[1], &obj->u_obj.sp.center))
+	obj->next = NULL;
+	*out = obj;
+	return (parse_ok());
+}
+
+static t_parse_result	sp_parse_attributes(char **tok, int line, t_object *obj)
+{
+	if (!parse_vec3(tok[1], &obj->u_obj.sp.center))
 		return (obj_error(obj, line, "sp: invalid centre"));
-	if (!parse_float(tokens[2], &obj->u_obj.sp.di) || obj->u_obj.sp.di <= 0.0f)
+	if (!parse_float(tok[2], &obj->u_obj.sp.di) || obj->u_obj.sp.di <= 0.0f)
 		return (obj_error(obj, line, "sp: invalid diameter"));
-	if (!parse_color_255(tokens[3], &obj->u_obj.sp.color))
+	if (!parse_color_255(tok[3], &obj->u_obj.sp.color))
 		return (obj_error(obj, line, "sp: invalid color"));
-	obj->u_obj.sp.has_checker = 0;
-	obj->u_obj.sp.checker_scale = 1.0f; // also used as UV scale for bump
-	obj->u_obj.sp.has_bump = 0;
-	obj->u_obj.sp.bump_strength = 0.0f;
-	obj->u_obj.sp.bump = NULL;
-	obj->u_obj.sp.material = NULL;
-	opt_idx = 4;
-	if (tokens[opt_idx] && ft_strncmp(tokens[opt_idx], "bm", 3) == 0)
+	return (parse_ok());
+}
+
+static void	sp_build_basis(t_sphere *sp)
+{
+	sp->has_checker = 0;
+	sp->checker_scale = 1.0f; // also used as UV scale for bump
+	sp->has_bump = 0;
+	sp->bump_strength = 0.0f;
+	sp->bump = NULL;
+	sp->material = NULL;
+}
+
+static t_parse_result	sp_parse_options(char **tok, int line,
+		t_object *obj, int *idx)
+{
+	if (tok[*idx] && ft_strncmp(tok[*idx], "bm", 3) == 0)
 	{
-		if (!parse_opt_bump(tokens, opt_idx, &obj->u_obj.sp.has_bump,
+		if (!parse_opt_bump(tok, *idx, &obj->u_obj.sp.has_bump,
 				&obj->u_obj.sp.bump_strength, &obj->u_obj.sp.bump))
 			return (obj_error(obj, line,
-				"sp: invalid bump (bm <png> <strength>)"));
-		opt_idx += 3;
+					"sp: invalid bump (bm <png> <strength>)"));
+		*idx += 3;
 	}
-	else if (tokens[opt_idx] && ft_strncmp(tokens[opt_idx], "cb", 3) == 0)
+	else if (tok[*idx] && ft_strncmp(tok[*idx], "cb", 3) == 0)
 	{
-		if (!parse_opt_checker(tokens, opt_idx, &obj->u_obj.sp.has_checker,
+		if (!parse_opt_checker(tok, *idx, &obj->u_obj.sp.has_checker,
 				&obj->u_obj.sp.checker_scale))
 			return (obj_error(obj, line,
-				"sp: invalid checker (cb <scale>)"));
-		opt_idx += 2;
+					"sp: invalid checker (cb <scale>)"));
+		*idx += 2;
 	}
-	mat_res = parse_specular_info(tokens + opt_idx, line, "sp",
+	return (parse_ok());
+}
+
+t_parse_result	parse_sp(char **tok, int line, t_scene *scene)
+{
+	t_object		*obj;
+	t_parse_result	result;
+	int				opt_idx;
+	t_parse_result	mat_res;
+
+	obj = NULL;
+	result = sp_create_object(tok, line, &obj);
+	if (!result.ok)
+		return (result);
+	result = sp_parse_attributes(tok, line, obj);
+	if (!result.ok)
+		return (result);
+	sp_build_basis(&obj->u_obj.sp);
+	opt_idx = 4;
+	result = sp_parse_options(tok, line, obj, &opt_idx);
+	if (!result.ok)
+		return (result);
+	mat_res = parse_specular_info(tok + opt_idx, line, "sp",
 			&obj->u_obj.sp.material);
 	if (!mat_res.ok)
-	{
-		free_sp_pl_cy_with_addons(obj);
-		return (mat_res);
-	}
+		return (free_sp_pl_cy_with_addons(obj), mat_res);
 	aux_sphere(&obj->u_obj.sp);
 	obj->next = NULL;
-	scene_add_object(scene, obj);
-	return (parse_ok());
+	return (scene_add_object(scene, obj), parse_ok());
 }
 /*
 * Purpose: Parse a sphere entry, validating format, geometry, and color.
@@ -524,11 +556,11 @@ t_parse_result	parse_tr(char **tokens, int line, t_scene *scene)
 		return (obj_error(obj, line, "tr: invalid vertex c"));
 	if (!parse_color_255(tokens[4], &obj->u_obj.tr.color))
 		return (obj_error(obj, line, "tr: invalid color"));
-    obj->u_obj.tr.has_checker = 0;
-    obj->u_obj.tr.checker_scale = 1.0f;
-    obj->u_obj.tr.has_bump = 0;
-    obj->u_obj.tr.bump_strength = 0.0f;
-    obj->u_obj.tr.bump = NULL;
+	obj->u_obj.tr.has_checker = 0;
+	obj->u_obj.tr.checker_scale = 1.0f;
+	obj->u_obj.tr.has_bump = 0;
+	obj->u_obj.tr.bump_strength = 0.0f;
+	obj->u_obj.tr.bump = NULL;
 	obj->u_obj.tr.material = NULL;
 	opt_idx = 5;
 	if (tokens[opt_idx] && ft_strncmp(tokens[opt_idx], "bm", 3) == 0)

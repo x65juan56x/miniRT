@@ -111,7 +111,6 @@ t_parse_result	parse_l(char **tokens, int line, t_scene *scene)
 			last_light = last_light->next;
 		last_light->next = new_light;
 	}
-	//scene->light = scene->light->next;
 	return (parse_ok());
 }
 
