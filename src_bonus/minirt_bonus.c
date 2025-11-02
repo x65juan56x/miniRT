@@ -2,13 +2,13 @@
 #include "../include_bonus/app_bonus.h"
 #include "../include_bonus/render_bonus.h"
 
-static void render_and_present(t_app *app)
+static void	render_and_present(t_app *app)
 {
 	render_scene(app);
 	upload_framebuffer(app->image, app->framebuffer);
 }
 
-static int init_window(t_app *app)
+static int	init_window(t_app *app)
 {
 	app->mlx = mlx_init(WIN_W, WIN_H, "miniRT", false);
 	if (!app->mlx)
@@ -30,7 +30,7 @@ static int init_window(t_app *app)
 	return (0);
 }
 
-static void cleanup(t_app *app)
+static void	cleanup(t_app *app)
 {
 	if (app->overlay.overlay && app->mlx)
 		mlx_delete_image(app->mlx, app->overlay.overlay);
