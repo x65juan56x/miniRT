@@ -69,7 +69,9 @@ GEOM_B_SRCS = \
 	$(SRC_DIR_B)/geom/plane_bonus.c \
 	$(SRC_DIR_B)/geom/cylinder_bonus.c \
 	$(SRC_DIR_B)/geom/triangle_bonus.c \
-	$(SRC_DIR_B)/geom/hparaboloid_bonus.c
+	$(SRC_DIR_B)/geom/hparaboloid_bonus.c \
+	$(SRC_DIR_B)/geom/cylinder_utils_bonus.c \
+	$(SRC_DIR_B)/geom/hparaboloid_utils_bonus.c
 
 CORE_B_SRCS = \
 	$(SRC_DIR_B)/core/scene_bonus.c \

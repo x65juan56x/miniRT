@@ -209,4 +209,9 @@ void	free_cylinder(t_object *it);
 void	free_triangle(t_object *it);
 void	free_hparab(t_object *it);
 
+/* OBJECTS UTILS */
+void	cyl_quadratic(t_cyl *cyl, t_ray r, t_vec3 x);
+float	check_best_t(float cyl_part, float best_t, t_cyl *cyl, int index);
+void	hp_prepare(t_hparab *hp, t_ray r);
+
 #endif

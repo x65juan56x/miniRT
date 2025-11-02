@@ -124,16 +124,13 @@ float	hit_cylinder(t_cyl *cyl, t_ray r)
 	t_side = hit_side(cyl, r);
 	cyl->vars.hit_part = -1;
 	best_t = check_best_t(t_side, best_t, cyl, 0);
-
 	t_top = hit_cap(cyl, r, 1);
 	best_t = check_best_t(t_top, best_t, cyl, 1);
-
 	t_bottom = hit_cap(cyl, r, -1);
 	best_t = check_best_t(t_bottom, best_t, cyl, 2);
-
 	if (best_t >= FLT_MAX || cyl->vars.hit_part == -1)
-        return -1.0f;
-	return best_t;
+		return -1.0f;
+	return (best_t);
 }
 
 /* float	hit_cylinder(t_cyl *cyl, t_ray r)

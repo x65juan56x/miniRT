@@ -1,8 +1,5 @@
 #include <float.h>
 #include "../../include_bonus/minirt_bonus.h"
-#include "../../include_bonus/scene_bonus.h"
-#include "../../include_bonus/hit_bonus.h"
-
 
 static int inside_cyl_height(const t_cyl *cylinder, t_vec3 p, t_vec3 v)
 {
@@ -35,21 +32,6 @@ static float hit_cap(const t_cyl *cyl, t_ray r, int sign)
 	if(v3_dot(radial, radial) <= cyl->vars.radius2)
 		return (t);
 	return (-1.0f);
-}
-
-static void cyl_quadratic(t_cyl *cyl, t_ray r, t_vec3 x)
-{
-	float x_dot_ax;
-	float d_dot_ax;
-
-	x_dot_ax = v3_dot(x, cyl->axis);
-	d_dot_ax = v3_dot(r.dir, cyl->axis);
-	cyl->vars.a = v3_dot(v3_sub(r.dir, v3_mul(cyl->axis, d_dot_ax)),
-		v3_sub(r.dir, v3_mul(cyl->axis, d_dot_ax)));
-	cyl->vars.b = 2.0f* v3_dot(v3_sub(r.dir, v3_mul(cyl->axis, d_dot_ax)),
-		v3_sub(x, v3_mul(cyl->axis, x_dot_ax)));
-	cyl->vars.c = (v3_dot(v3_sub(x, v3_mul(cyl->axis, x_dot_ax)),
-		v3_sub(x, v3_mul(cyl->axis, x_dot_ax)))) - cyl->vars.radius2;
 }
 
 static float pick_valid_t(const t_cyl *cyl, t_ray r, float t1, float t2)
@@ -113,6 +95,27 @@ float	hit_cylinder(t_cyl *cyl, t_ray r)
 	best_t = FLT_MAX;
 	t_side = hit_side(cyl, r);
 	cyl->vars.hit_part = -1;
+	best_t = check_best_t(t_side, best_t, cyl, 0);
+	t_top = hit_cap(cyl, r, 1);
+	best_t = check_best_t(t_top, best_t, cyl, 1);
+	t_bottom = hit_cap(cyl, r, -1);
+	best_t = check_best_t(t_bottom, best_t, cyl, 2);
+	if (best_t >= FLT_MAX || cyl->vars.hit_part == -1)
+		return -1.0f;
+	return (best_t);
+}
+
+/*
+float	hit_cylinder(t_cyl *cyl, t_ray r)
+{
+	float	best_t;
+	float	t_side;
+	float	t_top;
+	float	t_bottom;
+
+	best_t = FLT_MAX;
+	t_side = hit_side(cyl, r);
+	cyl->vars.hit_part = -1;
 	if(t_side > 0.0f && t_side < best_t)
 	{
 		best_t = t_side;
@@ -134,3 +137,4 @@ float	hit_cylinder(t_cyl *cyl, t_ray r)
         return -1.0f;
 	return best_t;
 }
+*/
