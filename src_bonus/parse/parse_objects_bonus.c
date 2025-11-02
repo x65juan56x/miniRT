@@ -339,6 +339,28 @@ static void	plane_build_basis(t_plane *pl)
 	pl->material = NULL;
 }
 
+static t_parse_result	pl_parse_options(char **tok, int line,
+		t_object *obj, int *idx)
+{
+	if (tok[*idx] && ft_strncmp(tok[*idx], "bm", 3) == 0)
+	{
+		if (!parse_opt_bump(tok, *idx, &obj->u_obj.pl.has_bump,
+				&obj->u_obj.pl.bump_strength, &obj->u_obj.pl.bump))
+			return (obj_error(obj, line,
+				"pl: invalid bump (bm <png> <strength>)"));
+		*idx += 3;
+	}
+	else if (tok[*idx] && ft_strncmp(tok[*idx], "cb", 3) == 0)
+	{
+		if (!parse_opt_checker(tok, *idx, &obj->u_obj.pl.has_checker,
+				&obj->u_obj.pl.checker_scale))
+			return (obj_error(obj, line,
+				"pl: invalid checker (cb <scale>)"));
+		*idx += 2;
+	}
+	return (parse_ok());
+}
+
 t_parse_result	parse_pl(char **tok, int line, t_scene *scene)
 {
 	t_object		*obj;
@@ -355,35 +377,25 @@ t_parse_result	parse_pl(char **tok, int line, t_scene *scene)
 		return (result);
 	plane_build_basis(&obj->u_obj.pl);
 	opt_idx = 4;
-	if (tok[opt_idx] && ft_strncmp(tok[opt_idx], "bm", 3) == 0)
-	{
-		if (!parse_opt_bump(tok, opt_idx, &obj->u_obj.pl.has_bump,
-				&obj->u_obj.pl.bump_strength, &obj->u_obj.pl.bump))
-			return (obj_error(obj, line,
-				"pl: invalid bump (bm <png> <strength>)"));
-		opt_idx += 3;
-	}
-	else if (tok[opt_idx] && ft_strncmp(tok[opt_idx], "cb", 3) == 0)
-	{
-		if (!parse_opt_checker(tok, opt_idx, &obj->u_obj.pl.has_checker,
-				&obj->u_obj.pl.checker_scale))
-			return (obj_error(obj, line,
-				"pl: invalid checker (cb <scale>)"));
-		opt_idx += 2;
-	}
+	result = pl_parse_options(tok, line, obj, &opt_idx);
+	if (!result.ok)
+		return (result);
 	mat_res = parse_specular_info(tok + opt_idx, line, "pl",
 			&obj->u_obj.pl.material);
 	if (!mat_res.ok)
 		return (free_sp_pl_cy_with_addons(obj), mat_res);
 	aux_plane(&obj->u_obj.pl);
-	scene_add_object(scene, obj);
-	return (parse_ok());
+	obj->next = NULL;
+	return (scene_add_object(scene, obj), parse_ok());
 }
 /*
 * Purpose: Decode a plane definition, enforcing normalized normals and RGB.
 * Workflow: Allocate, parse point/normal/color, and push onto the object list.
 * Guarantees: Rejects malformed data and cleans up allocations on error.
 */
+
+// static t_parse_result	cy_parse_attributes(char **tok, int line, t_object *obj)
+// {}
 
 t_parse_result	parse_cy(char **tkns, int line, t_scene *scene)
 {
