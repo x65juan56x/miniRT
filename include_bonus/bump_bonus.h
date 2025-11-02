@@ -22,6 +22,13 @@ typedef struct s_bump_aux
 	float		strength;
 }	t_bump_aux;
 
+typedef struct s_bump_target
+{
+    int			*has_bump;
+    float		*strength;
+    t_bumpmap	**map;
+}	t_bump_target;
+
 typedef struct s_tr_bump_aux
 {
 	t_vec3	pa;

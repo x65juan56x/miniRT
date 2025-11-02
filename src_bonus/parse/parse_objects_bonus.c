@@ -105,23 +105,23 @@ static int	parse_opt_checker(char **tokens, int idx, int *has_checker,
 	return (1);
 }
 
-static int	parse_opt_bump(char **tokens, int idx, int *has_bump,
-		float *out_strength, t_bumpmap **out_bump)
+static int	parse_opt_bump(char **tokens, int idx, t_bump_target target)
 {
-	*has_bump = 0;
-	*out_bump = NULL;
+	*target.has_bump = 0;
+	*target.map = NULL;
 	if (!tokens[idx])
 		return (1);
 	if (ft_strncmp(tokens[idx], "bm", 3) != 0)
 		return (1);
 	if (!tokens[idx + 1] || !tokens[idx + 2])
 		return (0);
-	if (!parse_float(tokens[idx + 2], out_strength) || *out_strength < 0.0f)
+	if (!parse_float(tokens[idx + 2], target.strength)
+		|| *target.strength < 0.0f)
 		return (0);
-	*out_bump = bump_load_png(tokens[idx + 1]);
-	if (!*out_bump)
+	*target.map = bump_load_png(tokens[idx + 1]);
+	if (!*target.map)
 		return (0);
-	*has_bump = 1;
+	*target.has_bump = 1;
 	return (1);
 }
 
@@ -248,10 +248,14 @@ static void	sp_build_basis(t_sphere *sp)
 static t_parse_result	sp_parse_options(char **tok, int line,
 		t_object *obj, int *idx)
 {
+	t_bump_target	bump;
+
+	bump.has_bump = &obj->u_obj.sp.has_bump;
+	bump.map = &obj->u_obj.sp.bump;
+	bump.strength = &obj->u_obj.sp.bump_strength;
 	if (tok[*idx] && ft_strncmp(tok[*idx], "bm", 3) == 0)
 	{
-		if (!parse_opt_bump(tok, *idx, &obj->u_obj.sp.has_bump,
-				&obj->u_obj.sp.bump_strength, &obj->u_obj.sp.bump))
+		if (!parse_opt_bump(tok, *idx, bump))
 			return (obj_error(obj, line,
 					"sp: invalid bump (bm <png> <strength>)"));
 		*idx += 3;
@@ -342,10 +346,14 @@ static void	plane_build_basis(t_plane *pl)
 static t_parse_result	pl_parse_options(char **tok, int line,
 		t_object *obj, int *idx)
 {
+	t_bump_target	bump;
+
+	bump.has_bump = &obj->u_obj.pl.has_bump;
+	bump.map = &obj->u_obj.pl.bump;
+	bump.strength = &obj->u_obj.pl.bump_strength;
 	if (tok[*idx] && ft_strncmp(tok[*idx], "bm", 3) == 0)
 	{
-		if (!parse_opt_bump(tok, *idx, &obj->u_obj.pl.has_bump,
-				&obj->u_obj.pl.bump_strength, &obj->u_obj.pl.bump))
+		if (!parse_opt_bump(tok, *idx, bump))
 			return (obj_error(obj, line,
 					"pl: invalid bump (bm <png> <strength>)"));
 		*idx += 3;
@@ -427,7 +435,7 @@ static t_parse_result	cy_parse_attributes(char **tok, int line, t_object *obj)
 	return (parse_ok());
 }
 
-static void	cy_build_basis(t_sphere *cy)
+static void	cy_build_basis(t_cyl *cy)
 {
 	cy->has_checker = 0;
 	cy->checker_scale = 1.0f;
@@ -440,10 +448,14 @@ static void	cy_build_basis(t_sphere *cy)
 static t_parse_result	cy_parse_options(char **tok, int line,
 		t_object *obj, int *idx)
 {
+	t_bump_target	bump;
+
+	bump.has_bump = &obj->u_obj.cy.has_bump;
+	bump.map = &obj->u_obj.cy.bump;
+	bump.strength = &obj->u_obj.cy.bump_strength;
 	if (tok[*idx] && ft_strncmp(tok[*idx], "bm", 3) == 0)
 	{
-		if (!parse_opt_bump(tok, *idx, &obj->u_obj.cy.has_bump,
-				&obj->u_obj.cy.bump_strength, &obj->u_obj.cy.bump))
+		if (!parse_opt_bump(tok, *idx, bump))
 			return (obj_error(obj, line,
 					"cy: invalid bump (bm <png> <strength>)"));
 		*idx += 3;
@@ -472,7 +484,7 @@ t_parse_result	parse_cy(char **tok, int line, t_scene *scene)
 	result = cy_parse_attributes(tok, line, obj);
 	if (!result.ok)
 		return (result);
-	cy_build_basis(&obj->u_obj.sp);
+	cy_build_basis(&obj->u_obj.cy);
 	opt_idx = 6;
 	result = cy_parse_options(tok, line, obj, &opt_idx);
 	if (!result.ok)
@@ -541,10 +553,14 @@ static void	hp_build_basis(t_hparab *hp)
 static t_parse_result	hp_parse_options(char **tok, int line,
 		t_object *obj, int *idx)
 {
+	t_bump_target	bump;
+
+	bump.has_bump = &obj->u_obj.hp.has_bump;
+	bump.map = &obj->u_obj.hp.bump;
+	bump.strength = &obj->u_obj.hp.bump_strength;
 	if (tok[*idx] && ft_strncmp(tok[*idx], "bm", 3) == 0)
 	{
-		if (!parse_opt_bump(tok, *idx, &obj->u_obj.hp.has_bump,
-				&obj->u_obj.hp.bump_strength, &obj->u_obj.hp.bump))
+		if (!parse_opt_bump(tok, *idx, bump))
 			return (obj_error(obj, line,
 					"hp: invalid bump (bm <png> <strength>)"));
 		*idx += 3;
@@ -614,7 +630,7 @@ static t_parse_result	tr_parse_attributes(char **tok, int line, t_object *obj)
 	return (parse_ok());
 }
 
-static void	tr_build_basis(t_sphere *tr)
+static void	tr_build_basis(t_triangle *tr)
 {
 	tr->has_checker = 0;
 	tr->checker_scale = 1.0f;
@@ -627,10 +643,14 @@ static void	tr_build_basis(t_sphere *tr)
 static t_parse_result	tr_parse_options(char **tok, int line,
 		t_object *obj, int *idx)
 {
+	t_bump_target	bump;
+
+	bump.has_bump = &obj->u_obj.tr.has_bump;
+	bump.map = &obj->u_obj.tr.bump;
+	bump.strength = &obj->u_obj.tr.bump_strength;
 	if (tok[*idx] && ft_strncmp(tok[*idx], "bm", 3) == 0)
 	{
-		if (!parse_opt_bump(tok, *idx, &obj->u_obj.tr.has_bump,
-				&obj->u_obj.tr.bump_strength, &obj->u_obj.tr.bump))
+		if (!parse_opt_bump(tok, *idx, bump))
 			return (obj_error(obj, line,
 					"tr: invalid bump (bm <png> <strength>)"));
 		*idx += 3;
@@ -661,7 +681,7 @@ t_parse_result	parse_tr(char **tok, int line, t_scene *scene)
 	result = tr_parse_attributes(tok, line, obj);
 	if (!result.ok)
 		return (result);
-	tr_build_basis(&obj->u_obj.sp);
+	tr_build_basis(&obj->u_obj.tr);
 	opt_idx = 5;
 	result = tr_parse_options(tok, line, obj, &opt_idx);
 	if (!result.ok)
