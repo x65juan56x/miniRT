@@ -202,4 +202,11 @@ void	aux_cylinder(t_cyl *cy);
 void	aux_triangle(t_triangle *tr);
 void	aux_hparab(t_hparab *hp);
 
+/* FREE OBJECTS */
+void	free_sphere(t_object *it);
+void	free_plane(t_object *it);
+void	free_cylinder(t_object *it);
+void	free_triangle(t_object *it);
+void	free_hparab(t_object *it);
+
 #endif

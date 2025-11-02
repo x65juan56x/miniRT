@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include "../../include_bonus/minirt_bonus.h"
 
-// Inicializa la escena con valores por defecto y flags de presencia en falso.
-// Esto permite validar que A, C, L se declaren exactamente una vez en el parser.
+// Initializes the scene with default values and presence flags set to false.
+// This allows validation that A and C are declared exactly once in the parser.
 void	scene_init(t_scene *s)
 {
 	s->ambient.ratio = 0.0f;
@@ -24,7 +24,16 @@ void	scene_init(t_scene *s)
 * Use: Call before parsing to ensure a consistent starting state.
 */
 
-// Libera la lista enlazada de objetos y deja la escena en estado limpio.
+static void	free_lights(t_scene *s)
+{
+	t_light	*next_light;
+
+	next_light = s->light->next;
+	free(s->light);
+	s->light = next_light;
+}
+
+// Frees the linked list of objects and leaves the scene in a clean state.
 void	scene_free(t_scene *s)
 {
 	t_object	*it;
@@ -35,52 +44,21 @@ void	scene_free(t_scene *s)
 	{
 		n = it->next;
 		if (it->type == OBJ_SPHERE)
-		{
-			if (it->u_obj.sp.bump)
-				bump_free(it->u_obj.sp.bump);
-			if (it->u_obj.sp.material)
-				free(it->u_obj.sp.material);
-		}
+			free_sphere(it);
 		else if (it->type == OBJ_PLANE)
-		{
-			if (it->u_obj.pl.bump)
-				bump_free(it->u_obj.pl.bump);
-			if (it->u_obj.pl.material)
-				free(it->u_obj.pl.material);
-		}
+			free_plane(it);
 		else if (it->type == OBJ_CYLINDER)
-		{
-			if (it->u_obj.cy.bump)
-				bump_free(it->u_obj.cy.bump);
-			if (it->u_obj.cy.material)
-				free(it->u_obj.cy.material);
-		}
+			free_cylinder(it);
 		else if (it->type == OBJ_TRIANGLE)
-		{
-			if (it->u_obj.tr.bump)
-				bump_free(it->u_obj.tr.bump);
-			if (it->u_obj.tr.material)
-				free(it->u_obj.tr.material);
-		}
+			free_triangle(it);
 		else if (it->type == OBJ_HPARABOLOID)
-		{
-			if (it->u_obj.hp.bump)
-				bump_free(it->u_obj.hp.bump);
-			if (it->u_obj.hp.material)
-				free(it->u_obj.hp.material);
-		}
+			free_hparab(it);
 		free(it);
 		it = n;
 	}
 	s->objects = NULL;
 	while (s->light)
-	{
-		t_light	*next_light;
-
-		next_light = s->light->next;
-		free(s->light);
-		s->light = next_light;
-	}
+		free_lights(s);
 	s->reflection_depth = 2;
 	s->reflection_limit_set = false;
 }

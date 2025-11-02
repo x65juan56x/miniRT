@@ -74,6 +74,15 @@ GEOM_B_SRCS = \
 CORE_B_SRCS = \
 	$(SRC_DIR_B)/core/scene_bonus.c \
 	$(SRC_DIR_B)/core/intersect_bonus.c \
+	$(SRC_DIR_B)/core/free_objects_bonus.c \
+	$(SRC_DIR_B)/core/intersect_common_bonus.c \
+	$(SRC_DIR_B)/core/intersect_sphere_bonus.c \
+	$(SRC_DIR_B)/core/intersect_plane_bonus.c \
+	$(SRC_DIR_B)/core/intersect_triangle_bonus.c \
+	$(SRC_DIR_B)/core/intersect_hparaboloid_bonus.c \
+	$(SRC_DIR_B)/core/intersect_cylinder_bonus.c \
+	$(SRC_DIR_B)/core/intersect_cylinder_wall_bonus.c \
+	$(SRC_DIR_B)/core/intersect_cylinder_caps_bonus.c \
 	$(SRC_DIR_B)/app/input_bonus.c \
 	$(SRC_DIR_B)/camera/camera_bonus.c \
 	$(SRC_DIR_B)/render/framebuffer_bonus.c \
