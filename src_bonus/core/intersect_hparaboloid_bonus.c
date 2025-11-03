@@ -1,5 +1,5 @@
 #include "../../include_bonus/minirt_bonus.h"
-#include "../../include_bonus/intersect_bonus_internal.h"
+#include "../../include_bonus/intersect_internal_bonus.h"
 
 static t_vec3	hp_checker_color(const t_hparab *hp, float x, float y)
 {

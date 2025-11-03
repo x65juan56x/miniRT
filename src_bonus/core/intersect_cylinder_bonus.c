@@ -1,5 +1,5 @@
 #include "../../include_bonus/minirt_bonus.h"
-#include "../../include_bonus/intersect_bonus_internal.h"
+#include "../../include_bonus/intersect_internal_bonus.h"
 
 int	record_cylinder(t_cyl *cy, t_ray r, float t, t_hit *out)
 {

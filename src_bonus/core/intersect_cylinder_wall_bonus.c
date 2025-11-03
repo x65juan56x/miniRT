@@ -1,5 +1,5 @@
 #include "../../include_bonus/minirt_bonus.h"
-#include "../../include_bonus/intersect_bonus_internal.h"
+#include "../../include_bonus/intersect_internal_bonus.h"
 
 static t_vec3	normal_cyl(const t_cyl *cylinder, t_vec3 p)
 {

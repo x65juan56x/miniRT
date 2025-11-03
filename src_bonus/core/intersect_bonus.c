@@ -1,5 +1,5 @@
 #include "../../include_bonus/minirt_bonus.h"
-#include "../../include_bonus/intersect_bonus_internal.h"
+#include "../../include_bonus/intersect_internal_bonus.h"
 
 static int	object_hit(t_object *obj, t_ray r, t_hit *out)
 {

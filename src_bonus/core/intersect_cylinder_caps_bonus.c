@@ -1,5 +1,5 @@
 #include "../../include_bonus/minirt_bonus.h"
-#include "../../include_bonus/intersect_bonus_internal.h"
+#include "../../include_bonus/intersect_internal_bonus.h"
 
 static void	cycap_process_checker(t_cyl *cy, t_common_hit *c_hit, t_hit *out,
 		t_vec3 q)

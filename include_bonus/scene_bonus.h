@@ -51,11 +51,11 @@ typedef struct s_camera
 */
 typedef struct s_light
 {
-	t_vec3	pos;
-	float	bright; // [0,1]
-	t_vec3	color; // [0,1]
-	bool	present;
-	struct s_light *next;
+	t_vec3			pos;
+	float			bright; // [0,1]
+	t_vec3			color; // [0,1]
+	bool			present;
+	struct s_light	*next;
 }	t_light;
 
 /* Object kinds supported in the mandatory part. */
@@ -184,7 +184,7 @@ typedef struct s_scene
 	t_camera	camera;
 	t_light		*light;
 	t_object	*objects;
-	int		reflection_depth;
+	int			reflection_depth;
 	bool		reflection_limit_set;
 }	t_scene;
 
