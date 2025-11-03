@@ -75,7 +75,6 @@ int	main(int ac, char **av)
 		cleanup(&app);
 		return (1);
 	}
-	ti_init(&app.overlay, app.mlx, app.image);
 	app.show_normals = 0;
 	render_and_present(&app);
 	mlx_key_hook(app.mlx, &app_on_key, &app);

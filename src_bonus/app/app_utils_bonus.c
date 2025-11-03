@@ -26,13 +26,6 @@ int	init_window(t_app *app)
 
 void	cleanup(t_app *app)
 {
-	if (app->overlay.overlay && app->mlx)
-		mlx_delete_image(app->mlx, app->overlay.overlay);
-	if (app->overlay.buffer)
-	{
-		free(app->overlay.buffer);
-		app->overlay.buffer = NULL;
-	}
 	if (app->image && app->mlx)
 		mlx_delete_image(app->mlx, app->image);
 	if (app->mlx)
