@@ -56,6 +56,7 @@ PARSE_B_SRCS = \
 	$(SRC_DIR_B)/parse/parser_bonus.c \
 	$(SRC_DIR_B)/parse/parse_dispatch_bonus.c \
 	$(SRC_DIR_B)/parse/parse_elements_bonus.c \
+	$(SRC_DIR_B)/parse/parse_element_lights_bonus.c \
 	$(SRC_DIR_B)/parse/parse_numbers_bonus.c \
 	$(SRC_DIR_B)/parse/parse_objects_bonus.c \
 	$(SRC_DIR_B)/parse/parse_sphere_bonus.c \
