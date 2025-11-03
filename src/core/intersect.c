@@ -96,4 +96,3 @@ int	record_cylinder(const t_cyl *cy, t_ray r, float t, t_hit *out)
 * Logic: Choose normal based on hit_part (0=side, 1=top cap, 2=bottom cap).
 * Notes: Normalizes radial normal for curved surface; caps use axis ± direction.
 */
-

@@ -144,4 +144,8 @@ void	aux_sphere(t_sphere *sp);
 void	aux_plane(t_plane *pl);
 void	aux_cylinder(t_cyl *cy);
 
+/* CYL_UTILS */
+float	pick_valid_t(const t_cyl *cyl, t_ray r, float t1, float t2);
+float	check_best_t(float cyl_part, float best_t, t_cyl *cyl, int index);
+
 #endif

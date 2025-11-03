@@ -17,6 +17,8 @@ COMMON_CORE_SRCS = \
 	$(SRC_DIR_M)/color/color.c \
 	$(SRC_DIR_M)/core/ray.c \
 	$(SRC_DIR_M)/math/vec3.c \
+	$(SRC_DIR_M)/math/vec3_arith.c \
+	$(SRC_DIR_M)/math/vec3_const.c \
 	$(SRC_DIR_M)/math/math_utils.c
 
 # ---------- Mandatory set ----------
@@ -36,7 +38,8 @@ PARSE_M_SRCS = \
 GEOM_M_SRCS = \
 	$(SRC_DIR_M)/geom/sphere.c \
 	$(SRC_DIR_M)/geom/plane.c \
-	$(SRC_DIR_M)/geom/cylinder.c
+	$(SRC_DIR_M)/geom/cylinder.c \
+	$(SRC_DIR_M)/geom/cylinder_utils.c
 
 CORE_M_SRCS = \
 	$(SRC_DIR_M)/core/intersect.c \

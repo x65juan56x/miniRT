@@ -50,7 +50,8 @@ void	render_scene(t_app *app)
 /*
 * Purpose: Render the entire scene by tracing a ray for each pixel.
 * Logic: Build camera frame; iterate over all pixels (x, y) in raster space.
-* -Compute normalized viewport coordinates (u, v) with 0.5 offset for pixel center.
+* -Compute normalized viewport coordinates (u, v) with 0.5 offset for
+	pixel center.
 * -Calculate ray direction from camera origin through the viewport sample point.
 * -Trace the ray and store the resulting color in the framebuffer.
 * Notes: v is flipped (1 - v) to match image space (top-left origin)
