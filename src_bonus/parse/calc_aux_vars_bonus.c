@@ -31,8 +31,10 @@ void	aux_cylinder(t_cyl *cy)
 	cy->vars.radius = cy->di * 0.5f;
 	cy->vars.radius2 = cy->vars.radius * cy->vars.radius;
 	cy->vars.half_height = cy->he * 0.5f;
-	cy->vars.cap_top = v3_add(cy->center, v3_mul(cy->axis, cy->vars.half_height));
-	cy->vars.cap_bottom = v3_sub(cy->center, v3_mul(cy->axis, cy->vars.half_height));
+	cy->vars.cap_top = v3_add(cy->center, v3_mul(cy->axis,
+				cy->vars.half_height));
+	cy->vars.cap_bottom = v3_sub(cy->center, v3_mul(cy->axis,
+				cy->vars.half_height));
 	up = v3(0.0f, 1.0f, 0.0f);
 	if (fabs(v3_dot(cy->axis, up)) > 0.999f)
 		up = v3(1.0f, 0.0f, 0.0f);
@@ -49,14 +51,14 @@ void	aux_triangle(t_triangle *tr)
 	tr->vars.n = v3_cross(tr->vars.e1, tr->vars.e2);
 	// Tangente y bitangente para UV/bump
 	if (fabsf(tr->vars.n.x) > fabsf(tr->vars.n.y))
-		tr->vars.tan = v3_norm(v3_cross(v3(0,1,0), tr->vars.n));
+		tr->vars.tan = v3_norm(v3_cross(v3(0, 1, 0), tr->vars.n));
 	else
-		tr->vars.tan = v3_norm(v3_cross(v3(1,0,0), tr->vars.n));
+		tr->vars.tan = v3_norm(v3_cross(v3(1, 0, 0), tr->vars.n));
 	tr->vars.bit = v3_cross(tr->vars.n, tr->vars.tan);
 	tr->vars.n = v3_norm(tr->vars.n);
 	tr->vars.base_u = v3_norm(tr->vars.e1);
 	tr->vars.base_v = v3_norm(v3_sub(tr->vars.e2,
-		v3_mul(tr->vars.base_u, v3_dot(tr->vars.e2, tr->vars.base_u))));
+				v3_mul(tr->vars.base_u, v3_dot(tr->vars.e2, tr->vars.base_u))));
 }
 
 void	aux_hparab(t_hparab *hp)
