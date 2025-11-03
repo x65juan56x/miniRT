@@ -41,6 +41,7 @@ t_parse_result	parse_error(int line, const char *msg);
 t_parse_result	parse_ok(void);
 t_parse_result	dispatch_tokens(char **tokens, int line, t_scene *scene);
 
+/* PARSE OBJECTS */
 t_parse_result	parse_a(char **tokens, int line, t_scene *scene);
 t_parse_result	parse_c(char **tokens, int line, t_scene *scene);
 t_parse_result	parse_l(char **tokens, int line, t_scene *scene);
@@ -50,5 +51,19 @@ t_parse_result	parse_pl(char **tokens, int line, t_scene *scene);
 t_parse_result	parse_cy(char **tokens, int line, t_scene *scene);
 t_parse_result	parse_tr(char **tokens, int line, t_scene *scene);
 t_parse_result	parse_hp(char **tokens, int line, t_scene *scene);
+
+/* PARSE OBJECTS UTILS */
+t_parse_result	obj_error(t_object *obj, int line, const char *msg);
+void	free_sp_pl_cy_with_addons(t_object *obj);
+void	free_tr_hp_with_addons(t_object *obj);
+int	parse_opt_checker(char **tokens, int idx, int *has_checker,
+		float *out_scale);
+int	parse_opt_bump(char **tokens, int idx, t_bump_target target);
+t_parse_result	parse_specular_info(char **tokens, int line,
+		const char *tag, t_material **out_mat);
+t_parse_result	spec_validate_tail(t_spec_state *st);
+t_parse_result	spec_finalize_material(t_spec_state *st,
+		t_material **out_mat);
+t_parse_result	spec_error(int line, const char *tag, const char *msg);
 
 #endif

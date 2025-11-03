@@ -58,6 +58,13 @@ PARSE_B_SRCS = \
 	$(SRC_DIR_B)/parse/parse_elements_bonus.c \
 	$(SRC_DIR_B)/parse/parse_numbers_bonus.c \
 	$(SRC_DIR_B)/parse/parse_objects_bonus.c \
+	$(SRC_DIR_B)/parse/parse_sphere_bonus.c \
+	$(SRC_DIR_B)/parse/parse_plane_bonus.c \
+	$(SRC_DIR_B)/parse/parse_cylinder_bonus.c \
+	$(SRC_DIR_B)/parse/parse_hparaboloid_bonus.c \
+	$(SRC_DIR_B)/parse/parse_triangle_bonus.c \
+	$(SRC_DIR_B)/parse/parse_specular_bonus.c \
+	$(SRC_DIR_B)/parse/parse_specular_utils_bonus.c \
 	$(SRC_DIR_B)/parse/parse_vectors_bonus.c \
 	$(SRC_DIR_B)/parse/parser_utils_bonus.c \
 	$(SRC_DIR_B)/parse/token_split_bonus.c \
