@@ -12,8 +12,11 @@ typedef struct s_app
 	int				show_normals;
 	t_scene			scene;
 	t_toggle_info	overlay;
-} t_app;
+}	t_app;
 
 void	app_on_key(mlx_key_data_t keydata, void *param);
+
+int		init_window(t_app *app);
+void	cleanup(t_app *app);
 
 #endif

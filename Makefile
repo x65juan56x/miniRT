@@ -95,6 +95,7 @@ CORE_B_SRCS = \
 	$(SRC_DIR_B)/core/intersect_cylinder_wall_bonus.c \
 	$(SRC_DIR_B)/core/intersect_cylinder_caps_bonus.c \
 	$(SRC_DIR_B)/app/input_bonus.c \
+	$(SRC_DIR_B)/app/app_utils_bonus.c \
 	$(SRC_DIR_B)/camera/camera_bonus.c \
 	$(SRC_DIR_B)/render/framebuffer_bonus.c \
 	$(SRC_DIR_B)/render/render_bonus.c \

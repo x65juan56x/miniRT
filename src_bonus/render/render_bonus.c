@@ -30,16 +30,16 @@ static t_vec3	shade_surface(const t_scene *scene, const t_hit *hit,
 	if (depth <= 0 || kr <= 0.0f)
 		return (local);
 	ref_dir = v3_sub(incoming.dir,
-		v3_mul(hit->n, 2.0f * v3_dot(incoming.dir, hit->n)));
+			v3_mul(hit->n, 2.0f * v3_dot(incoming.dir, hit->n)));
 	dir_len2 = v3_len2(ref_dir);
 	if (dir_len2 < 1e-10f)
 		return (local);
 	ref_dir = v3_mul(ref_dir, 1.0f / sqrtf(dir_len2));
 	reflect_col = trace_recursive(scene,
-		ray(v3_add(hit->p, v3_mul(hit->n, fmaxf(1e-4f, 1e-3f * hit->t))),
-			ref_dir), depth - 1);
+			ray(v3_add(hit->p, v3_mul(hit->n, fmaxf(1e-4f, 1e-3f * hit->t))),
+				ref_dir), depth - 1);
 	return (v3_add(v3_mul(local, 1.0f - kr),
-		v3_mul(reflect_col, kr)));
+			v3_mul(reflect_col, kr)));
 }
 
 static t_vec3	trace_recursive(const t_scene *scene, t_ray r, int depth)

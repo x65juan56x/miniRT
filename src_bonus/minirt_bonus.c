@@ -8,45 +8,6 @@ static void	render_and_present(t_app *app)
 	upload_framebuffer(app->image, app->framebuffer);
 }
 
-static int	init_window(t_app *app)
-{
-	app->mlx = mlx_init(WIN_W, WIN_H, "miniRT", false);
-	if (!app->mlx)
-	{
-		ft_putstr_fd((char *)"Error\nmlx_init failed\n", 2);
-		return (-1);
-	}
-	app->image = mlx_new_image(app->mlx, WIN_W, WIN_H);
-	if (!app->image)
-	{
-		ft_putstr_fd((char *)"Error\nmlx_new_image failed\n", 2);
-		return (-1);
-	}
-	if (mlx_image_to_window(app->mlx, app->image, 0, 0) < 0)
-	{
-		ft_putstr_fd((char *)"Error\nmlx_image_to_window failed\n", 2);
-		return (-1);
-	}
-	return (0);
-}
-
-static void	cleanup(t_app *app)
-{
-	if (app->overlay.overlay && app->mlx)
-		mlx_delete_image(app->mlx, app->overlay.overlay);
-	if (app->overlay.buffer)
-	{
-		free(app->overlay.buffer);
-		app->overlay.buffer = NULL;
-	}
-	if (app->image && app->mlx)
-		mlx_delete_image(app->mlx, app->image);
-	if (app->mlx)
-		mlx_terminate(app->mlx);
-	scene_free(&app->scene);
-	free(app->framebuffer);
-}
-
 static int	print_usage(int ac, char **av)
 {
 	if (ac != 2)
@@ -73,9 +34,10 @@ static int	init_framebuffer(t_app *app)
 	return (1);
 }
 
-t_parse_result	init_and_parse(t_app *app, char **av)
+static t_parse_result	init_and_parse(t_app *app, char **av)
 {
 	t_parse_result	pr;
+
 	ft_bzero(app, sizeof(app));
 	scene_init(&app->scene);
 	pr = parse_scene(av[1], &app->scene);
@@ -101,13 +63,13 @@ int	main(int ac, char **av)
 	t_parse_result	pr;
 
 	if (print_usage(ac, av))
-		return (1); 
+		return (1);
 	pr = init_and_parse(&app, av);
-	if(!pr.ok)
+	if (!pr.ok)
 		return (EXIT_FAILURE);
 	parse_result_free(&pr);
 	if (!init_framebuffer(&app))
-		return(EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	if (init_window(&app) < 0)
 	{
 		cleanup(&app);
@@ -153,7 +115,8 @@ int	main(int ac, char **av)
 		return (EXIT_FAILURE);
 	}
 	parse_result_free(&pr);
-	app.framebuffer = (uint32_t *)malloc(sizeof(uint32_t) * (size_t)WIN_W * (size_t)WIN_H);
+	app.framebuffer = (uint32_t *)malloc(sizeof(uint32_t)
+				* (size_t)WIN_W * (size_t)WIN_H);
 	if (!app.framebuffer)
 	{
 		ft_putstr_fd((char *)"Error\nfailed to allocate framebuffer\n", 2);

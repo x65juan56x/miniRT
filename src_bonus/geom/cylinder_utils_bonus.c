@@ -1,24 +1,24 @@
 #include <float.h>
 #include "../../include_bonus/minirt_bonus.h"
 
-void    cyl_quadratic(t_cyl *cyl, t_ray r, t_vec3 x)
+void	cyl_quadratic(t_cyl *cyl, t_ray r, t_vec3 x)
 {
-	float   x_dot_ax;
-	float   d_dot_ax;
+	float	x_dot_ax;
+	float	d_dot_ax;
 
 	x_dot_ax = v3_dot(x, cyl->axis);
 	d_dot_ax = v3_dot(r.dir, cyl->axis);
 	cyl->vars.a = v3_dot(v3_sub(r.dir, v3_mul(cyl->axis, d_dot_ax)),
-		v3_sub(r.dir, v3_mul(cyl->axis, d_dot_ax)));
-	cyl->vars.b = 2.0f* v3_dot(v3_sub(r.dir, v3_mul(cyl->axis, d_dot_ax)),
-		v3_sub(x, v3_mul(cyl->axis, x_dot_ax)));
+			v3_sub(r.dir, v3_mul(cyl->axis, d_dot_ax)));
+	cyl->vars.b = 2.0f * v3_dot(v3_sub(r.dir, v3_mul(cyl->axis, d_dot_ax)),
+			v3_sub(x, v3_mul(cyl->axis, x_dot_ax)));
 	cyl->vars.c = (v3_dot(v3_sub(x, v3_mul(cyl->axis, x_dot_ax)),
-		v3_sub(x, v3_mul(cyl->axis, x_dot_ax)))) - cyl->vars.radius2;
+				v3_sub(x, v3_mul(cyl->axis, x_dot_ax)))) - cyl->vars.radius2;
 }
 
-float   check_best_t(float cyl_part, float best_t, t_cyl *cyl, int index)
+float	check_best_t(float cyl_part, float best_t, t_cyl *cyl, int index)
 {
-	if(cyl_part > 0.0f && cyl_part < best_t)
+	if (cyl_part > 0.0f && cyl_part < best_t)
 	{
 		cyl->vars.hit_part = index;
 		return (cyl_part);
