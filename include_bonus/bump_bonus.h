@@ -24,9 +24,9 @@ typedef struct s_bump_aux
 
 typedef struct s_bump_target
 {
-    int			*has_bump;
-    float		*strength;
-    t_bumpmap	**map;
+	int			*has_bump;
+	float		*strength;
+	t_bumpmap	**map;
 }	t_bump_target;
 
 typedef struct s_tr_bump_aux
