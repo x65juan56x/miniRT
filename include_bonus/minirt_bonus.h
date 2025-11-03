@@ -25,10 +25,12 @@
 # include "material_bonus.h"
 # include "bump_bonus.h"
 
-# define WIN_W 3840
-# define WIN_H 2160
-/* # define WIN_W 1920
-# define WIN_H 1080 */
+/* # define WIN_W 3840
+# define WIN_H 2160 */
+# define WIN_W 1920
+# define WIN_H 1080
+/* # define WIN_W 720
+# define WIN_H 480 */
 
 // ε to avoid self-intersections (we’ll use it later in ray tracing)
 # define EPSILON 1e-4f
