@@ -16,10 +16,10 @@ struct s_hparab;
 typedef struct s_hit
 {
 	int		ok;
-	float	t; // Distancia al primer objeto intersectado
-	t_vec3	p; // Punto de impacto
-	t_vec3	n; // Normal en el punto
-	t_vec3	albedo; // Color del objeto intersectado
+	float	t; // Distance to the first intersected object
+	t_vec3	p; // Impact point
+	t_vec3	n; // Normal at the point
+	t_vec3	albedo; // Color of the intersected object
 	float	ks;
 	float	shininess;
 	t_spec_model	spec_model;

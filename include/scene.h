@@ -132,6 +132,13 @@ void	scene_free(t_scene *s);
 /* Push an object into the scene object list (O(1)). */
 void	scene_add_object(t_scene *s, t_object *obj);
 
+/* INTERSECT */
+void	orient_normal(t_hit *hit, t_ray r);
+int		record_sphere(const t_sphere *sp, t_ray r, float t, t_hit *out);
+int		record_plane(const t_plane *pl, t_ray r, float t, t_hit *out);
+t_vec3	normal_cyl(const t_cyl *cylinder, t_vec3 p);
+int		record_cylinder(const t_cyl *cy, t_ray r, float t, t_hit *out);
+
 /* AUX OBJECT VARS */
 void	aux_sphere(t_sphere *sp);
 void	aux_plane(t_plane *pl);
