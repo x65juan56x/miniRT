@@ -11,7 +11,6 @@ typedef struct s_app
 	uint32_t		*framebuffer;
 	int				show_normals;
 	t_scene			scene;
-	t_toggle_info	overlay;
 }	t_app;
 
 void	app_on_key(mlx_key_data_t keydata, void *param);
