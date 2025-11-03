@@ -7,15 +7,15 @@ typedef enum e_spec_model
 {
 	SPEC_MODEL_BLINN,
 	SPEC_MODEL_PHONG
-}t_spec_model;
+}	t_spec_model;
 
 typedef struct s_material
 {
-	t_vec3	albedo;
-	float	ks;
-	float	shininess;
+	t_vec3			albedo;
+	float			ks;
+	float			shininess;
 	t_spec_model	model;
-	 float	reflectivity;
+	float			reflectivity;
 }	t_material;
 
 #endif
