@@ -1,7 +1,7 @@
 #include <math.h>
 #include "../../include/vec3.h"
 
-t_vec3 v3(float x, float y, float z)
+t_vec3	v3(float x, float y, float z)
 {
 	return ((t_vec3){ x, y, z });
 }
@@ -10,7 +10,7 @@ t_vec3 v3(float x, float y, float z)
 * Useful to initialize positions, directions and colors in the 3D space.
 */
 
-t_vec3 v3_add(t_vec3 a, t_vec3 b)
+t_vec3	v3_add(t_vec3 a, t_vec3 b)
 {
 	return (v3(a.x + b.x, a.y + b.y, a.z + b.z));
 }
@@ -18,7 +18,7 @@ t_vec3 v3_add(t_vec3 a, t_vec3 b)
 * Useful to combine displacements or acumulate forces/colors.
 */
 
-t_vec3 v3_sub(t_vec3 a, t_vec3 b)
+t_vec3	v3_sub(t_vec3 a, t_vec3 b)
 {
 	return (v3(a.x - b.x, a.y - b.y, a.z - b.z));
 }
@@ -26,7 +26,7 @@ t_vec3 v3_sub(t_vec3 a, t_vec3 b)
 * Useful to obtain direction vectors between two points: b->a = a - b.
 */
 
-t_vec3 v3_mul(t_vec3 a, float s)
+t_vec3	v3_mul(t_vec3 a, float s)
 {
 	return (v3(a.x * s, a.y * s, a.z * s));
 }
@@ -34,7 +34,7 @@ t_vec3 v3_mul(t_vec3 a, float s)
 * Useful for changing the vector's lenght or interpolation.
 */
 
-t_vec3 v3_div(t_vec3 a, float s)
+t_vec3	v3_div(t_vec3 a, float s)
 {
 	return (v3(a.x / s, a.y / s, a.z / s));
 }
@@ -42,7 +42,7 @@ t_vec3 v3_div(t_vec3 a, float s)
 * Useful for normalising or converting units.
 */
 
-float v3_dot(t_vec3 a, t_vec3 b)
+float	v3_dot(t_vec3 a, t_vec3 b)
 {
 	return (a.x * b.x + a.y * b.y + a.z * b.z);
 }
@@ -54,15 +54,15 @@ float v3_dot(t_vec3 a, t_vec3 b)
 t_vec3	v3_ctoc(t_vec3 a, t_vec3 b)
 {
 	return (v3(
-		a.x * b.x,
-		a.y * b.y,
-		a.z * b.z));
+			a.x * b.x,
+			a.y * b.y,
+			a.z * b.z));
 }
 /*
 * Component to component product
 */
 
-t_vec3 v3_cross(t_vec3 a, t_vec3 b)
+t_vec3	v3_cross(t_vec3 a, t_vec3 b)
 {
 	return (v3(
 		a.y * b.z - a.z * b.y,
@@ -71,19 +71,20 @@ t_vec3 v3_cross(t_vec3 a, t_vec3 b)
 }
 /*
 * Cross product: perpendicular to both vectors.
-* Returns a vector whose direction follows the right-hand rule and whose magnitude is |a||b|sin(theta).
+* Returns a vector whose direction follows the right-hand rule and whose
+	magnitude is |a||b|sin(theta).
 * Useful for constructing orthonormal bases.
 */
 
-float v3_len2(t_vec3 a)
+float	v3_len2(t_vec3 a)
 {
-	return v3_dot(a, a);
+	return (v3_dot(a, a));
 }
 /*
 * Length squared: avoid sqrt when you only need to compare magnitudes.
 */
 
-float v3_len(t_vec3 a)
+float	v3_len(t_vec3 a)
 {
 	return (sqrtf(v3_len2(a)));
 }
@@ -92,7 +93,7 @@ float v3_len(t_vec3 a)
 * Useful to obtain the physical magnitude of a vector (distance, speed, etc.).
 */
 
-t_vec3 v3_norm(t_vec3 a)
+t_vec3	v3_norm(t_vec3 a)
 {
 	float l;
 

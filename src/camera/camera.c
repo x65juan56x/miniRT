@@ -28,3 +28,12 @@ void	camera_build_frame(const t_camera *cam, int width, int height,
 	out->lower_left = v3_sub(v3_sub(center, v3_mul(out->horizontal, 0.5f)),
 			v3_mul(out->vertical, 0.5f));
 }
+/*
+* Purpose: Construct the camera's orthonormal basis and viewport geometry.
+* Logic: Build right/up vectors from forward; compute viewport dimensions using
+*        FOV and aspect ratio; set lower-left corner for ray generation.
+* Notes: If forward is nearly parallel to world-up (Y), uses Z as fallback.
+*        Focal length determines distance from origin to viewport plane.
+* Use: Call once per frame or when camera/resolution changes; out holds the
+*      coordinate frame needed by the ray generator.
+*/

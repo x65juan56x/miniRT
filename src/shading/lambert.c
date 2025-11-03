@@ -23,3 +23,8 @@ t_vec3	shade_lambert(const t_scene *scene, const t_hit *hit)
 	c = v3_add(ambient, v3_ctoc(hit->albedo, diff));
 	return (c);
 }
+/*
+* Purpose: Compute surface color using Lambert (diffuse) shading.
+* Logic: ambient + (albedo × diffuse), where diffuse = light × max(0, N·L).
+* Notes: Returns only ambient if in shadow or no hit (black if miss).
+*/

@@ -72,8 +72,8 @@ t_parse_result	parse_pl(char **tokens, int line, t_scene *scene)
 * Guarantees: Rejects malformed data and cleans up allocations on error.
 */
 
-
-static t_parse_result validate_cyl_geometry(char **tkns, int line, t_object *obj)
+static t_parse_result	validate_cyl_geometry(char **tkns,
+	int line, t_object *obj)
 {
 	if (!parse_vec3(tkns[1], &obj->u_obj.cy.center))
 		return (obj_error(obj, line, "cy: invalid centre"));
@@ -89,13 +89,13 @@ static t_parse_result validate_cyl_geometry(char **tkns, int line, t_object *obj
 		return (obj_error(obj, line, "cy: invalid height"));
 	if (!parse_color_255(tkns[5], &obj->u_obj.cy.color))
 		return (obj_error(obj, line, "cy: invalid color"));
-	return(parse_ok());
+	return (parse_ok());
 }
 
 t_parse_result	parse_cy(char **tkns, int line, t_scene *scene)
 {
-	t_object	*obj;
-	t_parse_result res;
+	t_object		*obj;
+	t_parse_result	res;
 
 	if (!tkns[1] || !tkns[2] || !tkns[3] || !tkns[4] || !tkns[5] || tkns[6])
 		return (parse_error(line, "cy: invalid format"));

@@ -15,14 +15,14 @@ float	clampf(float value, float min, float max)
 	return (value);
 }
 /*
-Propósito: Limitar (clamp) un valor flotante al rango [min, max].
-Lógica:
-- Si el valor es menor que min, devuelve min.
-- Si el valor es mayor que max, devuelve max.
-- Si está en el rango, devuelve el valor original.
+Purpose: Clamp a floating-point value to the range [min, max].
+Logic:
+- If the value is less than min, return min.
+- If the value is greater than max, return max.
+- If it’s within the range, return the original value.
 */
 
-/*PROBAR SI CON ESTA RAIZ CUADRADA FUNCIONA MAS RÁPIDO*/
+/*TEST IF THIS SQUARE ROOT FUNCTION RUNS FASTER*/
 // float q_rsqrt(float number)
 // {
 // 	long		i;
@@ -35,8 +35,8 @@ Lógica:
 // 	i = *(long *)&y;
 // 	i = 0x5f3759df - (i >> 1);
 // 	y = *(float *)&i;
-// 	y = y * (threehalfs - (x2 *y *y));
-// 	y = y * (threehalfs - (x2 *y *y));
+// 	y = y * (threehalfs - (x2 * y * y));
+// 	y = y * (threehalfs - (x2 * y * y));
 
 // 	return (y);
 // }

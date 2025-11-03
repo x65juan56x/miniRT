@@ -2,8 +2,6 @@
 #include "vec3.h"
 #include "scene.h"
 
-// Inicializa la escena con valores por defecto y flags de presencia en falso.
-// Esto permite validar que A, C, L se declaren exactamente una vez en el parser.
 void	scene_init(t_scene *s)
 {
 	s->ambient.ratio = 0.0f;
@@ -26,7 +24,6 @@ void	scene_init(t_scene *s)
 * Use: Call before parsing to ensure a consistent starting state.
 */
 
-// Libera la lista enlazada de objetos y deja la escena en estado limpio.
 void	scene_free(t_scene *s)
 {
 	t_object	*it;
