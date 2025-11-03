@@ -15,4 +15,7 @@ typedef struct s_app
 
 void	app_on_key(mlx_key_data_t keydata, void *param);
 
+int		init_window(t_app *app);
+void	cleanup(t_app *app);
+
 #endif

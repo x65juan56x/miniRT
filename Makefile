@@ -47,6 +47,7 @@ CORE_M_SRCS = \
 	$(SRC_DIR_M)/core/scene.c \
 	$(SRC_DIR_M)/camera/camera.c \
 	$(SRC_DIR_M)/app/input.c \
+	$(SRC_DIR_M)/app/app_utils.c \
 	$(SRC_DIR_M)/render/framebuffer.c \
 	$(SRC_DIR_M)/render/render.c
 
