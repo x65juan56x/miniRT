@@ -47,11 +47,12 @@ CORE_M_SRCS = \
 	$(SRC_DIR_M)/core/scene.c \
 	$(SRC_DIR_M)/camera/camera.c \
 	$(SRC_DIR_M)/app/input.c \
+	$(SRC_DIR_M)/app/app_utils.c \
 	$(SRC_DIR_M)/render/framebuffer.c \
 	$(SRC_DIR_M)/render/render.c
 
 MAIN_M      = $(SRC_DIR_M)/minirt.c
-SRCS_M      = $(PARSE_M_SRCS) $(COMMON_CORE_SRCS) $(SRC_DIR_M)/shading/lambert.c $(SRC_DIR_M)/shading/shadow.c $(SRC_DIR_M)/app/toggle_info.c $(GEOM_M_SRCS) $(CORE_M_SRCS) $(MAIN_M)
+SRCS_M      = $(PARSE_M_SRCS) $(COMMON_CORE_SRCS) $(SRC_DIR_M)/shading/lambert.c $(SRC_DIR_M)/shading/shadow.c $(GEOM_M_SRCS) $(CORE_M_SRCS) $(MAIN_M)
 OBJS_M      = $(SRCS_M:$(SRC_DIR_M)/%.c=$(OBJ_DIR_M)/%.o)
 
 # ---------- Bonus set ----------

@@ -1,8 +1,7 @@
 #ifndef APP_H
 # define APP_H
 
-# include "ui.h"
-
+# include "scene.h"
 typedef struct s_app
 {
 	mlx_t			*mlx;
@@ -10,9 +9,11 @@ typedef struct s_app
 	uint32_t		*framebuffer;
 	int				show_normals;
 	t_scene			scene;
-	t_toggle_info	overlay;
 }	t_app;
 
 void	app_on_key(mlx_key_data_t keydata, void *param);
+
+int		init_window(t_app *app);
+void	cleanup(t_app *app);
 
 #endif
