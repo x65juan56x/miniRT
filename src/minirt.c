@@ -11,6 +11,10 @@ static void	render_and_present(t_app *app)
 	render_scene(app);
 	upload_framebuffer(app->image, app->framebuffer);
 }
+/*
+* Purpose: Render the scene and upload the framebuffer to the display image.
+* Logic: Calls render_scene to trace rays; then uploads result to MLX image.
+*/
 
 static int	init_window(t_app *app)
 {
@@ -33,6 +37,11 @@ static int	init_window(t_app *app)
 	}
 	return (0);
 }
+/*
+* Purpose: Initialize the MLX window and image for rendering.
+* Logic: Create MLX instance, allocate image buffer, attach to window.
+* Notes: Returns -1 on failure; prints error messages to stderr.
+*/
 
 static void	cleanup(t_app *app)
 {
@@ -50,6 +59,10 @@ static void	cleanup(t_app *app)
 	scene_free(&app->scene);
 	free(app->framebuffer);
 }
+/*
+* Purpose: Free all allocated resources before exiting.
+* Logic: Delete MLX images, terminate MLX, free scene and framebuffer.
+*/
 
 static int	print_usage(int ac, char **av)
 {
@@ -63,6 +76,10 @@ static int	print_usage(int ac, char **av)
 	}
 	return (0);
 }
+/*
+* Purpose: Validate argument count and print usage message if incorrect.
+* Logic: Returns 1 if args invalid, 0 otherwise.
+*/
 
 static int	init_framebuffer(t_app *app)
 {
@@ -76,10 +93,15 @@ static int	init_framebuffer(t_app *app)
 	}
 	return (1);
 }
+/*
+* Purpose: Allocate memory for the framebuffer (pixel color storage).
+* Logic: Allocates WIN_W × WIN_H uint32_t array; returns 0 on failure.
+*/
 
 t_parse_result	init_and_parse(t_app *app, char **av)
 {
 	t_parse_result	pr;
+
 	ft_bzero(app, sizeof(app));
 	scene_init(&app->scene);
 	pr = parse_scene(av[1], &app->scene);
@@ -98,6 +120,10 @@ t_parse_result	init_and_parse(t_app *app, char **av)
 	}
 	return (pr);
 }
+/*
+* Purpose: Initialize app structure and parse the scene file.
+* Logic: Zero app, init scene, call parser; print errors if parsing fails.
+*/
 
 int	main(int ac, char **av)
 {
@@ -105,13 +131,13 @@ int	main(int ac, char **av)
 	t_parse_result	pr;
 
 	if (print_usage(ac, av))
-		return (1); 
+		return (1);
 	pr = init_and_parse(&app, av);
-	if(!pr.ok)
+	if (!pr.ok)
 		return (EXIT_FAILURE);
 	parse_result_free(&pr);
 	if (!init_framebuffer(&app))
-		return(EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	if (init_window(&app) < 0)
 	{
 		cleanup(&app);

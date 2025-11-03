@@ -13,6 +13,13 @@ static t_vec3	trace_pixel(const t_scene *scene, t_ray r, int show_normals)
 		return (v3_mul(v3_add(hit.n, v3(1.0f, 1.0f, 1.0f)), 0.5f));
 	return (shade_lambert(scene, &hit));
 }
+/*
+* Purpose: Trace a ray through the scene and return the pixel color.
+* Logic: Find the nearest hit; if show_normals is active, visualize the normal.
+*        Otherwise, compute shading using Lambert (diffuse) model.
+* Notes: Normals are mapped from [-1,1] to [0,1] for RGB visualization.
+* Use: Called per pixel; hit contains intersection data or miss (hit.ok = 0).
+*/
 
 void	render_scene(t_app *app)
 {
@@ -40,3 +47,15 @@ void	render_scene(t_app *app)
 		}
 	}
 }
+/*
+* Purpose: Render the entire scene by tracing a ray for each pixel.
+* Logic: Build camera frame; iterate over all pixels (x, y) in raster space.
+* -Compute normalized viewport coordinates (u, v) with 0.5 offset for pixel center.
+* -Calculate ray direction from camera origin through the viewport sample point.
+* -Trace the ray and store the resulting color in the framebuffer.
+* Notes: v is flipped (1 - v) to match image space (top-left origin)
+		with viewport (bottom-left).
+*    Framebuffer is a 1D array indexed by (y * width + x).
+* Use: Called when rendering a frame; app->show_normals toggles normal
+	visualization mode.
+*/

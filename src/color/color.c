@@ -19,9 +19,9 @@ inline uint8_t	clamp_u8i(int v)
 
 uint32_t	vec3_to_rgba(t_vec3 rgb)
 {
-	int	 r;
-	int	 g;
-	int	 b;
+	int	r;
+	int	g;
+	int	b;
 
 	r = (int)(clampf(rgb.x, 0.0f, 1.0f) * 255.0f + 0.5f);
 	g = (int)(clampf(rgb.y, 0.0f, 1.0f) * 255.0f + 0.5f);
@@ -29,22 +29,23 @@ uint32_t	vec3_to_rgba(t_vec3 rgb)
 	return (rgba_u32(clamp_u8i(r), clamp_u8i(g), clamp_u8i(b), 255));
 }
 /*
-Propósito: Convertir un color en formato vector (float [0,1]) a un entero RGBA (uint32_t).
-Lógica:
-- Limita cada componente (x, y, z) al rango [0,1] usando clampf.
-- Multiplica por 255 y suma 0.5 para redondear antes de convertir a int.
-- clamp_u8i asegura que el valor final está en [0,255] (uint8_t).
-- rgba_u32 empaqueta los componentes en un uint32_t (orden RGBA).
+Purpose: Convert a color in vector format (float [0,1]) to an
+	RGBA integer (uint32_t).
+Logic:
+  - Clamp each component (x, y, z) to the range [0,1] using clampf.
+  - Multiply by 255 and add 0.5 to round before casting to int.
+  - clamp_u8i ensures the final value is in [0,255] (uint8_t).
+  - rgba_u32 packs the components into a uint32_t (RGBA order).
 Variables:
-- rgb: color como vector (float x, y, z).
-- r, g, b: componentes enteros del color.
-*/
-/*
-El +0.5f en la fórmula:
-Se usa para redondear correctamente el valor flotante al entero más cercano.
-Sin el +0.5f, el cast a (int) simplemente trunca (corta decimales hacia abajo), lo que puede sesgar los colores hacia valores menores.
-Por ejemplo:
-Si el resultado es 127.8, con +0.5f → 128.3 → (int) → 128 (correcto).
-Si el resultado es 127.2, con +0.5f → 127.7 → (int) → 127.
-Es una técnica estándar para convertir de float a int con redondeo en vez de truncamiento.
+  - rgb: color as a vector (float x, y, z).
+  - r, g, b: integer color components.
+The +0.5f in the formula:
+Used to correctly round the floating-point value to the nearest integer.
+Without +0.5f, the cast to (int) simply truncates (cuts decimals downward),
+which can bias colors toward lower values.
+For example:
+  If the result is 127.8, with +0.5f → 128.3 → (int) → 128 (correct).
+  If the result is 127.2, with +0.5f → 127.7 → (int) → 127.
+This is a standard technique for converting float to int with rounding instead
+of truncation.
 */
