@@ -16,10 +16,6 @@ static void	render_and_present(t_app *app)
 * Logic: Calls render_scene to trace rays; then uploads result to MLX image.
 */
 
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/main
 static int	print_usage(int ac, char **av)
 {
 	if (ac != 2)
