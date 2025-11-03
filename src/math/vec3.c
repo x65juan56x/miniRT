@@ -3,7 +3,7 @@
 
 t_vec3	v3(float x, float y, float z)
 {
-	return ((t_vec3){ x, y, z });
+	return ((t_vec3){x, y, z});
 }
 /*
 * Creates a 3D vector with components x, y, z.
@@ -65,9 +65,9 @@ t_vec3	v3_ctoc(t_vec3 a, t_vec3 b)
 t_vec3	v3_cross(t_vec3 a, t_vec3 b)
 {
 	return (v3(
-		a.y * b.z - a.z * b.y,
-		a.z * b.x - a.x * b.z,
-		a.x * b.y - a.y * b.x));
+			a.y * b.z - a.z * b.y,
+			a.z * b.x - a.x * b.z,
+			a.x * b.y - a.y * b.x));
 }
 /*
 * Cross product: perpendicular to both vectors.
@@ -95,7 +95,7 @@ float	v3_len(t_vec3 a)
 
 t_vec3	v3_norm(t_vec3 a)
 {
-	float l;
+	float	l;
 
 	l = v3_len(a);
 	if (l > 0.0f)

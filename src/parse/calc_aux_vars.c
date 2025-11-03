@@ -35,8 +35,10 @@ void	aux_cylinder(t_cyl *cy)
 	cy->vars.radius = cy->di * 0.5f;
 	cy->vars.radius2 = cy->vars.radius * cy->vars.radius;
 	cy->vars.half_height = cy->he * 0.5f;
-	cy->vars.cap_top = v3_add(cy->center, v3_mul(cy->axis, cy->vars.half_height));
-	cy->vars.cap_bottom = v3_sub(cy->center, v3_mul(cy->axis, cy->vars.half_height));
+	cy->vars.cap_top = v3_add(cy->center, v3_mul(cy->axis,
+				cy->vars.half_height));
+	cy->vars.cap_bottom = v3_sub(cy->center, v3_mul(cy->axis,
+				cy->vars.half_height));
 }
 /*
 * Purpose: Precompute auxiliary variables for cylinder geometry.

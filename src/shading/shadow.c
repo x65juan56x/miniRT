@@ -23,6 +23,8 @@ int	in_shadow(const t_scene *scene, const t_hit *hit, t_vec3 l_pos)
 }
 /*
 * Purpose: Test if a point is in shadow (blocked from light source).
-* Logic: Cast ray from hit point toward light; if any object intersects, it's in shadow.
-* Notes: bias offsets ray origin to avoid self-intersection; max_d ensures occlusion only within light distance.
+* Logic: Cast ray from hit point toward light; if any object intersects,
+	it's in shadow.
+* Notes: bias offsets ray origin to avoid self-intersection; max_d ensures
+	occlusion only within light distance.
 */

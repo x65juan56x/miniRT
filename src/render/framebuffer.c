@@ -8,7 +8,7 @@ void	upload_framebuffer(mlx_image_t *image, const uint32_t *fb)
 	size_t		i;
 
 	if (!image || !fb || !image->pixels)
-		return;
+		return ;
 	dst = (uint32_t *)image->pixels;
 	count = (size_t)image->width * (size_t)image->height;
 	i = 0;
