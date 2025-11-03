@@ -20,6 +20,13 @@ typedef struct s_spec_state
 	t_spec_model	model;
 }	t_spec_state;
 
+typedef struct s_light_prop
+{
+	t_vec3	pos;
+	float	bright;
+	t_vec3	color;
+}	t_light_prop;
+
 char			**read_file_lines(const char *path, size_t *out_count);
 void			free_lines(char **lines, size_t count);
 char			**split_ws(const char *s);
