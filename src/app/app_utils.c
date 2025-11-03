@@ -1,10 +1,6 @@
 #include "../../include/minirt.h"
-#include "../../include/scene.h"
-#include "../../include/parser.h"
-#include "../../include/render.h"
-#include "../../include/hit.h"
-#include "../../include/shading.h"
 #include "../../include/app.h"
+#include "../../include/render.h"
 
 int	init_window(t_app *app)
 {
