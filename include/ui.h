@@ -1,5 +1,5 @@
-#ifndef TOGGLE_INFO_H
-# define TOGGLE_INFO_H
+#ifndef UI_H
+# define UI_H
 
 # include <stdint.h>
 # include "camera.h"
@@ -22,7 +22,7 @@ typedef struct s_toggle_info
 	int			w;
 	int			h;
 	int			visible;
-}t_toggle_info;
+}	t_toggle_info;
 
 void	ti_init(t_toggle_info *ti, mlx_t *mlx, mlx_image_t *base_img);
 void	ti_hide(t_toggle_info *ti);

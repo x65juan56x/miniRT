@@ -1,13 +1,13 @@
 #ifndef RENDER_H
-# define  RENDER_H
+# define RENDER_H
 
 # include <stdint.h>
 # include "minirt.h"
 # include "camera.h"
 
 // Forward declaration to avoid pulling app/scene into this public header
-struct s_app;
-typedef struct s_app t_app;
+struct					s_app;
+typedef struct s_app	t_app;
 
 typedef struct s_render_aux
 {

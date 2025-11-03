@@ -5,10 +5,10 @@
 # include "ray.h"
 
 // Forward declarations
-struct s_scene;
-struct s_sphere;
-struct s_plane;
-struct s_cyl;
+struct	s_scene;
+struct	s_sphere;
+struct	s_plane;
+struct	s_cyl;
 // Generic hit record used by the renderer
 typedef struct s_hit
 {
@@ -51,7 +51,8 @@ typedef struct s_cy_aux
 	int		hit_part;
 }	t_cy_aux;
 
-int     scene_hit(const struct s_scene *scene, t_ray r, float max_dist, t_hit *out);
+int		scene_hit(const struct s_scene *scene, t_ray r, float max_dist,
+			t_hit *out);
 
 /* HIT OBJECTS */
 float	hit_sphere(struct s_sphere *sp, t_ray r);

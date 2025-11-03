@@ -14,12 +14,9 @@
 # include "ray.h"
 # include "math_utils.h"
 
-
-
 # define WIN_W 1920
 # define WIN_H 1080
-
-// ε para evitar self-intersections (lo vamos a usar más adelante en ray tracing)
+// ε to avoid self-intersections (we’ll use it later in ray tracing)
 # define EPSILON 1e-4f
 
 #endif
