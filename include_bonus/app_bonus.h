@@ -1,7 +1,6 @@
 #ifndef APP_BONUS_H
 # define APP_BONUS_H
 
-# include "ui_bonus.h"
 # include "scene_bonus.h"
 
 typedef struct s_app
