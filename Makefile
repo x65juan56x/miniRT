@@ -40,6 +40,7 @@ GEOM_M_SRCS = \
 
 CORE_M_SRCS = \
 	$(SRC_DIR_M)/core/intersect.c \
+	$(SRC_DIR_M)/core/hit.c \
 	$(SRC_DIR_M)/core/scene.c \
 	$(SRC_DIR_M)/camera/camera.c \
 	$(SRC_DIR_M)/app/input.c \
