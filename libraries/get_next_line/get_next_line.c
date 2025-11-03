@@ -6,7 +6,7 @@
 /*   By: jmondon <jmondon@student.42malaga.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 16:54:03 by jmondon           #+#    #+#             */
-/*   Updated: 2025/05/16 21:07:49 by jmondon          ###   ########.fr       */
+/*   Updated: 2025/11/03 17:49:29 by jmondon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,11 @@
 
 char	*ft_get_line(t_list_gnl *frst_nd)
 {
-	size_t	ln_len;
-	size_t	i;
-	size_t	j;
+	size_t		ln_len;
+	size_t		i;
+	size_t		j;
 	t_list_gnl	*aux_nd;
-	char	*line;
+	char		*line;
 
 	aux_nd = frst_nd;
 	ln_len = ft_ln_len(frst_nd);
@@ -82,7 +82,8 @@ t_list_gnl	*ft_get_tail(t_list_gnl *node_with_nl, char *nl_ptr_in_node_str)
 	return (new_tail_node);
 }
 
-int	ft_read_til_nl(char **nl_pos, t_list_gnl **frst_nd, int fd, t_list_gnl **list)
+int	ft_read_til_nl(char **nl_pos, t_list_gnl **frst_nd, int fd,
+		t_list_gnl **list)
 {
 	int	rd_chr;
 
@@ -115,8 +116,8 @@ char	*get_next_line(int fd)
 {
 	static t_list_gnl	*list_static = NULL;
 	t_list_gnl			*frst_nd_cur_line;
-	char			*nl_pos_in_cur_node;
-	int				rd_chr;
+	char				*nl_pos_in_cur_node;
+	int					rd_chr;
 	t_list_gnl			*new_tail;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)

@@ -6,7 +6,7 @@
 /*   By: jmondon <jmondon@student.42malaga.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 16:54:14 by jmondon           #+#    #+#             */
-/*   Updated: 2025/05/16 20:52:02 by jmondon          ###   ########.fr       */
+/*   Updated: 2025/11/03 17:50:41 by jmondon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,22 +24,23 @@ typedef struct s_list
 	struct s_list	*next;
 }				t_list_gnl;
 
-char	*get_next_line(int fd);
+char		*get_next_line(int fd);
 
-int		ft_read_til_nl(char **nl_pos, t_list_gnl **frst_nd, int fd, t_list_gnl **list);
+int			ft_read_til_nl(char **nl_pos, t_list_gnl **frst_nd, int fd,
+				t_list_gnl **list);
 
-char	*ft_pnt_nl(char *str);
+char		*ft_pnt_nl(char *str);
 
-int		ft_fwd_lst(t_list_gnl **list, t_list_gnl **frst_nd);
+int			ft_fwd_lst(t_list_gnl **list, t_list_gnl **frst_nd);
 
-void	*ft_free_lst(t_list_gnl *lst);
+void		*ft_free_lst(t_list_gnl *lst);
 
 t_list_gnl	*ft_get_tail(t_list_gnl *list, char *nl_pos);
 
-size_t	ft_str_len(const char *str);
+size_t		ft_str_len(const char *str);
 
-char	*ft_get_line(t_list_gnl *frst_nd);
+char		*ft_get_line(t_list_gnl *frst_nd);
 
-size_t	ft_ln_len(t_list_gnl *lst);
+size_t		ft_ln_len(t_list_gnl *lst);
 
 #endif
