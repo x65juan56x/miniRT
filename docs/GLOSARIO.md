@@ -28,7 +28,6 @@ Este glosario explica los términos que aparecen en el subject de miniRT y en el
 - Esfera (sp): conjunto de puntos a una distancia fija (radio) de un centro.
 - Plano (pl): superficie infinita definida por un punto y una normal (vector perpendicular a la superficie).
 - Cilindro (cy): superficie generada alrededor de un eje con un radio y una altura. Puede tener tapas (discos) arriba y abajo.
-- Cono (bonus): superficie cuyo radio varía linealmente con la altura; tiene un vértice y un eje.
 - Diámetro: tamaño de una esfera (2 × radio) o de la base del cilindro.
 - Altura (cilindro/cone): longitud del objeto a lo largo de su eje.
 
@@ -63,51 +62,27 @@ Este glosario explica los términos que aparecen en el subject de miniRT y en el
 - Base ortonormal: tres vectores perpendiculares y normalizados (u, v, w) que forman un sistema de referencia.
 - Ortogonal (orthogonal): En matemáticas y gráficos, significa “perpendicular”. Dos vectores son ortogonales si su producto escalar (dot product) es cero, es decir, forman un ángulo de 90° entre sí.
 
-## 7) Parsing del archivo `.rt`
-
-- Token: fragmento de texto separado por espacios o comas que representa un dato (ej. "255,0,0").
-- Identificador: letras que indican el tipo de elemento (A, C, L, sp, pl, cy, …).
-- Normalización de input: manejo de espacios múltiples y líneas en blanco.
-- Validación de rangos: comprobar que los números están en límites permitidos.
-- Mensaje de error: texto claro que explica qué falló (línea, campo, motivo).
-- Unicidad: elementos que deben aparecer solo una vez (como A, C, L en el mandatory).
-
-## 8) Calidad, errores y estabilidad
-
-- RAII-like en C: convención de tener funciones `create/destroy` por módulo para gestionar recursos.
-- Estructuras de ownership: definir claramente quién libera qué y cuándo.
-- Sanitizers: opciones del compilador que detectan errores en tiempo de ejecución (AddressSanitizer).
-- Epsilon numérico: pequeño valor usado para evitar divisiones por cero y problemas de precisión con `double`.
-
-## 9) Optimización y rendimiento
-
-- Hot path: parte del código que se ejecuta con mayor frecuencia (crítica para el rendimiento), como bucles de píxeles.
-- Cache locality: organizar datos para que el acceso en memoria sea eficiente.
-- Branching: decisiones `if/else`; reducirlas en el hot path puede acelerar.
-- Precomputación: calcular una vez valores que se reutilizan (ej. base de cámara).
-
-## 10) Bonus y extensiones
+## 7) Bonus y extensiones
 
 - Checkerboard (tablero): textura procedural que alterna colores en un patrón cuadriculado.
 - Phong completo: modelo con componentes ambiente, difusa y especular.
 - Reflexión recursiva: rayos que rebotan en superficies reflectantes hasta cierta profundidad.
 - Bump mapping: técnica que altera la normal aparente para simular relieve sin cambiar la geometría.
-- Soft shadows: sombras con bordes suaves usando luces de área y muestreo.
 
-## 11) Utilidades y formatos
+## 8) Utilidades y formatos
 
 - Clamp: limitar un valor a un rango (ej. 0–1 para colores).
 - Lerp (interpolación lineal): mezcla entre dos valores según un factor t en [0–1].
 - NaN/Inf: valores no numéricos o infinitos; deben detectarse y manejarse.
 - Endianness: orden de bytes en memoria; puede importar al escribir píxeles.
 
-## 12) Testing y escenas
+## 9) Testing y escenas
 
 - Escena mínima: archivo `.rt` con A, C, L y un objeto simple para validar pipeline.
 - Escenas negativas: archivos mal formados para comprobar manejo de errores.
 - Golden image: imagen de referencia para comparar resultados tras cambios.
 
-## 13) Coordenadas UV
+## 10) Coordenadas UV
 
 ¿Qué son las coordenadas UV?
 
