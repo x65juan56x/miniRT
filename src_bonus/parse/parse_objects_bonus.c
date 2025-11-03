@@ -125,88 +125,143 @@ static int	parse_opt_bump(char **tokens, int idx, t_bump_target target)
 	return (1);
 }
 
+static void	spec_state_init(t_spec_state *st, char **tokens,
+		int line, const char *tag)
+{
+	st->tokens = tokens;
+	st->line = line;
+	st->tag = tag;
+	st->idx = 0;
+	st->has_any = 0;
+	st->has_ks = 0;
+	st->ks = 0.0f;
+	st->shininess = 0.0f;
+	st->reflectivity = 0.0f;
+	st->model = SPEC_MODEL_BLINN;
+}
+
+static void	spec_parse_model(t_spec_state *st)
+{
+	char	**tok;
+	char	*cur;
+
+	tok = st->tokens;
+	cur = tok[st->idx];
+	if (!cur)
+		return ;
+	if (ft_strncmp(cur, "phong", 6) == 0)
+	{
+		st->model = SPEC_MODEL_PHONG;
+		st->idx++;
+	}
+	else if (ft_strncmp(cur, "blinn", 6) == 0
+		|| ft_strncmp(cur, "blinn-phong", 12) == 0)
+	{
+		st->model = SPEC_MODEL_BLINN;
+		st->idx++;
+	}
+}
+
+static t_parse_result	spec_parse_ks(t_spec_state *st)
+{
+	char	**tok;
+
+	tok = st->tokens;
+	if (!tok[st->idx] || ft_strncmp(tok[st->idx], "ks", 3) != 0)
+		return (parse_ok());
+	st->has_any = 1;
+	st->has_ks = 1;
+	if (!tok[st->idx + 1] || !tok[st->idx + 2])
+		return (spec_error(st->line, st->tag,
+				"material expects 'ks <ratio> <shininess>'"));
+	if (!parse_float(tok[st->idx + 1], &st->ks)
+		|| st->ks < 0.0f || st->ks > 1.0f)
+		return (spec_error(st->line, st->tag,
+				"invalid ks (use 0 <= ks <= 1)"));
+	if (!parse_float(tok[st->idx + 2], &st->shininess)
+		|| st->shininess <= 0.0f)
+		return (spec_error(st->line, st->tag,
+				"invalid shininess (> 0 required)"));
+	st->idx += 3;
+	spec_parse_model(st);
+	return (parse_ok());
+}
+
+static t_parse_result	spec_parse_kr(t_spec_state *st)
+{
+	char	**tok;
+
+	tok = st->tokens;
+	if (!tok[st->idx])
+		return (parse_ok());
+	if (ft_strncmp(tok[st->idx], "kr", 3) != 0)
+	{
+		if (st->has_ks)
+			return (spec_error(st->line, st->tag,
+					"unexpected tokens after material definition"));
+		return (spec_error(st->line, st->tag,
+				"unknown material token (ks|kr)"));
+	}
+	if (!tok[st->idx + 1])
+		return (spec_error(st->line, st->tag,
+				"kr expects '<ratio>'"));
+	if (!parse_float(tok[st->idx + 1], &st->reflectivity)
+		|| st->reflectivity < 0.0f || st->reflectivity > 1.0f)
+		return (spec_error(st->line, st->tag,
+				"invalid kr (use 0 <= kr <= 1)"));
+	st->has_any = 1;
+	st->idx += 2;
+	return (parse_ok());
+}
+
+static t_parse_result	spec_validate_tail(t_spec_state *st)
+{
+	if (st->tokens[st->idx])
+		return (spec_error(st->line, st->tag,
+				"unexpected tokens after material definition"));
+	return (parse_ok());
+}
+
+static t_parse_result	spec_finalize_material(t_spec_state *st,
+		t_material **out_mat)
+{
+	t_material	*mat;
+
+	if (!st->has_any)
+		return (parse_ok());
+	mat = (t_material *)malloc(sizeof(*mat));
+	if (!mat)
+		return (spec_error(st->line, st->tag,
+				"not enough memory for material"));
+	mat->albedo = v3(0.0f, 0.0f, 0.0f);
+	mat->ks = st->ks;
+	mat->shininess = st->shininess;
+	mat->model = st->model;
+	mat->reflectivity = st->reflectivity;
+	*out_mat = mat;
+	return (parse_ok());
+}
+
 static t_parse_result	parse_specular_info(char **tokens, int line,
 		const char *tag, t_material **out_mat)
 {
-	t_material	*mat;
-	float		ks;
-	float		shininess;
-	float		reflectivity;
-	int			idx;
-	int			has_any;
-	int			has_ks;
-	t_spec_model	model;
+	t_spec_state	st;
+	t_parse_result	res;
 
 	*out_mat = NULL;
 	if (!tokens || !tokens[0])
 		return (parse_ok());
-	ks = 0.0f;
-	shininess = 0.0f;
-	reflectivity = 0.0f;
-	idx = 0;
-	has_any = 0;
-	has_ks = 0;
-	model = SPEC_MODEL_BLINN;
-	if (ft_strncmp(tokens[idx], "ks", 3) == 0)
-	{
-		has_any = 1;
-		has_ks = 1;
-		if (!tokens[idx + 1] || !tokens[idx + 2])
-			return (spec_error(line, tag,
-				"material expects 'ks <ratio> <shininess>'"));
-		if (!parse_float(tokens[idx + 1], &ks) || ks < 0.0f || ks > 1.0f)
-			return (spec_error(line, tag, "invalid ks (use 0 <= ks <= 1)"));
-		if (!parse_float(tokens[idx + 2], &shininess) || shininess <= 0.0f)
-			return (spec_error(line, tag, "invalid shininess (> 0 required)"));
-		idx += 3;
-		if (tokens[idx] && ft_strncmp(tokens[idx], "phong", 6) == 0)
-		{
-			model = SPEC_MODEL_PHONG;
-			idx++;
-		}
-		else if (tokens[idx]
-			&& (ft_strncmp(tokens[idx], "blinn", 6) == 0
-				|| ft_strncmp(tokens[idx], "blinn-phong", 12) == 0))
-		{
-			model = SPEC_MODEL_BLINN;
-			idx++;
-		}
-	}
-	else if (ft_strncmp(tokens[idx], "kr", 3) != 0)
-		return (spec_error(line, tag, "unknown material token (ks|kr)"));
-	if (tokens[idx])
-	{
-		if (ft_strncmp(tokens[idx], "kr", 3) != 0)
-		{
-			if (has_ks)
-				return (spec_error(line, tag,
-					"unexpected tokens after material definition"));
-			return (spec_error(line, tag, "unknown material token (ks|kr)"));
-		}
-		if (!tokens[idx + 1])
-			return (spec_error(line, tag, "kr expects '<ratio>'"));
-		if (!parse_float(tokens[idx + 1], &reflectivity)
-			|| reflectivity < 0.0f || reflectivity > 1.0f)
-			return (spec_error(line, tag,
-				"invalid kr (use 0 <= kr <= 1)"));
-		has_any = 1;
-		idx += 2;
-	}
-	if (tokens[idx])
-		return (spec_error(line, tag,
-			"unexpected tokens after material definition"));
-	if (!has_any)
-		return (parse_ok());
-	mat = (t_material *)malloc(sizeof(*mat));
-	if (!mat)
-		return (spec_error(line, tag, "not enough memory for material"));
-	mat->albedo = v3(0.0f, 0.0f, 0.0f);
-	mat->ks = ks;
-	mat->shininess = shininess;
-	mat->model = model;
-	mat->reflectivity = reflectivity;
-	*out_mat = mat;
-	return (parse_ok());
+	spec_state_init(&st, tokens, line, tag);
+	res = spec_parse_ks(&st);
+	if (!res.ok)
+		return (res);
+	res = spec_parse_kr(&st);
+	if (!res.ok)
+		return (res);
+	res = spec_validate_tail(&st);
+	if (!res.ok)
+		return (res);
+	return (spec_finalize_material(&st, out_mat));
 }
 
 static t_parse_result	sp_create_object(char **tok, int line, t_object **out)

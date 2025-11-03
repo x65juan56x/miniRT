@@ -6,6 +6,20 @@
 # include <stdlib.h>
 # include "parser_bonus.h"
 
+typedef struct s_spec_state
+{
+	char			**tokens;
+	int				line;
+	const char		*tag;
+	int				idx;
+	int				has_any;
+	int				has_ks;
+	float			ks;
+	float			shininess;
+	float			reflectivity;
+	t_spec_model	model;
+}	t_spec_state;
+
 char			**read_file_lines(const char *path, size_t *out_count);
 void			free_lines(char **lines, size_t count);
 char			**split_ws(const char *s);
