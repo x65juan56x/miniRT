@@ -2,6 +2,7 @@
 # define APP_H
 
 # include "scene.h"
+
 typedef struct s_app
 {
 	mlx_t			*mlx;
