@@ -2,7 +2,6 @@
 #include "../../include_bonus/app_bonus.h"
 #include "../../include_bonus/camera_bonus.h"
 #include "../../include_bonus/render_bonus.h"
-#include "../../include_bonus/ui_bonus.h"
 
 void	app_on_key(mlx_key_data_t keydata, void *param)
 {

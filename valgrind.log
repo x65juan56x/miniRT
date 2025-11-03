@@ -1,0 +1,5 @@
+==3246904== Memcheck, a memory error detector
+==3246904== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==3246904== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
+==3246904== Command: ./miniRT_bonus examples/scenes/example16_bumpmap.rt
+==3246904== 
