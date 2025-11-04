@@ -9,6 +9,7 @@ static float	luminance_u8(uint8_t r, uint8_t g, uint8_t b)
 {
 	return ((float)(r + g + b) / (255.0f * 3.0f));
 }
+// Convert RGB color to grayscale brightness value [0,1] using simple average.
 
 t_bumpmap	*bump_load_png(const char *path)
 {
@@ -33,6 +34,18 @@ t_bumpmap	*bump_load_png(const char *path)
 				tex->pixels[i * 4 + 1], tex->pixels[i * 4 + 2]);
 	return (mlx_delete_texture(tex), bm);
 }
+/*
+* Purpose: Load a PNG image and convert it to a heightmap for bump mapping.
+* Inputs: path (PNG file path).
+* Algorithm:
+*   - Load PNG texture using MLX library
+*   - Allocate bump map structure and heightmap array
+*   - Convert each pixel to grayscale (brightness represents height)
+*   - Brighter pixels = higher parts, darker pixels = lower parts
+*   - Clean up texture after extraction
+* Returns: Bump map structure, or NULL on failure.
+* Use: Called when parsing objects with bump mapping enabled.
+*/
 
 void	bump_free(t_bumpmap *bm)
 {
@@ -42,6 +55,7 @@ void	bump_free(t_bumpmap *bm)
 		free(bm->hmap);
 	free(bm);
 }
+// Free memory allocated for bump map structure and heightmap data.
 
 float	bump_sample(const t_bumpmap *bm, float u, float v)
 {
@@ -68,6 +82,17 @@ float	bump_sample(const t_bumpmap *bm, float u, float v)
 		iv = bm->h - 1;
 	return (bm->hmap[(size_t)iv * (size_t)bm->w + (size_t)iu]);
 }
+/*
+* Purpose: Sample height value from bump map at texture coordinates (u,v).
+* Inputs: bm (bump map), u and v (texture coordinates, typically [0,1]).
+* Algorithm:
+*   - Wrap u and v coordinates (using fractional part for tiling)
+*   - Convert floating-point UV to integer pixel coordinates
+*   - Clamp to valid image bounds
+*   - Return height value at that pixel
+* Returns: Height value [0,1], or 0.5 (flat) if map is invalid.
+* Use: Called by bump_perturb to read heightmap values.
+*/
 
 void	bump_perturb(t_bumpmap *bm, t_bump_aux *bm_aux,
 					t_vec3 *n)
@@ -89,5 +114,20 @@ void	bump_perturb(t_bumpmap *bm, t_bump_aux *bm_aux,
 	dn = v3_mul(dn, bm_aux->strength);
 	*n = v3_norm(v3_add(*n, dn));
 }
-// Gradient approximately (h_u - h_c)/du , (h_v - h_c)/dv
-// Use negative to emulate height-to-normal convention
+/*
+* Purpose: Perturb surface normal using bump map to create illusion of detail.
+* Inputs: bm (bump map), bm_aux (UV coords, tangent basis, strength), n (normal to modify).
+* Algorithm:
+*   - Sample height at current position (h_c)
+*   - Sample height at nearby positions (h_u1, h_v1) using small offset (du, dv)
+*   - Calculate gradient: how quickly height changes in u and v directions
+*       • (h_u1 - h_c)/du: slope along tangent direction
+*       • (h_v1 - h_c)/dv: slope along bitangent direction
+*   - Use negative slopes to match height-to-normal convention (higher = bump out)
+*   - Combine gradients using tangent basis to get normal perturbation (dn)
+*   - Scale by strength and add to original normal
+*   - Normalize result to get final perturbed normal
+* Notes: This creates fake surface detail without changing geometry.
+*        Makes flat surfaces look bumpy by changing how light reflects.
+* Use: Called by surface processing functions when bump mapping is enabled.
+*/

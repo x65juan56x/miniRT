@@ -19,5 +19,15 @@ int	in_shadow(const t_scene *scene, const t_hit *hit, t_vec3 l_pos)
 		return (1);
 	return (0);
 }
-// Cast a ray from p towards light; ignore self with EPSILON and bias
-// and cap max distance
+/*
+* Purpose: Check if a surface point is in shadow (blocked from light source).
+* Inputs: scene, hit (surface point), l_pos (light position).
+* Algorithm:
+*   - Calculate direction and distance from hit point to light
+*   - If light is extremely close (distance ≈ 0), not in shadow
+*   - Cast shadow ray from hit point toward light
+*   - Use bias offset to avoid self-intersection (surface blocking itself)
+*   - Check if any object blocks the path before reaching the light
+* Returns: 1 if in shadow (blocked), 0 if lit (clear path to light).
+* Use: Called during lighting calculations to determine if light reaches a point.
+*/

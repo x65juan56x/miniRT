@@ -30,6 +30,23 @@ t_vec3	specular_blinn_phong(const t_scene *scene, const t_light *light,
 	vars.light_intensity = v3_mul(light->color, light->bright);
 	return (v3_mul(vars.light_intensity, hit->ks * vars.spec_intensity));
 }
+/*
+* Purpose: Calculate specular highlight using Blinn-Phong model.
+* Inputs: scene, light, hit (surface point with material), light_dir.
+* Algorithm:
+*   - Validate inputs and material properties (ks, shininess)
+*   - Calculate view direction (from surface to camera)
+*   - Compute halfway vector H: average of light direction and view direction
+*   - Calculate N·H: angle between surface normal and halfway vector
+*   - Raise to shininess power: (N·H)^shininess
+*       • Higher shininess = sharper, smaller highlight
+*       • Lower shininess = broader, softer highlight
+*   - Scale by ks (specular strength) and light intensity
+* Formula: specular = ks * light * (N·H)^shininess
+* Notes: Blinn-Phong is faster than Phong (uses halfway vector instead of reflection).
+* Returns: Specular contribution RGB color.
+* Use: Called when computing shiny highlights on reflective surfaces.
+*/
 
 t_vec3	specular_phong(const t_scene *scene, const t_light *light,
 	const t_hit *hit, t_vec3 l_dir)
@@ -60,3 +77,20 @@ t_vec3	specular_phong(const t_scene *scene, const t_light *light,
 	vars.light_intensity = v3_mul(light->color, light->bright);
 	return (v3_mul(vars.light_intensity, hit->ks * vars.spec_intensity));
 }
+/*
+* Purpose: Calculate specular highlight using classic Phong model.
+* Inputs: scene, light, hit (surface point), l_dir (light direction).
+* Algorithm:
+*   - Validate inputs and material properties
+*   - Calculate view direction (from surface to camera)
+*   - Compute reflection direction R: mirror reflection of light across normal
+*       • R = 2(N·L)N - L
+*   - Calculate R·V: angle between reflection and view direction
+*   - Raise to shininess power: (R·V)^shininess
+*   - Scale by ks and light intensity
+* Formula: specular = ks * light * (R·V)^shininess
+* Notes: Original Phong model. More expensive than Blinn-Phong but slightly different look.
+*        Best visible when view direction aligns with perfect reflection.
+* Returns: Specular contribution RGB color.
+* Use: Alternative specular model when SPEC_MODEL_PHONG is selected.
+*/

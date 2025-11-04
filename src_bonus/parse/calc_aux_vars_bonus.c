@@ -6,10 +6,15 @@ void	aux_sphere(t_sphere *sp)
 	sp->vars.radius = sp->di * 0.5f;
 	sp->vars.radius2 = sp->vars.radius * sp->vars.radius;
 	sp->vars.inv_radius = 1.0f / sp->vars.radius;
-	// sp->vars.iu = 0;
-	// sp->vars.iv = 0;
 }
-// Precompute sphere's radius and derived values from diameter.
+/*
+* Purpose: Precompute sphere geometry values from diameter for fast intersection tests.
+* Algorithm:
+*   - radius: Convert diameter to radius (divide by 2)
+*   - radius2: Square of radius (avoids sqrt in intersection tests)
+*   - inv_radius: Precompute 1/radius (avoids division during UV coordinate calculation)
+* Use: Called after parsing sphere to optimize rendering calculations.
+*/
 
 void	aux_plane(t_plane *pl)
 {
@@ -23,7 +28,19 @@ void	aux_plane(t_plane *pl)
 	pl->vars.u = v3_norm(v3_cross(up, pl->normal));
 	pl->vars.v = v3_cross(pl->normal, pl->vars.u);
 }
-// Normalize plane normal, compute distance, and build 2D coordinate basis (u,v).
+/*
+* Purpose: Prepare plane for intersection tests and build 2D texture coordinate system.
+* Algorithm:
+*   - normal: Normalize the plane normal vector
+*   - d: Distance from origin (dot product of normal and point on plane)
+*   - u, v: Build orthonormal basis in the plane for 2D coordinates
+*       • Start with up vector (0,1,0) as reference
+*       • If normal is nearly vertical (parallel to up), use (1,0,0) instead
+*       • u: Cross product of up and normal (perpendicular to both)
+*       • v: Cross product of normal and u (completes right-handed basis)
+*   - This creates a local 2D coordinate system for checker patterns and textures
+* Use: Called after parsing plane to enable intersection and surface effects.
+*/
 
 void	aux_cylinder(t_cyl *cy)
 {
@@ -43,16 +60,28 @@ void	aux_cylinder(t_cyl *cy)
 	cy->vars.base_u = v3_norm(v3_cross(up, cy->axis));
 	cy->vars.base_v = v3_cross(cy->axis, cy->vars.base_u);
 }
-// Precompute cylinder dimensions, cap positions, and local coordinate basis.
+/*
+* Purpose: Precompute cylinder geometry and build coordinate system for caps and side.
+* Algorithm:
+*   - axis: Normalize the cylinder's axis direction
+*   - radius, radius2: Convert diameter to radius and its square
+*   - half_height: Half of total height (distance from center to each cap)
+*   - cap_top: Position of top cap center (center + axis * half_height)
+*   - cap_bottom: Position of bottom cap center (center - axis * half_height)
+*   - base_u, base_v: Orthonormal basis perpendicular to axis
+*       • Start with up vector (0,1,0) as reference
+*       • If axis is nearly vertical, use (1,0,0) instead
+*       • base_u: Cross product of up and axis
+*       • base_v: Cross product of axis and base_u
+*   - This 2D basis is used for cap texture mapping and checker patterns
+* Use: Called after parsing cylinder to prepare for intersection and rendering.
+*/
 
 void	aux_triangle(t_triangle *tr)
 {
-	// Edges
 	tr->vars.e1 = v3_sub(tr->b, tr->a);
 	tr->vars.e2 = v3_sub(tr->c, tr->a);
-	// Normal (no normalizada para área)
 	tr->vars.n = v3_cross(tr->vars.e1, tr->vars.e2);
-	// Tangente y bitangente para UV/bump
 	if (fabsf(tr->vars.n.x) > fabsf(tr->vars.n.y))
 		tr->vars.tan = v3_norm(v3_cross(v3(0, 1, 0), tr->vars.n));
 	else
@@ -63,7 +92,20 @@ void	aux_triangle(t_triangle *tr)
 	tr->vars.base_v = v3_norm(v3_sub(tr->vars.e2,
 				v3_mul(tr->vars.base_u, v3_dot(tr->vars.e2, tr->vars.base_u))));
 }
-// Compute triangle edges, normal, and tangent basis for texture mapping.
+/*
+* Purpose: Precompute all geometric data needed for triangle intersection and shading.
+* Algorithm:
+*   - e1, e2: Edge vectors from vertex a to b and a to c (used for intersection tests)
+*   - n: Surface normal computed via cross product (initially unnormalized to preserve area info)
+*   - tan, bit: Tangent and bitangent vectors for texture/bump mapping
+*       • Choose tangent perpendicular to normal, picking most stable axis
+*       • Bitangent completes the orthogonal basis with normal and tangent
+*   - n: Normalize the normal after tangent calculation
+*   - base_u: Normalized direction along first edge (for 2D coordinate system)
+*   - base_v: Orthogonalized second basis vector (Gram-Schmidt process)
+*       • Projects e2 onto plane perpendicular to base_u for checker/texture mapping
+* Use: Called after parsing triangle to prepare for rendering and surface effects.
+*/
 
 void	aux_hparab(t_hparab *hp)
 {
@@ -80,6 +122,21 @@ void	aux_hparab(t_hparab *hp)
 	hp->vars.inv_rx2 = 1.0f / hp->vars.rx2;
 	hp->vars.inv_ry2 = 1.0f / hp->vars.ry2;
 	hp->vars.half_height = hp->height * 0.5f;
-	hp->vars.inv_height = 1.0f / hp->height; // used in normal z-component as a scale factor
+	hp->vars.inv_height = 1.0f / hp->height;
 }
-// Setup paraboloid's local axes, precompute radii squared and inverse values.
+/*
+* Purpose: Precompute hyperbolic paraboloid (saddle shape) geometry for intersection.
+* Algorithm:
+*   - axis: Normalize the vertical axis direction
+*   - u, v: Build orthonormal basis perpendicular to axis (same logic as cylinder/plane)
+*       • Start with up vector (0,1,0), switch to (1,0,0) if axis is vertical
+*       • u: Cross product of up and axis
+*       • v: Cross product of axis and u
+*   - rx2, ry2: Square of x and y radii (elliptical base dimensions)
+*   - inv_rx2, inv_ry2: Precompute 1/(radius²) to avoid division in intersection equation
+*   - half_height: Half of total height range
+*   - inv_height: Precompute 1/height (used as scale factor in normal calculation)
+* Notes: The paraboloid equation uses these values to define the saddle surface
+*        z = (x²/rx² - y²/ry²) * height, which curves up in one direction and down in another.
+* Use: Called after parsing paraboloid to prepare quadratic intersection equation.
+*/

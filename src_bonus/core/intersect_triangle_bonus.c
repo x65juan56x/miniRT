@@ -75,7 +75,6 @@ int	record_triangle(t_triangle *tr, t_ray r, float t, t_hit *out)
 		tr_process_checker(tr, &c_hit, out);
 	else
 		set_common_hit(out, &c_hit);
-	// Bump: usar baricéntricas para estirar el mapa a todo el triángulo
 	if (tr->has_bump && tr->bump)
 		tr_process_bump(tr, &c_hit, out);
 	orient_normal(out, r);

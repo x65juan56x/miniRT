@@ -11,7 +11,7 @@ void	pl_process_checker(t_plane *pl, t_common_hit *c_hit, t_hit *out)
 	vars.iv = (int)floorf(v3_dot(rel, pl->vars.v) / pl->checker_scale);
 	vars.comp = v3_sub(v3(1.0f, 1.0f, 1.0f), pl->color);
 	if ((vars.iu + vars.iv) & 1)
-		c_hit->albedo = vars.comp; // color complementario
+		c_hit->albedo = vars.comp;
 	set_common_hit(out, c_hit);
 }
 /*
