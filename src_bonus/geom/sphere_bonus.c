@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   sphere_bonus.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jmondon <jmondon@student.42malaga.com>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/04 16:30:10 by jmondon           #+#    #+#             */
+/*   Updated: 2025/11/04 16:30:11 by jmondon          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../../include_bonus/minirt_bonus.h"
 #include "../../include_bonus/scene_bonus.h"
 #include "../../include_bonus/hit_bonus.h"

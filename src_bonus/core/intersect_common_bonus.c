@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   intersect_common_bonus.c                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jmondon <jmondon@student.42malaga.com>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/04 16:31:50 by jmondon           #+#    #+#             */
+/*   Updated: 2025/11/04 16:31:50 by jmondon          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../../include_bonus/minirt_bonus.h"
 
 void	set_common_hit(t_hit *dst, t_common_hit *c_hit)

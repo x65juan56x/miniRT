@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   specular_bonus.c                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jmondon <jmondon@student.42malaga.com>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/04 16:27:54 by jmondon           #+#    #+#             */
+/*   Updated: 2025/11/04 16:27:56 by jmondon          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../../include_bonus/minirt_bonus.h"
 
 t_vec3	specular_blinn_phong(const t_scene *scene, const t_light *light,
