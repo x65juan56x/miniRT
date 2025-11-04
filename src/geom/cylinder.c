@@ -28,9 +28,14 @@ static float	hit_cap(const t_cyl *cyl, t_ray r, int sign)
 	return (-1.0f);
 }
 /*
-* Purpose: Test ray intersection with the top or bottom cap of the cylinder.
-* Logic: Treat cap as a disk; compute plane intersection, check radius.
-* Notes: sign=1 for top cap, sign=-1 for bottom; returns t if inside disk.
+* Purpose: Test ray intersection with a cylinder cap (circular disk).
+* Inputs: cyl (axis, cap centers, radius), ray r, sign (1=top, -1=bottom).
+* Algorithm:
+*   1. Check if ray is parallel to cap plane (dot(r.dir, axis) ≈ 0) -> no hit.
+*   2. Solve plane intersection: t = dot(cap_center - r.orig, axis) / denom.
+*   3. If t < 0, intersection is behind ray origin -> reject.
+*   4. Compute hit point p and check if distance from cap center <= radius.
+* Returns: t >= 0 for valid intersection, -1.0f otherwise.
 */
 
 static void	cyl_quadratic(t_cyl *cyl, t_ray r, t_vec3 x)
@@ -48,10 +53,15 @@ static void	cyl_quadratic(t_cyl *cyl, t_ray r, t_vec3 x)
 				v3_sub(x, v3_mul(cyl->axis, x_dot_ax)))) - cyl->vars.radius2;
 }
 /*
-* Purpose: Compute quadratic equation coefficients for ray-cylinder intersection.
-* Logic: Project ray and origin onto the plane perpendicular to the axis.
-* Notes: Sets a, b, c in cyl->vars for solving the quadratic;
-	x = r.orig - center.
+* Purpose: Build quadratic coefficients (a, b, c) for ray-infinite-cylinder
+*          intersection: a*t^2 + b*t + c = 0.
+* Inputs: cyl (axis, radius), ray r, x = r.orig - cyl->center.
+* Math: Project ray direction and x onto the plane perpendicular to the axis:
+*       d_perp = r.dir - axis * dot(r.dir, axis)
+*       x_perp = x - axis * dot(x, axis)
+*       Then: a = dot(d_perp, d_perp), b = 2*dot(d_perp, x_perp),
+*             c = dot(x_perp, x_perp) - radius^2
+* Outputs: Sets cyl->vars.a, .b, .c for solving the quadratic equation.
 */
 
 static float	hit_side(t_cyl *cyl, t_ray r)
@@ -78,9 +88,15 @@ static float	hit_side(t_cyl *cyl, t_ray r)
 	return (pick_valid_t(cyl, r, t1, t2));
 }
 /*
-* Purpose: Compute ray intersection with the infinite cylinder's curved surface.
-* Logic: Solve quadratic equation; check discriminant and pick valid t.
-* Notes: Returns -1 if no intersection or if both roots are invalid.
+* Purpose: Compute ray intersection with the finite cylinder's curved side.
+* Algorithm:
+*   1. Compute quadratic coefficients via cyl_quadratic() (projects ray onto
+*      plane perpendicular to axis).
+*   2. If a == 0, ray is parallel to axis after projection -> no side hit.
+*   3. Compute discriminant; if negative, no real roots -> no intersection.
+*   4. Solve for roots t1, t2, order them, and call pick_valid_t() to find
+*      the nearest positive root within height bounds.
+* Returns: t >= 0 for valid side hit, -1.0f otherwise.
 */
 
 float	hit_cylinder(t_cyl *cyl, t_ray r)
@@ -103,11 +119,15 @@ float	hit_cylinder(t_cyl *cyl, t_ray r)
 	return (best_t);
 }
 /*
-* Purpose: Find the nearest ray-cylinder intersection (side or caps).
-* Logic: Test side, top cap, and bottom cap; return the closest valid hit.
-* Notes: Sets cyl->vars.hit_part (0=side, 1=top, 2=bottom) for normal
-	calculation.
-* Use: Called by the intersection dispatcher; returns t or -1 if no hit.
+* Purpose: Find the nearest intersection between a ray and a finite cylinder
+*          (side and both caps).
+* Algorithm:
+*   1. Test curved side with hit_side().
+*   2. Test top cap (sign=1) and bottom cap (sign=-1) with hit_cap().
+*   3. Use check_best_t() to track the smallest t and record which part was hit
+*      in cyl->vars.hit_part (0=side, 1=top, 2=bottom) for normal computation.
+* Returns: smallest t >= 0 for a valid hit, -1.0f if ray misses entirely.
+* Use: Main entry point for ray-cylinder intersection tests.
 */
 
 /* float	hit_cylinder(t_cyl *cyl, t_ray r)
