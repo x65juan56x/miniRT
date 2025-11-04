@@ -16,12 +16,15 @@ static void	tr_process_checker(t_triangle *tr, t_common_hit *c_hit, t_hit *out)
 }
 /*
 * Purpose: Apply a checkerboard pattern to the triangle's surface.
-* Inputs: tr (triangle), c_hit (hit info), out (result structure).
+* Inputs: tr (triangle), c_hit (hit info with position), out (final hit result).
 * Algorithm:
-*   - Calculate position relative to one corner of the triangle (vertex a)
-*   - Project onto the triangle's local 2D coordinate system
-*   - Divide into tiles based on checker_scale
-*   - Alternate between base color and complement in a checkerboard
+*   - Project the hit point onto the triangle's 2D coordinate system
+*   - base_u and base_v are orthogonal vectors lying on the triangle plane
+*   - Calculate position relative to vertex 'a' using dot products
+*   - Divide these coordinates into tiles based on checker_scale
+*   - Alternate between the base color and its complement like a checkerboard
+* Notes: Unlike spheres, triangles use a flat 2D grid projection.
+*        The grid is aligned with the triangle's edges via base_u and base_v.
 * Use: Called when checker pattern is enabled on triangles.
 */
 
@@ -50,17 +53,21 @@ static void	tr_process_bump(const t_triangle *tr, t_common_hit *c_hit,
 	}
 }
 /*
-* Purpose: Apply bump mapping to make the flat triangle look textured.
+* Purpose: Apply bump mapping to make the triangle surface look textured.
 * Inputs: tr (triangle with bump map), c_hit (hit info), out (result to modify).
 * Algorithm:
-*   - Calculate barycentric coordinates (how far along each triangle edge)
-*   - These coordinates (vb, wb) become UV texture coordinates
-*   - This stretches the bump map texture across the whole triangle
-*   - Build tangent vectors from the triangle's edges
-*   - Perturb the normal to create surface detail
-* Notes: Uses barycentric coordinates to naturally map texture across the triangle.
-*        If calculation fails (degenerate triangle), skip bump mapping.
-* Use: Called when bump mapping is enabled on triangles.
+*   - Compute barycentric coordinates (vb, wb) of the hit point on the triangle
+*     (like finding how much "weight" each vertex has at this position)
+*   - e1 and e2 are the triangle's edge vectors from vertex a
+*   - Use dot products to solve for the barycentric coordinates
+*   - Map barycentric coordinates to UV texture space [0,1] × [0,1]
+*   - Build tangent space vectors aligned with the triangle's edges:
+*       • tangent: points along e1 (first edge)
+*       • bitangent: perpendicular to tangent, lies on triangle surface
+*   - Use these to perturb the normal based on the bump map texture
+* Notes: The barycentric calculation stretches the bump map across the entire triangle.
+*        We check denom to avoid division by zero in degenerate triangles.
+* Use: Called when bump mapping is enabled; makes flat triangles look textured.
 */
 
 int	record_triangle(t_triangle *tr, t_ray r, float t, t_hit *out)
@@ -86,14 +93,14 @@ int	record_triangle(t_triangle *tr, t_ray r, float t, t_hit *out)
 * Inputs: tr (triangle), ray r, t (hit distance), out (result structure to fill).
 * Algorithm:
 *   - Calculate where the ray hit the triangle (hit point p)
-*   - Use the triangle's precomputed normal (same across the flat triangle)
+*   - Use the triangle's precomputed normal (same across entire surface)
 *   - Apply optional surface effects:
-*       • Checker pattern: changes color in a checkerboard
-*       • Bump mapping: uses barycentric coords to map texture across triangle
-*   - Orient the normal to face toward the ray
+*       • Checker pattern: changes the color in a checkerboard
+*       • Bump mapping: makes the surface look textured
+*   - Orient the normal to face toward the ray (for proper lighting)
 *   - Apply material properties (shininess, reflectivity, etc.)
-* Notes: Triangles are flat, so they have a uniform normal like planes.
-*        Bump mapping uses barycentric coordinates for natural texture mapping.
+* Notes: Unlike spheres, triangles have a flat surface so the normal is constant.
+*        Surface effects are applied in order: first color, then bump, then orientation.
 * Returns: Always returns 1 (success).
 * Use: Called after hit_triangle() confirms there's an intersection.
 */
