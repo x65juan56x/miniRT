@@ -104,6 +104,8 @@ t_parse_result	parse_cy(char **tkns, int line, t_scene *scene)
 		return (parse_error(line, "cy: not enough memory"));
 	obj->type = OBJ_CYLINDER;
 	res = validate_cyl_geometry(tkns, line, obj);
+	if (!res.ok)
+		return (res);
 	aux_cylinder(&obj->u_obj.cy);
 	obj->next = NULL;
 	scene_add_object(scene, obj);
