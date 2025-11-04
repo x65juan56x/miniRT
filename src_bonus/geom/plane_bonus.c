@@ -2,6 +2,17 @@
 #include "../../include_bonus/scene_bonus.h"
 #include "../../include_bonus/hit_bonus.h"
 
+/*
+* Purpose: Find where a ray hits an infinite flat plane.
+* Inputs: pl (plane with normal and distance d), ray r (origin and direction).
+* Algorithm:
+*   - den: measures how much the ray is "pointing toward" the plane
+*       • If den ≈ 0, the ray is parallel to the plane → will never hit
+*   - Calculate distance 't' where the ray crosses the plane surface
+*   - If t > 0, the hit is in front of us (visible)
+*   - If t < 0, the hit is behind us (not visible)
+* Returns: distance to hit point, or -1 if no hit (parallel or behind).
+*/
 float	hit_plane(t_plane *pl, t_ray r)
 {
 	float	den;
