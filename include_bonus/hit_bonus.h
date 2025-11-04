@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   hit_bonus.h                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: anagarri <anagarri@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/04 16:12:17 by anagarri          #+#    #+#             */
+/*   Updated: 2025/11/04 16:12:18 by anagarri         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef HIT_BONUS_H
 # define HIT_BONUS_H
 
@@ -39,8 +51,6 @@ typedef struct s_sp_aux
 	float	disc;
 	t_vec3	u;
 	t_vec3	v;
-	// int		iu;
-	// int		iv;
 }	t_sp_aux;
 
 // Plane cached constants (computed once per object)

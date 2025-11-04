@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser.h                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: anagarri <anagarri@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/04 16:03:43 by anagarri          #+#    #+#             */
+/*   Updated: 2025/11/04 16:03:44 by anagarri         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 /*
 * Parser API: parse a .rt scene file into a t_scene model.
 * Provides a simple result struct for error reporting and helpers for tests.
