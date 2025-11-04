@@ -9,6 +9,7 @@ void	aux_sphere(t_sphere *sp)
 	// sp->vars.iu = 0;
 	// sp->vars.iv = 0;
 }
+// Precompute sphere's radius and derived values from diameter.
 
 void	aux_plane(t_plane *pl)
 {
@@ -22,6 +23,7 @@ void	aux_plane(t_plane *pl)
 	pl->vars.u = v3_norm(v3_cross(up, pl->normal));
 	pl->vars.v = v3_cross(pl->normal, pl->vars.u);
 }
+// Normalize plane normal, compute distance, and build 2D coordinate basis (u,v).
 
 void	aux_cylinder(t_cyl *cy)
 {
@@ -41,6 +43,7 @@ void	aux_cylinder(t_cyl *cy)
 	cy->vars.base_u = v3_norm(v3_cross(up, cy->axis));
 	cy->vars.base_v = v3_cross(cy->axis, cy->vars.base_u);
 }
+// Precompute cylinder dimensions, cap positions, and local coordinate basis.
 
 void	aux_triangle(t_triangle *tr)
 {
@@ -60,6 +63,7 @@ void	aux_triangle(t_triangle *tr)
 	tr->vars.base_v = v3_norm(v3_sub(tr->vars.e2,
 				v3_mul(tr->vars.base_u, v3_dot(tr->vars.e2, tr->vars.base_u))));
 }
+// Compute triangle edges, normal, and tangent basis for texture mapping.
 
 void	aux_hparab(t_hparab *hp)
 {
@@ -78,3 +82,4 @@ void	aux_hparab(t_hparab *hp)
 	hp->vars.half_height = hp->height * 0.5f;
 	hp->vars.inv_height = 1.0f / hp->height; // used in normal z-component as a scale factor
 }
+// Setup paraboloid's local axes, precompute radii squared and inverse values.

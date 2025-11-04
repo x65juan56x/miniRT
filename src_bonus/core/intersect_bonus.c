@@ -28,6 +28,12 @@ static int	object_hit(t_object *obj, t_ray r, t_hit *out)
 		return (record_hparaboloid(&obj->u_obj.hp, r, t, out));
 	return (record_triangle(&obj->u_obj.tr, r, t, out));
 }
+/*
+* Purpose: Test if a ray hits a single object and record the hit details.
+* Algorithm: First check the object type and test for intersection distance.
+*            If hit is valid, call the appropriate record function to fill details.
+* Returns: 1 if hit, 0 if miss.
+*/
 
 int	scene_hit(const t_scene *scene, t_ray r, float max_dist, t_hit *out)
 {
@@ -52,3 +58,8 @@ int	scene_hit(const t_scene *scene, t_ray r, float max_dist, t_hit *out)
 	}
 	return (found);
 }
+/*
+* Purpose: Find the closest object hit by a ray in the entire scene.
+* Algorithm: Loop through all objects, test each one, keep track of the nearest hit.
+* Returns: 1 if any object was hit, 0 if ray missed everything.
+*/

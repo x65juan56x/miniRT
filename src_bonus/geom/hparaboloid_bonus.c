@@ -13,11 +13,9 @@ static float	check_solution(const t_hparab *hp, float t)
 	x = hp->vars.ox + hp->vars.dx * t;
 	y = hp->vars.oy + hp->vars.dy * t;
 	z = hp->vars.oz + hp->vars.dz * t;
-	// point must lie inside the elliptical cross-section
 	inside = x * x * hp->vars.inv_rx2 + y * y * hp->vars.inv_ry2;
 	if (inside > 1.0f + 1e-4f)
 		return (-1.0f);
-	// vertical clamp by half-height
 	if (fabsf(z) > hp->height + 2e-4f)
 		return (-1.0f);
 	return (t);

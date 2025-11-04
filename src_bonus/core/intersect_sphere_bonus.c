@@ -20,22 +20,16 @@ static void	sp_process_checker(t_sphere *sp, t_common_hit *c_hit, t_hit *out)
 	set_common_hit(out, c_hit);
 }
 /*
-* Purpose: Apply a checkerboard pattern to the sphere surface using
-*	spherical coordinates.
-* Logic: Convert the surface normal (which points from center to hit point)
-*	to spherical UV coordinates, then discretize into checker tiles.
-* Math:
-*	- normal: unit vector from sphere center to hit point
-*	- uang = atan2(n.z, n.x): azimuthal angle φ in range [-π, π]
-*	  (normalized to [0, 2π] by adding 2π if negative)
-*	- polar angle θ = acos(n.y): angle from north pole [0, π]
-*	- iu = floor(φ * radius / checker_scale): checker tile index (longitude)
-*	- iv = floor(θ * radius / checker_scale): checker tile index (latitude)
-* Notes: The arc length along the sphere surface is radius * angle, so
-*	multiplying angles by radius gives world-space distances for uniform
-*	tile sizing. Alternates between base color and complementary color
-*	based on (iu + iv) parity.
-* Use: Called by record_sphere when checker pattern is enabled.
+* Purpose: Apply a checkerboard pattern to the sphere's surface.
+* Inputs: sp (sphere), c_hit (hit info with normal), out (final hit result).
+* Algorithm:
+*   - Think of the sphere like a globe with latitude and longitude lines
+*   - Convert the surface normal to spherical coordinates (like GPS coordinates)
+*   - uang: horizontal angle around the sphere (longitude)
+*   - Vertical angle from top to bottom (latitude) using acos
+*   - Divide these angles into tiles based on checker_scale
+*   - Alternate between the base color and its complement like a checkerboard
+* Use: Called when checker pattern is enabled on spheres.
 */
 
 static void	sp_process_bump(const t_sphere *sp, t_common_hit *c_hit, t_hit *out)
@@ -54,22 +48,20 @@ static void	sp_process_bump(const t_sphere *sp, t_common_hit *c_hit, t_hit *out)
 	bump_perturb(sp->bump, &bm_aux, &out->n);
 }
 /*
-* Purpose: Apply bump mapping to perturb the sphere's surface normal.
-* Logic: Convert the surface normal to spherical UV coordinates [0,1]×[0,1]
-*	and construct a tangent-space basis perpendicular to the normal.
-* Math:
-*	- normal: unit vector from sphere center to hit point
-*	- u = (atan2(n.z, n.x) + π) / (2π): normalized azimuthal angle [0, 1]
-*	  (adds π to shift from [-π, π] to [0, 2π], then normalizes)
-*	- v = acos(n.y) / π: normalized polar angle [0, 1]
-*	  (maps from [0, π] to [0, 1])
-*	- tangent = normalize((0,1,0) × normal): tangent vector along longitude
-*	  (if degenerate at poles, use (1,0,0) × normal as fallback)
-*	- bitangent = normal × tangent: tangent vector along latitude
-* Notes: The tangent basis (tangent, bitangent, normal) forms a right-handed
-*	orthonormal coordinate system. At the north/south poles (n.y ≈ ±1),
-*	the cross product with (0,1,0) degenerates, requiring a fallback.
-* Use: Called by record_sphere when bump mapping is enabled; modifies out->n.
+* Purpose: Apply bump mapping to make the sphere surface look textured.
+* Inputs: sp (sphere with bump map), c_hit (hit info), out (result to modify).
+* Algorithm:
+*   - Convert the surface normal to UV coordinates [0,1] × [0,1]
+*     (like unwrapping the sphere into a flat rectangle)
+*   - u: horizontal coordinate (wraps around the sphere)
+*   - v: vertical coordinate (from top pole to bottom pole)
+*   - Build tangent vectors that lie flat on the sphere surface
+*   - tangent: points along the "longitude" direction
+*   - bitangent: points along the "latitude" direction
+*   - Use these to perturb the normal based on the bump map texture
+* Notes: At the north/south poles, we need a fallback tangent calculation
+*        because the standard cross product becomes undefined.
+* Use: Called when bump mapping is enabled; makes smooth spheres look bumpy.
 */
 
 int	record_sphere(t_sphere *sp, t_ray r, float t, t_hit *out)
@@ -91,22 +83,18 @@ int	record_sphere(t_sphere *sp, t_ray r, float t, t_hit *out)
 	return (1);
 }
 /*
-* Purpose: Record a ray-sphere intersection and compute all surface
-*	properties for shading.
-* Logic: Compute the hit point and outward normal, apply optional surface
-*	effects (checker pattern and bump mapping), orient the normal to face
-*	the ray, and apply material properties.
-* Math:
-*	- p = ray_origin + t * ray_direction: 3D hit point on the sphere
-*	- normal = normalize(p - sphere_center): outward-pointing unit normal
-*	  (for a sphere, the normal at any surface point is the radial direction
-*	  from center to that point)
-* Notes: The sphere normal is simply the normalized vector from the center
-*	to the hit point. Surface effects are applied sequentially: checker
-*	pattern (affects albedo) then bump mapping (perturbs normal). Finally,
-*	orient_normal ensures the normal faces the ray origin for correct
-*	two-sided rendering.
-* Use: Called by the intersection dispatcher after hit_sphere confirms
-*	a valid intersection distance t.
+* Purpose: Process a confirmed sphere hit and prepare all surface information.
+* Inputs: sp (sphere), ray r, t (hit distance), out (result structure to fill).
+* Algorithm:
+*   - Calculate where the ray hit the sphere (hit point p)
+*   - Compute the surface normal (points outward from sphere center)
+*   - Apply optional surface effects:
+*       • Checker pattern: changes the color in a checkerboard
+*       • Bump mapping: makes the surface look textured
+*   - Orient the normal to face toward the ray (for proper lighting)
+*   - Apply material properties (shininess, reflectivity, etc.)
+* Notes: For a sphere, the normal is just the direction from center to hit point.
+*        Surface effects are applied in order: first color, then bump, then orientation.
 * Returns: Always returns 1 (success).
+* Use: Called after hit_sphere() confirms there's an intersection.
 */

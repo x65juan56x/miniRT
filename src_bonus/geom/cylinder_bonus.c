@@ -30,7 +30,7 @@ static float	hit_cap(const t_cyl *cyl, t_ray r, int sign)
 
 	denom = v3_dot(r.dir, cyl->axis);
 	if (fabsf(denom) < 1e-6f)
-		return (-1.0f); //paralelo no hay interseccion
+		return (-1.0f);
 	if (sign == 1)
 		c_cap = cyl->vars.cap_top;
 	else

@@ -1,8 +1,6 @@
 #include <stdlib.h>
 #include "../../include_bonus/minirt_bonus.h"
 
-// Initializes the scene with default values and presence flags set to false.
-// This allows validation that A and C are declared exactly once in the parser.
 void	scene_init(t_scene *s)
 {
 	s->ambient.ratio = 0.0f;
@@ -33,7 +31,6 @@ static void	free_lights(t_scene *s)
 	s->light = next_light;
 }
 
-// Frees the linked list of objects and leaves the scene in a clean state.
 void	scene_free(t_scene *s)
 {
 	t_object	*it;

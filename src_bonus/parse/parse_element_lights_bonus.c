@@ -14,6 +14,7 @@ static t_parse_result	l_parse_attributes(char **tok, int line,
 		return (parse_error(line, "L: invalid color"));
 	return (parse_ok());
 }
+// Parse and validate light attributes: position, brightness [0,1], and optional color.
 
 static void	l_build_basis(t_light *new_light, t_light_prop *l_vars)
 {
@@ -23,6 +24,7 @@ static void	l_build_basis(t_light *new_light, t_light_prop *l_vars)
 	new_light->bright = l_vars->bright;
 	new_light->pos = l_vars->pos;
 }
+// Initialize a new light structure with parsed values.
 
 t_parse_result	parse_l(char **tok, int line, t_scene *scene)
 {
@@ -36,11 +38,11 @@ t_parse_result	parse_l(char **tok, int line, t_scene *scene)
 	result = l_parse_attributes(tok, line, &l_vars);
 	if (!result.ok)
 		return (result);
-	new_light = malloc(sizeof(t_light)); //CUIDADO CON LA RESERVA DE MEMORIA
+	new_light = malloc(sizeof(t_light));
 	if (!new_light)
 		return (parse_error(line, "L: malloc failed"));
 	l_build_basis(new_light, &l_vars);
-	if (!scene->light) //añadir a la lista
+	if (!scene->light)
 		scene->light = new_light;
 	else
 	{
@@ -51,3 +53,20 @@ t_parse_result	parse_l(char **tok, int line, t_scene *scene)
 	}
 	return (parse_ok());
 }
+/*
+* Purpose: Parse a light source definition from the scene file.
+* Inputs: tok (tokenized line: "L" position brightness [color]), line number, scene.
+* Algorithm:
+*   - Verify correct format: "L" requires exactly 2 mandatory params (position, brightness)
+*     and 1 optional param (color)
+*   - Parse position as a 3D coordinate (x,y,z)
+*   - Parse brightness as a float in range [0,1]
+*   - Parse optional color (defaults to white if not provided)
+*   - Allocate memory for a new light structure
+*   - Initialize the light with parsed values
+*   - Add the light to the scene's linked list:
+*       • If this is the first light, set it as the head
+*       • Otherwise, traverse to the end and append
+* Returns: parse_ok() on success, parse_error() with message on failure.
+* Use: Called by the parser when it encounters an "L" line in the scene file.
+*/

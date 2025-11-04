@@ -14,6 +14,16 @@ static void	tr_process_checker(t_triangle *tr, t_common_hit *c_hit, t_hit *out)
 		c_hit->albedo = vars.comp;
 	set_common_hit(out, c_hit);
 }
+/*
+* Purpose: Apply a checkerboard pattern to the triangle's surface.
+* Inputs: tr (triangle), c_hit (hit info), out (result structure).
+* Algorithm:
+*   - Calculate position relative to one corner of the triangle (vertex a)
+*   - Project onto the triangle's local 2D coordinate system
+*   - Divide into tiles based on checker_scale
+*   - Alternate between base color and complement in a checkerboard
+* Use: Called when checker pattern is enabled on triangles.
+*/
 
 static void	tr_process_bump(const t_triangle *tr, t_common_hit *c_hit,
 		t_hit *out)
@@ -32,14 +42,26 @@ static void	tr_process_bump(const t_triangle *tr, t_common_hit *c_hit,
 	{
 		vars.vb = (vars.d11 * vars.d20 - vars.d01 * vars.d21) / vars.denom;
 		vars.wb = (vars.d00 * vars.d21 - vars.d01 * vars.d20) / vars.denom;
-		bm_aux.u = vars.vb;// (u,v) de textura = (vb, wb)
+		bm_aux.u = vars.vb;
 		bm_aux.v = vars.wb;
-		// Base tangente a partir de e1,e2
 		bm_aux.tangent = v3_norm(tr->vars.e1);
 		bm_aux.bitangent = v3_norm(v3_cross(tr->vars.n, bm_aux.tangent));
 		bump_perturb(tr->bump, &bm_aux, &out->n);
 	}
 }
+/*
+* Purpose: Apply bump mapping to make the flat triangle look textured.
+* Inputs: tr (triangle with bump map), c_hit (hit info), out (result to modify).
+* Algorithm:
+*   - Calculate barycentric coordinates (how far along each triangle edge)
+*   - These coordinates (vb, wb) become UV texture coordinates
+*   - This stretches the bump map texture across the whole triangle
+*   - Build tangent vectors from the triangle's edges
+*   - Perturb the normal to create surface detail
+* Notes: Uses barycentric coordinates to naturally map texture across the triangle.
+*        If calculation fails (degenerate triangle), skip bump mapping.
+* Use: Called when bump mapping is enabled on triangles.
+*/
 
 int	record_triangle(t_triangle *tr, t_ray r, float t, t_hit *out)
 {
@@ -60,3 +82,19 @@ int	record_triangle(t_triangle *tr, t_ray r, float t, t_hit *out)
 	apply_specular(out, tr->material);
 	return (1);
 }
+/*
+* Purpose: Process a confirmed triangle hit and prepare all surface information.
+* Inputs: tr (triangle), ray r, t (hit distance), out (result structure to fill).
+* Algorithm:
+*   - Calculate where the ray hit the triangle (hit point p)
+*   - Use the triangle's precomputed normal (same across the flat triangle)
+*   - Apply optional surface effects:
+*       • Checker pattern: changes color in a checkerboard
+*       • Bump mapping: uses barycentric coords to map texture across triangle
+*   - Orient the normal to face toward the ray
+*   - Apply material properties (shininess, reflectivity, etc.)
+* Notes: Triangles are flat, so they have a uniform normal like planes.
+*        Bump mapping uses barycentric coordinates for natural texture mapping.
+* Returns: Always returns 1 (success).
+* Use: Called after hit_triangle() confirms there's an intersection.
+*/
