@@ -17,7 +17,8 @@ static int	inside_cyl_height(const t_cyl *cylinder, t_vec3 p, t_vec3 v)
 *   - Project the point onto the cylinder's axis (measure how far along the axis)
 *   - If the distance from center is <= half_height, it's between the caps
 * Returns: 1 if within height bounds, 0 if outside.
-* Use: After finding where ray hits the curved side, verify it's not above/below caps.
+* Use: After finding where ray hits the curved side, verify it's not
+*	   above/below caps.
 */
 
 static float	hit_cap(const t_cyl *cyl, t_ray r, int sign)

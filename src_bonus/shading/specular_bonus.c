@@ -42,7 +42,8 @@ t_vec3	specular_blinn_phong(const t_scene *scene, const t_light *light,
 *       • Lower shininess = broader, softer highlight
 *   - Scale by ks (specular strength) and light intensity
 * Formula: specular = ks * light * (N·H)^shininess
-* Notes: Blinn-Phong is faster than Phong (uses halfway vector instead of reflection).
+* Notes: Blinn-Phong is faster than Phong 
+		 uses halfway vector instead of reflection).
 * Returns: Specular contribution RGB color.
 * Use: Called when computing shiny highlights on reflective surfaces.
 */
@@ -88,8 +89,9 @@ t_vec3	specular_phong(const t_scene *scene, const t_light *light,
 *   - Raise to shininess power: (R·V)^shininess
 *   - Scale by ks and light intensity
 * Formula: specular = ks * light * (R·V)^shininess
-* Notes: Original Phong model. More expensive than Blinn-Phong but slightly different look.
-*        Best visible when view direction aligns with perfect reflection.
+* Notes: Original Phong model. More expensive than Blinn-Phong but slightly
+*		 different look. Best visible when view direction aligns with
+*		 perfect reflection.
 * Returns: Specular contribution RGB color.
 * Use: Alternative specular model when SPEC_MODEL_PHONG is selected.
 */

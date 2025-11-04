@@ -7,7 +7,8 @@ static t_vec3	compute_specular(const t_scene *scene, const t_light *light,
 		return (specular_phong(scene, light, hit, light_dir));
 	return (specular_blinn_phong(scene, light, hit, light_dir));
 }
-// Choose between Phong or Blinn-Phong specular model based on material settings.
+// Choose between Phong or Blinn-Phong specular model based on
+// material settings.
 
 static int	init_light_sample(const t_scene *scene, const t_hit *hit,
 	const t_light *light, t_light_sample *sample)
@@ -28,7 +29,8 @@ static int	init_light_sample(const t_scene *scene, const t_hit *hit,
 	return (1);
 }
 /*
-* Purpose: Prepare light sample data and check if light contributes to this point.
+* Purpose: Prepare light sample data and check if light contributes
+*		   to this point.
 * Algorithm:
 *   - Validate light brightness (skip if zero)
 *   - Calculate direction from surface to light
@@ -62,7 +64,8 @@ static void	accumulate_light(const t_scene *scene, const t_hit *hit,
 	}
 }
 /*
-* Purpose: Loop through all lights and accumulate their diffuse and specular contributions.
+* Purpose: Loop through all lights and accumulate their diffuse and
+		   specular contributions.
 * Algorithm:
 *   - For each light in the scene:
 *       • Initialize light sample (check visibility, angle, shadows)
@@ -89,8 +92,10 @@ t_vec3	shade_lambert(const t_scene *scene, const t_hit *hit)
 			specular_total));
 }
 /*
-* Purpose: Compute final color of a surface point using Lambert shading + specular.
-* Inputs: scene (ambient light, lights, camera), hit (surface point with material).
+* Purpose: Compute final color of a surface point using
+*		   Lambert shading + specular.
+* Inputs: scene (ambient light, lights, camera),
+*		  hit (surface point with material).
 * Algorithm:
 *   - Start with ambient lighting: base illumination everywhere (no shadows)
 *   - Accumulate diffuse lighting from all lights:
@@ -98,7 +103,8 @@ t_vec3	shade_lambert(const t_scene *scene, const t_hit *hit)
 *       • Multiplied by surface color (albedo)
 *   - Add specular highlights: shiny bright spots (if material is reflective)
 *   - Final color = ambient + diffuse + specular
-* Notes: This is the main shading function that brings together all lighting effects.
+* Notes: This is the main shading function that brings together all
+*		 lighting effects.
 * Returns: RGB color for the pixel.
 * Use: Called by the renderer for each visible surface point.
 */

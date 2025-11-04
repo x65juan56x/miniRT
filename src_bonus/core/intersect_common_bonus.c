@@ -47,10 +47,14 @@ void	apply_specular(t_hit *out, const t_material *material)
 *   - Start with defaults (no shine, no reflections)
 *   - If material exists, copy its properties:
 *       • ks: strength of specular highlights (shiny spots)
-*       • shininess: how focused the shine is (higher = smaller, sharper highlight)
+*       • shininess: how focused the shine is
+*		  (higher = smaller, sharper highlight)
 *       • spec_model: which lighting model to use (Blinn or Phong)
-*       • reflectivity: how mirror-like the surface is (0 = matte, 1 = perfect mirror)
+*       • reflectivity: how mirror-like the surface is
+*		  (0 = matte, 1 = perfect mirror)
 *   - Validate: if ks or shininess is invalid (≤ 0), disable specular effects
-* Notes: This affects how light creates bright spots on shiny surfaces like metal or plastic.
-* Use: Called at the end of all record_* functions to finalize material appearance.
+* Notes: This affects how light creates bright spots on shiny surfaces like
+*		 metal or plastic.
+* Use: Called at the end of all record_* functions to finalize material
+*	   appearance.
 */
