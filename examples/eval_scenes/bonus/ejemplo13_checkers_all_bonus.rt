@@ -19,4 +19,4 @@ tr  -3,-1,-2   -1,1,-3   -2,-1,-4   50,200,80   cb 0.6
 # Axis roughly up; rx,ry ~ span along u/v; height controls curvature scale
 hp  2,-0.5,-2   0,1,0   1.2  1.0  1.5   200,60,200   cb 0.5 ks 0.620 900
 
-cy 0,0,0 0,1,0 1.0 1.0 220,50,50 cb 0.5 ks 0.620 900
+cy 0,-0.5,0 0,1,0 1.0 1.0 220,150,50 ks 0.620 900
