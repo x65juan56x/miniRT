@@ -1,6 +1,5 @@
 #include "../../include_bonus/minirt_bonus.h"
 
-// Ispecular = ks * Ilight * max(0, N·H)^shininess
 t_vec3	specular_blinn_phong(const t_scene *scene, const t_light *light,
 	const t_hit *hit, t_vec3 light_dir)
 {

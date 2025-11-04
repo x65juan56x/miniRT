@@ -4,7 +4,6 @@
 #include "../../include_bonus/bump_bonus.h"
 #include "../../include/vec3.h"
 
-// Simple average to keep it cheap
 static float	luminance_u8(uint8_t r, uint8_t g, uint8_t b)
 {
 	return ((float)(r + g + b) / (255.0f * 3.0f));
