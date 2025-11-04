@@ -25,7 +25,8 @@ float	hit_sphere(t_sphere *sp, t_ray r)
 * Purpose: Find where a ray hits a sphere (if at all).
 * Inputs: sp (sphere with center and radius), ray r (origin and direction).
 * Algorithm:
-*   - We're looking for the distance 't' along the ray where it touches the sphere
+*   - We're looking for the distance 't' along the ray where it
+		touches the sphere
 *   - oc: vector pointing from sphere center to where the ray starts
 *   - We solve a quadratic equation (like ax² + bx + c = 0) to find two possible
 *     hit points: one when entering the sphere, one when exiting
