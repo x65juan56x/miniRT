@@ -1,0 +1,17 @@
+# Ambient light
+A 0.2 255,255,255
+
+# Camera: position, direction, FOV
+C 0,0,0 0,0,-1 90
+
+# Green light on the left
+L -10,0,10 0.7 255,0,0
+
+# Yellow light on the right
+L 10,0,10 0.7 0,0,255
+
+# Red sphere in the center
+sp 0,0,-5 1.0 255,255,255 ks 1.0 500.0
+
+# Gray background plane
+pl 0,0,-10 0,0,1 200,200,200
