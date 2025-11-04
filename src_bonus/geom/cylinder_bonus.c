@@ -11,13 +11,13 @@ static int	inside_cyl_height(const t_cyl *cylinder, t_vec3 p, t_vec3 v)
 	return (0);
 }
 /*
-* Purpose: Check if a point lies within the cylinder's height bounds.
-* Inputs: cylinder (with center, axis, half_height), point p, axis vector v.
-* Logic: Project (p - center) onto the axis; if |projection| <= half_height,
-*        the point is between the two caps.
-* Returns: 1 if within bounds, 0 otherwise.
-* Use: Validates that ray-cylinder side intersections fall within the finite
-*      capped cylinder.
+* Purpose: Check if a point is between the cylinder's top and bottom caps.
+* Inputs: cylinder, point p, axis vector v.
+* Algorithm:
+*   - Project the point onto the cylinder's axis (measure how far along the axis)
+*   - If the distance from center is <= half_height, it's between the caps
+* Returns: 1 if within height bounds, 0 if outside.
+* Use: After finding where ray hits the curved side, verify it's not above/below caps.
 */
 
 static float	hit_cap(const t_cyl *cyl, t_ray r, int sign)
@@ -45,14 +45,14 @@ static float	hit_cap(const t_cyl *cyl, t_ray r, int sign)
 	return (-1.0f);
 }
 /*
-* Purpose: Test ray intersection with a cylinder cap (circular disk).
-* Inputs: cyl (axis, cap centers, radius), ray r, sign (1=top, -1=bottom).
+* Purpose: Find where a ray hits a cylinder cap (the flat circular ends).
+* Inputs: cyl (cylinder geometry), ray r, sign (1 = top cap, -1 = bottom cap).
 * Algorithm:
-*   1. Check if ray is parallel to cap plane (dot(r.dir, axis) ≈ 0) -> no hit.
-*   2. Solve plane intersection: t = dot(cap_center - r.orig, axis) / denom.
-*   3. If t < 0, intersection is behind ray origin -> reject.
-*   4. Compute hit point p and check if distance from cap center <= radius.
-* Returns: t >= 0 for valid intersection, -1.0f otherwise.
+*   - First check if ray is flying parallel to the cap → will never hit
+*   - Find where ray crosses the cap's plane
+*   - Check if that point is actually inside the circular disk (within radius)
+*   - Reject hits behind the ray origin (t < 0)
+* Returns: distance to hit point, or -1 if no hit.
 */
 
 static float	pick_valid_t(const t_cyl *cyl, t_ray r, float t1, float t2)
@@ -82,12 +82,15 @@ static float	pick_valid_t(const t_cyl *cyl, t_ray r, float t1, float t2)
 	return (-1.0f);
 }
 /*
-* Purpose: Pick the nearest valid root from the quadratic solutions for the
-*          cylinder side intersection.
-* Inputs: cyl (height limits, axis), ray r, roots t1 and t2 (may be negative).
-* Logic: Order roots (tmin = nearest positive), test each against height bounds
-*        using inside_cyl_height(). Return first valid root, or -1 if none.
-* Returns: t >= 0 for valid side hit within height bounds, -1.0f otherwise.
+* Purpose: Choose the best hit point from two possible solutions.
+* Inputs: cyl (for height checking), ray r, t1 and t2 (two possible distances).
+* Algorithm:
+*   - We might have two points where ray crosses the curved surface
+*   - Try the closer one (tmin) first: check if it's in front of us (t > 0)
+*     and between the caps (inside height bounds)
+*   - If that fails, try the farther one (tmax)
+*   - Prefer closer hits when both are valid
+* Returns: distance to valid hit, or -1 if both fail the checks.
 */
 
 static float	hit_side(t_cyl *cyl, t_ray r)
@@ -114,15 +117,17 @@ static float	hit_side(t_cyl *cyl, t_ray r)
 	return (pick_valid_t(cyl, r, t1, t2));
 }
 /*
-* Purpose: Compute ray intersection with the finite cylinder's curved side.
+* Purpose: Find where a ray hits the cylinder's curved side (not the caps).
 * Algorithm:
-*   1. Compute quadratic coefficients via cyl_quadratic() (projects ray onto
-*      plane perpendicular to axis).
-*   2. If a == 0, ray is parallel to axis after projection -> no side hit.
-*   3. Compute discriminant; if negative, no real roots -> no intersection.
-*   4. Solve for roots t1, t2, order them, and call pick_valid_t() to find
-*      the nearest positive root within height bounds.
-* Returns: t >= 0 for valid side hit, -1.0f otherwise.
+*   - Set up quadratic equation using cyl_quadratic()
+*   - If a == 0, ray runs parallel to the cylinder → no side hit
+*   - disc (discriminant): tells us if ray hits the curved surface
+*       • If negative → ray completely misses
+*       • If zero or positive → ray hits (possibly twice: entering and exiting)
+*   - Calculate the two possible hit distances (t1, t2)
+*   - Use pick_valid_t() to choose the closest hit that's within the cylinder's
+*     height (between the two caps) and in front of us
+* Returns: distance to hit point, or -1 if no hit.
 */
 
 float	hit_cylinder(t_cyl *cyl, t_ray r)
@@ -145,15 +150,17 @@ float	hit_cylinder(t_cyl *cyl, t_ray r)
 	return (best_t);
 }
 /*
-* Purpose: Find the nearest intersection between a ray and a finite cylinder
-*          (side and both caps).
+* Purpose: Find the nearest point where a ray hits any part of the cylinder.
 * Algorithm:
-*   1. Test curved side with hit_side().
-*   2. Test top cap (sign=1) and bottom cap (sign=-1) with hit_cap().
-*   3. Use check_best_t() to track the smallest t and record which part was hit
-*      in cyl->vars.hit_part (0=side, 1=top, 2=bottom) for normal computation.
-* Returns: smallest t >= 0 for a valid hit, -1.0f if ray misses entirely.
-* Use: Main entry point for ray-cylinder intersection tests.
+*   - Test three possible surfaces: curved side, top cap, bottom cap
+*   - Keep track of which surface gives the closest hit (smallest t > 0)
+*   - Record which part was hit in cyl->vars.hit_part:
+*       • 0 = curved side
+*       • 1 = top cap
+*       • 2 = bottom cap
+*   - This info is used later to calculate the correct surface normal
+* Returns: distance to nearest hit, or -1 if ray misses all parts.
+* Use: Main entry point for all ray-cylinder intersection tests.
 */
 
 /*
