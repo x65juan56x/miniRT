@@ -65,7 +65,8 @@ static void	tr_process_bump(const t_triangle *tr, t_common_hit *c_hit,
 *       • tangent: points along e1 (first edge)
 *       • bitangent: perpendicular to tangent, lies on triangle surface
 *   - Use these to perturb the normal based on the bump map texture
-* Notes: The barycentric calculation stretches the bump map across the entire triangle.
+* Notes: The barycentric calculation stretches the bump map across the
+		 entire triangle.
 *        We check denom to avoid division by zero in degenerate triangles.
 * Use: Called when bump mapping is enabled; makes flat triangles look textured.
 */
@@ -100,7 +101,8 @@ int	record_triangle(t_triangle *tr, t_ray r, float t, t_hit *out)
 *   - Orient the normal to face toward the ray (for proper lighting)
 *   - Apply material properties (shininess, reflectivity, etc.)
 * Notes: Unlike spheres, triangles have a flat surface so the normal is constant.
-*        Surface effects are applied in order: first color, then bump, then orientation.
+*        Surface effects are applied in order: first color, then bump,
+		 then orientation.
 * Returns: Always returns 1 (success).
 * Use: Called after hit_triangle() confirms there's an intersection.
 */

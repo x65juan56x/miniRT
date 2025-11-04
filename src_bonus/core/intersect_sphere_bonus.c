@@ -94,7 +94,8 @@ int	record_sphere(t_sphere *sp, t_ray r, float t, t_hit *out)
 *   - Orient the normal to face toward the ray (for proper lighting)
 *   - Apply material properties (shininess, reflectivity, etc.)
 * Notes: For a sphere, the normal is just the direction from center to hit point.
-*        Surface effects are applied in order: first color, then bump, then orientation.
+*        Surface effects are applied in order: first color, then bump,
+		 then orientation.
 * Returns: Always returns 1 (success).
 * Use: Called after hit_sphere() confirms there's an intersection.
 */

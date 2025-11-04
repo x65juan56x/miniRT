@@ -1,7 +1,5 @@
 # Glosario de miniRT
 
-Este glosario explica los términos que aparecen en el subject de miniRT y en el plan de trabajo.
-
 ## 1) Geometría y álgebra mínima
 
 - 3D: espacio con 3 ejes (x, y, z).

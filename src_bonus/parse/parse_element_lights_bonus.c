@@ -14,7 +14,8 @@ static t_parse_result	l_parse_attributes(char **tok, int line,
 		return (parse_error(line, "L: invalid color"));
 	return (parse_ok());
 }
-// Parse and validate light attributes: position, brightness [0,1], and optional color.
+// Parse and validate light attributes: position, brightness [0,1],
+// and optional color.
 
 static void	l_build_basis(t_light *new_light, t_light_prop *l_vars)
 {
@@ -55,9 +56,11 @@ t_parse_result	parse_l(char **tok, int line, t_scene *scene)
 }
 /*
 * Purpose: Parse a light source definition from the scene file.
-* Inputs: tok (tokenized line: "L" position brightness [color]), line number, scene.
+* Inputs: tok (tokenized line: "L" position brightness [color]),
+*		  line number, scene.
 * Algorithm:
-*   - Verify correct format: "L" requires exactly 2 mandatory params (position, brightness)
+*   - Verify correct format: "L" requires exactly 2 mandatory params
+*	  (position, brightness)
 *     and 1 optional param (color)
 *   - Parse position as a 3D coordinate (x,y,z)
 *   - Parse brightness as a float in range [0,1]

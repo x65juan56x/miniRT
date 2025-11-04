@@ -115,14 +115,16 @@ void	bump_perturb(t_bumpmap *bm, t_bump_aux *bm_aux,
 }
 /*
 * Purpose: Perturb surface normal using bump map to create illusion of detail.
-* Inputs: bm (bump map), bm_aux (UV coords, tangent basis, strength), n (normal to modify).
+* Inputs: bm (bump map), bm_aux (UV coords, tangent basis, strength),
+		  n (normal to modify).
 * Algorithm:
 *   - Sample height at current position (h_c)
 *   - Sample height at nearby positions (h_u1, h_v1) using small offset (du, dv)
 *   - Calculate gradient: how quickly height changes in u and v directions
 *       • (h_u1 - h_c)/du: slope along tangent direction
 *       • (h_v1 - h_c)/dv: slope along bitangent direction
-*   - Use negative slopes to match height-to-normal convention (higher = bump out)
+*   - Use negative slopes to match height-to-normal convention
+*	  (higher = bump out)
 *   - Combine gradients using tangent basis to get normal perturbation (dn)
 *   - Scale by strength and add to original normal
 *   - Normalize result to get final perturbed normal
