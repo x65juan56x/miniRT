@@ -1,4 +1,4 @@
-# 🌟 miniRT
+# miniRT
 
 <p align="center">
   <img src="https://img.shields.io/badge/Language-C-blue?style=for-the-badge&logo=c" alt="C"/>
@@ -16,7 +16,7 @@
 
 ---
 
-## 📖 About
+## About
 
 **miniRT** is a ray tracing engine built from scratch in C. This project introduces the fundamentals of computer graphics by implementing a realistic rendering engine capable of generating images through ray tracing techniques. The engine parses scene description files (`.rt`) and renders 3D scenes with lighting, shadows, and various geometric primitives.
 
@@ -24,7 +24,7 @@ Ray tracing simulates the way light interacts with objects by tracing rays from 
 
 ---
 
-## ✨ Features
+## Features
 
 ### Core Features (Mandatory)
 - **Geometric Primitives:**
@@ -65,11 +65,11 @@ Ray tracing simulates the way light interacts with objects by tracing rays from 
   - Support for bump mapping on all object types
 
 - **Debug Mode:**
-  - 🎨 Normal visualization mode (toggle with `N` key)
+  - Normal visualization mode (toggle with `N` key)
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 miniRT/
@@ -118,7 +118,7 @@ miniRT/
 
 ---
 
-## 🔧 Technical Implementation
+## Technical Implementation
 
 ### Ray Tracing Pipeline
 
@@ -183,7 +183,7 @@ Efficient algorithm using barycentric coordinates to test point-in-triangle with
 
 ---
 
-## 📄 Scene File Format (`.rt`)
+## Scene File Format (`.rt`)
 
 Scene files use a simple text-based format:
 
@@ -248,7 +248,7 @@ sp 0,0,-5 2.0 200,200,200 kr 0.7
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -301,7 +301,7 @@ make bonus
 
 ---
 
-## 🎨 Example Scenes
+## Example Scenes
 
 The project includes many example scenes demonstrating various features:
 
@@ -317,7 +317,7 @@ The project includes many example scenes demonstrating various features:
 
 ---
 
-## 📚 What You Learn
+## What You Learn
 
 This project teaches fundamental concepts in:
 
@@ -347,7 +347,7 @@ This project teaches fundamental concepts in:
 
 ---
 
-## 🔬 Optimization Techniques
+## Optimization Techniques
 
 The project implements several performance optimizations:
 
@@ -358,7 +358,7 @@ The project implements several performance optimizations:
 
 ---
 
-## 👥 Authors
+## Authors
 
 <table>
   <tr>
@@ -381,13 +381,13 @@ The project implements several performance optimizations:
 
 ---
 
-## 📜 License
+## License
 
 This project is part of the 42 curriculum. Please refer to 42's academic integrity guidelines.
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - **42 Network** for the project subject and learning environment
 - **MLX42** library by Codam for the graphics backend
